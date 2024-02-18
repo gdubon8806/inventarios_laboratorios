@@ -16,40 +16,45 @@
 
 .labsContainer {
     padding: 1rem;
-    margin-top: 0.5rem;
     background-color: #F8F8F8;
     width: 100%;
     height: 100vh;
-    border-radius: 5px; 
-    
+    border-radius: 5px;
+    gap: 1rem;
     display: grid;
-    grid-template-columns: 30% 30% 30%;
-
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-auto-rows: min-content;
 }
 
 .laboratoryCard {
+    padding: 0;
     border-radius: 15px;
     overflow: hidden;
-    margin: 1rem 0.1rem;
+    background-color: #cbcbcb;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 }
 
-.laboratoryCard>div {
+
+.laboratoryCard .imgLabContainer {
+    overflow: hidden;
+}
+
+.laboratoryCard>div:nth-child(2) {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background-color: #A1A1A1;
-    padding: 0 0.5rem;
-    margin-top: -5px;
+    justify-content: space-between;
+    margin: 0.5rem 1rem;
+    min-height: 30px;
 }
 
-.nameLaboratoryCardContainer {
-    letter-spacing: 1.5px;
-    font-size: 0.8rem;
-    padding: 0.3rem;
+.labLink {
     color: white;
-    width: 100%;
+    font-size: 0.85rem;
+    letter-spacing: 1.2px;
+    text-decoration: none;
 }
 
-.optionsLaboratoryCard {
-    position: relative;
+.labLink:hover {
+    color: gray;
+    cursor: pointer;
 }

@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Lobster&family=Roboto:wght@300&display=swap');
+
+.itemsContainer {
+    padding: 1rem;
+    margin-top: 0.5rem;
+    background-color: #F8F8F8;
+    width: 100%;
+    height: 100vh;
+    border-radius: 5px;
+    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-auto-rows: min-content;
+}
+
+.InventoryControls {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.itemCard {
+    padding: 0;
+    border-radius: 15px;
+    overflow: hidden;
+    background-color: #cbcbcb;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.itemCard .imgItemContainer {
+    overflow: hidden;
+}
+
+.itemCard>div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.5rem 1rem;
+    min-height: 30px;
+
+    color: white;
+    font-size: 0.85rem;
+    letter-spacing: 1.2px;
+    text-decoration: none;
+}
+
+.itemCard>div:nth-child(2) h3:hover {
+    color: gray;
+    cursor: pointer;
+}
+
+/*btn clase 1*/
+.btnC1 {
+    border: none;
+    background-color: transparent;
+    /* color: var(--secundary-color-theme); */
+    font-weight: bolder;
+    /* font-family: var(--secundary-font-family-theme); */
+
+}
+
+.btnC1:hover {
+
+    /* color: var(--secundary-color-theme-hover); */
+    cursor: pointer;
+}
+
+.itemDetailsCard input {
+    border: none;
+    display: block;
+}
+
+
+/*Details Card for items of inventary*/
+.itemDetailsCardWrapper {
+    background-color: rgba(128, 128, 128, 0.65);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 10rem;
+}
+
+.hide {
+    display: none;
+}
+
+.itemDetailsCard {
+    border-radius: 1rem;
+    padding: 1rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw;
+    max-height: 80vh;
+    background-color: rgb(245, 245, 245);
+    overflow-y: scroll;
+}
+
+.itemDetailsCard> :nth-child(1) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.itemDetailsCard> :nth-child(2) {
+    position: relative;
+    width: 100%;
+    border-radius: 1rem;
+    background-color: white;
+
+}
+
+.itemDetailsCard input {
+    margin: 0;
+    width: 100%;
+    padding: 0.75rem 0;
+}
+
+/* .itemDetailsCard> :nth-child(2)> :nth-child(odd) {
+    border-bottom: lightgray thin solid;
+} */
+
+.itemDetails {
+    display: grid;
+    padding: 1rem;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    /* Dos columnas de igual ancho */
+}
+
+.ImageItemDetails {
+    grid-column: span 2;
+    justify-self: center;
+}
+
+.beforeIcon {
+    color: black;
+}

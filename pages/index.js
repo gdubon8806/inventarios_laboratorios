@@ -2,8 +2,22 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/Link';
 
+//home - pagina inventarios
+//pagina de inventario
+//pagina para un item de inventario
+
+
 import HomeStyles from '../styles/Home.module.css';
 export default function HomePage() {
+  let laboratories = [
+    { id: 1, name: "Laboratorio de electronica", description: "Es otro rollo.", img: "/img/labs/electronica.jpg" },
+    { id: 2, name: "Laboratorio de quimica", description: "Es otro rollo x2.", img: "/img/labs/quimica.jpg" },
+    { id: 3, name: "Laboratorio Gesell", description: "Es otro rollo x3.", img: "/img/labs/camaraGesell.jpg" },
+    { id: 4, name: "Laboratorio de MAC", description: "Es otro rollo x4.", img: "/img/labs/mac.jpg" },
+  ]
+
+  let laboratoryCards = laboratories.map(laboratory => <LaboratoryCard lab={laboratory}></LaboratoryCard>)
+
   return (
     <>
       <Head>
@@ -13,14 +27,13 @@ export default function HomePage() {
       <HeaderBar />
       <main>
         <LabsContainerControls />
-        <LabsContainer />
-        <Link href="/inventory">Hola</Link>
+        <LabsContainer labs={laboratoryCards} />
       </main>
     </>
   );
 }
 
-function HeaderBar() {
+export function HeaderBar() {
   return (
     <header>
       <div className={HomeStyles.headerBar}>
@@ -31,7 +44,6 @@ function HeaderBar() {
 }
 
 function LabsContainerControls() {
-
   return (
     <div className={HomeStyles.labsControls}>
       <div>
@@ -44,29 +56,31 @@ function LabsContainerControls() {
   )
 }
 
-function LabsContainer() {
+function LabsContainer({ labs }) {
   return (
     <div className={HomeStyles.labsContainer}>
-      <LaboratoryCard />
-      <LaboratoryCard />
-      
+      {labs}
     </div>
   )
 }
 
-function LaboratoryCard() {
+function LaboratoryCard({ lab }) {
+
   return (
     <div className={HomeStyles.laboratoryCard}>
-      <Image src='/img/electronica.jpg' width={333} height={139}></Image>
+      <div className={HomeStyles.imgLabContainer}>
+        <Image src = {lab.img} width={350} height={200}></Image>
+      </div>
       <div>
         <div className={HomeStyles.nameLaboratoryCardContainer}>
-          <h3>Laboratorio de Electrónica</h3>
+          <Link className={HomeStyles.labLink} href={"inventory?id=" + lab.id}>
+            <h3>{lab.name}</h3>
+          </Link>
         </div>
         <div className='optionsLaboratoryCard'>
           <span className='icon-dot-3'></span>
         </div>
       </div>
-
     </div>
   )
 }

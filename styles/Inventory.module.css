@@ -74,6 +74,7 @@
 
 /*Details Card for items of inventary*/
 .itemDetailsCardWrapper {
+    z-index: 10;
     background-color: rgba(128, 128, 128, 0.65);
     position: fixed;
     top: 0;

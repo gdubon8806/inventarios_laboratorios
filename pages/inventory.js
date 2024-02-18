@@ -4,6 +4,16 @@ import { HeaderBar } from './index';
 import Image from 'next/image';
 
 
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
+
 import InventoryStyles from '../styles/Inventory.module.css';
 import { useState } from "react";
 
@@ -44,7 +54,9 @@ function InventoryControls({ idLab }) {
                 <h2>Inventario de {idLab}</h2>
             </div>
             <div className='addItemContainer'>
-                <span className='icon-plus-circled'></span>
+                <Fab size="small" aria-label="add">
+                    <AddIcon />
+                </Fab>
             </div>
         </div>
     )
@@ -58,24 +70,32 @@ function Item({ data }) {
     }
 
     return (
-        <div className={InventoryStyles.itemCard}>
-            <div className={InventoryStyles.imgItemContainer}>
-                {/* <Image src={data.img} width={440} height={200}></Image> */}
-            </div>
-            <div>
-                <div>
-                    <h3 onClick={showItemsDetailsCard}>{data.equipo}</h3>
-                </div>
-                <div className='optionsLaboratoryCard'>
-                    <span className='icon-dot-3'></span>
-                </div>
-            </div>
+        <Card sx={{ maxWidth: 345 }}>
+            <CardMedia
+                component="img"
+                alt=""
+                height="140"
+                image= ""
+            />
+            <CardContent>
+                <Typography onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
+                    {data.equipo}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {data.marca}
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button size="small">Opciones
+                    {/* <span className='icon-dot-3'></span> */}
+                </Button>
 
+            </CardActions>
             <div className={`${!show ? InventoryStyles.hide : ''}`}>
                 <ItemDetailsCard showItemsDetailsCard={showItemsDetailsCard} details={data} />
             </div>
-        </div>
-    )
+        </Card>
+    );
 }
 
 function ItemDetailsCard({ showItemsDetailsCard, details }) {

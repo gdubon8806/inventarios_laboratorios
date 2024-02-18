@@ -1,20 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Lobster&family=Roboto:wght@300&display=swap');
 
 .headerBar {
+    text-align: center;
     display: flex;
     justify-content: center;
     color: rgb(49, 49, 49);
     text-transform: uppercase;
+    font-size: 0.85rem;
+    font-family: 'Roboto', sans-serif;
 }
 
 .labsControls {
     font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+}
+.labsControls .controls {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    text-align: right;
 }
 
 .labsContainer {
+    margin: 1rem 0;
     padding: 1rem;
     background-color: #F8F8F8;
     width: 100%;
@@ -48,8 +55,8 @@
 }
 
 .labLink {
-    color: white;
-    font-size: 0.85rem;
+    font-size: 1.2rem;
+    color: gray;
     letter-spacing: 1.2px;
     text-decoration: none;
 }

@@ -8,8 +8,9 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/Link';
 
 import HomeStyles from '../styles/Home.module.css';
+import OptionsLabCard from './optionsLabCard';
 
-export default function LaboratoryCard({ lab }) {
+export default function LaboratoryCard({ lab, labs, setLabs}) {
     return (
       <Card sx={{ maxWidth: 345 }}>
         <CardMedia
@@ -29,10 +30,7 @@ export default function LaboratoryCard({ lab }) {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button size="small">Opciones
-            {/* <span className='icon-dot-3'></span> */}
-          </Button>
-  
+          <OptionsLabCard lab = {lab} labs = {labs} setLabs = {setLabs}/>
         </CardActions>
       </Card>
     );

@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useState } from 'react';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
@@ -11,15 +12,23 @@ import HomeStyles from '../styles/Home.module.css';
 
 
 export default function HomePage() {
-  let laboratories = [
+  const [laboratories, setLaboratories] = useState([
     { id: 1, name: "Laboratorio de Electrónica", description: "lorem ipsum", img: "/img/labs/electronica.jpg" },
     { id: 2, name: "Laboratorio de Química", description: "Es otro rollo x2.", img: "/img/labs/quimica.jpg" },
     { id: 3, name: "Laboratorio Gesell", description: "Es otro rollo x3.", img: "/img/labs/camaraGesell.jpg" },
-    { id: 4, name: "Laboratorio de MAC", description: "Es otro rollo x4.", img: "/img/labs/mac.jpg" },
-  ]
+    { id: 4, name: "Laboratorio de MAC", description: "Es otro rollo x4.", img: "/img/labs/mac.jpg" }
+  ]);
+  
+  
 
-  let laboratoryCards = laboratories.map(laboratory => <LaboratoryCard lab={laboratory}></LaboratoryCard>)
+  function addLaboratory({name, description, img}){
+    const id = laboratories.length + 1;
+    const newLaboratory = {id, name, description, img}
+    setLaboratories([...laboratories, newLaboratory]);
+  }
 
+  let laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} labs={laboratories} setLabs={setLaboratories}></LaboratoryCard>)
+  
   return (
     <>
       <Head>
@@ -27,7 +36,7 @@ export default function HomePage() {
       </Head>
       <HeaderBar />
       <main>
-        <LabsContainerControls />
+        <LabsContainerControls handleAdd={addLaboratory} />
         <LabsContainer labs={laboratoryCards} />
 
       </main>
@@ -45,12 +54,12 @@ export function HeaderBar() {
   )
 }
 
-function LabsContainerControls() {
+function LabsContainerControls({ handleAdd }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
-          <SearchAppBar />
-          <AddLabCard />
+        <SearchAppBar />
+        <AddLabCard handleAdd={handleAdd} />
       </div>
     </div>
   )

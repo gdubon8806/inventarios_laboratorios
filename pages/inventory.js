@@ -3,7 +3,6 @@ import { useSearchParams } from 'next/navigation'
 import { HeaderBar } from './index';
 import Image from 'next/image';
 
-
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import Card from '@mui/material/Card';
@@ -13,35 +12,38 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-
 import InventoryStyles from '../styles/Inventory.module.css';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import labs from './db';
 
 export default function inventoryPage() {
+    const [items, setItems] = useState([]);
+    const [lab, setLab] = useState("");
     const searchpParams = useSearchParams();
-    const id = searchpParams.get("id");
-
-    //asumamos que hicimos una query a la db de todos los items que esten dentro de el inventario
-    let items = [
-        { equipo: "Programmable DC POWER Supply", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "/img/items/item1.jpg", observaciones: "Ninguna" },
-        { equipo: "NI ELVIS ", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "/img/items/item2.jpg", observaciones: "Ninguna" },
-        { equipo: "Estacion de Soldadura", marca: "Ya Xun", modelo: "852T", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "1/Ñ1-1/M1", tipo: "Equipo", cantidad: "2", real: "2", img: "/img/items/item3.jpg", observaciones: "Ninguna" },
-        { equipo: "Emona Telecommunications Trainer", marca: "Datex", modelo: "ETT-202", ubicacion: "Armario 2", columnaDeLocalizacion: "Nivel 1", tipo: "Equipo", cantidad: "7", real: "7", img: "/img/items/item4.jpg", observaciones: "Ninguna" },
-        { equipo: "Digital Electronics FPGA BOARD", marca: "NATIONAL-Instruments", modelo: "193426B-01L", ubicacion: "Armario 2", columnaDeLocalizacion: "Nivel 2 (12) -Nivel 3 (3)", tipo: "Equipo", cantidad: "15", real: "15", img: "/img/items/item5.jpg", observaciones: "Ninguna" },
-    ];
-    const itemCards = items.map(item => <Item data={item}></Item>);
+    let id = parseInt(searchpParams.get("id"));
+    let itemCards;
+    useEffect(() => {
+        if (!isNaN(id)) {
+            // Aquí puedes realizar otras operaciones que dependan de 'id'
+            setItems(labs.get(id).items);
+            setLab(labs.get(id).nombre)
+        }
+    }, [id]); // Ejecutar el efecto cuando 'id' cambie
+    itemCards = items.map(item => <Item data={item}></Item>);
     return (
         <div>
             <HeaderBar />
-            <InventoryControls idLab={id} />
+            <InventoryControls name ={lab} />
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
             </div>
+
         </div>
     )
 }
 
-function InventoryControls({ idLab }) {
+function InventoryControls({ name }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
@@ -51,7 +53,7 @@ function InventoryControls({ idLab }) {
                 </Link>
             </div>
             <div>
-                <h2>Inventario de {idLab}</h2>
+                <h4>Inventario de {name}</h4>
             </div>
             <div className='addItemContainer'>
                 <Fab size="small" aria-label="add">
@@ -73,9 +75,9 @@ function Item({ data }) {
         <Card sx={{ maxWidth: 345 }}>
             <CardMedia
                 component="img"
-                alt=""
+                alt="Item de laboratorio"
                 height="140"
-                image= ""
+                image= "/img/items/item1.jpg"
             />
             <CardContent>
                 <Typography onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
@@ -109,7 +111,7 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     <button className={InventoryStyles.btnC1} onClick={showItemsDetailsCard} >Hecho</button>
                 </div>
                 <div className={InventoryStyles.itemDetails}>
-                    <Image src={details.img} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image>
+                    <Image src= "/img/items/item1.jpg" className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image>
                     <div>
                         <label>Nombre de ítem:</label>
                         <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} />

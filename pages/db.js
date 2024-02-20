@@ -2,74 +2,82 @@ const labs = new Map();
 
 labs.set(1, {
     id: 1,
-    nombre: "Laboratorio de electrónica",
+    name: "Laboratorio de electrónica",
+    description: "Laboratorio para ingenieria electronica",
     items: [
-        { equipo: "Programmable DC POWER Supply", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "NI ELVIS ", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Estacion de Soldadura", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Emona Telecommunications Trainer", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Estacion de Soldadura", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Estacion de Soldadura", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Estacion de Soldadura", marca: "EXTECH-Instruments", modelo: "382280", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" },
-        { equipo: "Digital Electronics FPGA BOARD", marca: "NATIONAL-Instruments", modelo: "193426B-01L", ubicacion: "Mesa de trabajo", columnaDeLocalizacion: "3/F2-1/E2-3/D2", tipo: "Equipo", cantidad: "7", real: "7", img: "", observaciones: "Ninguna" }
-    ]
+        {
+            equipo: "Programmable DC POWER Supply",
+            marca: "EXTECH-Instruments",
+            modelo: "382280",
+            ubicacion: "Mesa de trabajo",
+            columnaDeLocalizacion: "3/F2-1/E2-3/D2",
+            tipo: "Equipo",
+            cantidad: "7",
+            img: "/img/items/item1.jpg",
+            observaciones: []
+        },
+    ],
+    img: '/img/labs/electronica.jpg'
 })
 
 labs.set(2, {
     id: 2,
-    nombre: "Laboratorio de quimica",
+    name: "Laboratorio de quimica",
+    description: "Laboratorio para ciencias de la salud",
     items: [
         {
             equipo: 'Microscopio',
-            marca: 'OPTIKA'
+            marca: 'OPTIKA',
+            modelo: 'B-150',
+            ubicacion: 'Repisa',
+            columnaDeLocalizacion: 'C1',
+            tipo: 'Equipo',
+            cantidad: '4',
+            img: '/img/items/item2.jpg',
+            observaciones: []
         },
-        {
-            equipo: 'Medidor de pluma impermeable',
-            marca: 'OHAUS'
-        },
-        {
-            equipo: 'Mechero',
-            marca: 'USBECK'
-        },
-    ]
+    ],
+    img: '/img/labs/quimica.jpg'
 });
 
 labs.set(3, {
     id: 3,
-    nombre: "Laboratorio de gesell",
+    name: "Laboratorio de Gesell",
+    description: "Laboratorio para psicologia",
     items: [
         {
-            equipo: 'Fuente de alimentación y corriente constante de 15V / 5 A',
-            marca: 'PHYWE'
+            equipo: 'Network video Recorder',
+            marca: 'HIKVISION',
+            modelo: 'DS-7104NI-E1',
+            ubicacion: 'Mesa',
+            columnaDeLocalizacion: '',
+            tipo: 'Equipo',
+            cantidad: '1',
+            img: '/img/items/item3.jpg',
+            observaciones: []
         },
-        {
-            equipo: 'Cronómetro 4-4',
-            marca: 'PHYWE'
-        },
-        {
-            equipo: 'Transformador adaptable 115/230V',
-            marca: 'PHYWE'
-        },
-    ]
+    ],
+    img: '/img/labs/camaraGesell.jpg'
 })
 
 labs.set(4, {
-    id: 3,
-    nombre: "Laboratorio de MAC",
+    id: 4,
+    name: "Taller de Redes",
+    description: "Laboratorio para instalacion de redes",
     items: [
         {
-            equipo: 'Fuente de alimentación y corriente constante de 15V / 5 A',
-            marca: 'PHYWE'
+            equipo: 'Router',
+            marca: 'MikroTik',
+            modelo: 'hEX lite',
+            ubicacion: 'Armario 3',
+            columnaDeLocalizacion: 'Nivel 4',
+            tipo: 'Equipo',
+            cantidad: '5',
+            img: '/img/items/item4.jpg',
+            observaciones: []
         },
-        {
-            equipo: 'Cronómetro 4-4',
-            marca: 'PHYWE'
-        },
-        {
-            equipo: 'Transformador adaptable 115/230V',
-            marca: 'PHYWE'
-        },
-    ]
+    ],
+    img: '/img/labs/tallerRedes.jpg'
 })
 
 export default labs;

@@ -3,14 +3,17 @@ import { useSearchParams } from 'next/navigation'
 import { HeaderBar } from './index';
 import Image from 'next/image';
 
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import ItemsFilterer from '../components/itemsFilterer';
+
+
+import AddItemCard from "../components/addItemCard";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import InventoryStyles from '../styles/Inventory.module.css';
 import { useEffect, useState } from "react";
@@ -23,18 +26,45 @@ export default function inventoryPage() {
     const searchpParams = useSearchParams();
     let id = parseInt(searchpParams.get("id"));
     let itemCards;
+
+    function addItem({
+        equipo,
+        marca,
+        modelo,
+        ubicacion,
+        columnaDeLocalizacion,
+        tipo,
+        cantidad,
+        img,
+        observaciones
+    }) {
+        const newItem = {
+            equipo,
+            marca,
+            modelo,
+            ubicacion,
+            columnaDeLocalizacion,
+            tipo,
+            cantidad,
+            img,
+            observaciones
+        }
+        setItems([...items, newItem]);
+    }
+
     useEffect(() => {
         if (!isNaN(id)) {
             // Aquí puedes realizar otras operaciones que dependan de 'id'
             setItems(labs.get(id).items);
-            setLab(labs.get(id).nombre)
+            setLab(labs.get(id).name)
         }
     }, [id]); // Ejecutar el efecto cuando 'id' cambie
     itemCards = items.map(item => <Item data={item}></Item>);
     return (
         <div>
             <HeaderBar />
-            <InventoryControls name ={lab} />
+            <h2 className={InventoryStyles.subheader}>{lab}</h2>
+            <InventoryControls name={lab} addItem={addItem} />
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
             </div>
@@ -43,23 +73,21 @@ export default function inventoryPage() {
     )
 }
 
-function InventoryControls({ name }) {
+function InventoryControls({ name, addItem }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
-                    <span className='icon-left-big'>
-                    </span>
+                    <Button variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
                 </Link>
             </div>
             <div>
-                <h4>Inventario de {name}</h4>
+                <ItemsFilterer />
             </div>
-            <div className='addItemContainer'>
-                <Fab size="small" aria-label="add">
-                    <AddIcon />
-                </Fab>
+            <div>
+                <AddItemCard handleAdd={addItem} />
             </div>
+
         </div>
     )
 }
@@ -77,10 +105,10 @@ function Item({ data }) {
                 component="img"
                 alt="Item de laboratorio"
                 height="140"
-                image= "/img/items/item1.jpg"
+                image={data.img}
             />
             <CardContent>
-                <Typography onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
+                <Typography className={InventoryStyles.ItemLink} onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
                     {data.equipo}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -111,9 +139,9 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     <button className={InventoryStyles.btnC1} onClick={showItemsDetailsCard} >Hecho</button>
                 </div>
                 <div className={InventoryStyles.itemDetails}>
-                    <Image src= "/img/items/item1.jpg" className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image>
+                    <Image src={details.img} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image>
                     <div>
-                        <label>Nombre de ítem:</label>
+                        <label>Equipo:</label>
                         <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} />
                     </div>
                     <div>

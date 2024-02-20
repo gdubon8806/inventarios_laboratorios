@@ -32,6 +32,11 @@
     overflow: hidden;
 }
 
+.ItemLink:hover {
+    color: gray;
+    cursor: pointer;
+}
+
 .itemCard>div:nth-child(2) {
     display: flex;
     align-items: center;
@@ -112,7 +117,13 @@
     width: 100%;
     border-radius: 1rem;
     background-color: white;
+    margin-top: 1rem
+}
 
+
+.subheader{
+    margin: 0.75rem 0;
+    text-align: center;
 }
 
 .itemDetailsCard input {

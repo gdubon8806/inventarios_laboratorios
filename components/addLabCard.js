@@ -3,8 +3,9 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import AddIcon from '@mui/icons-material/Add';
 
-import {useState} from 'react';
+import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
 
@@ -28,8 +29,7 @@ export default function AddLabCard({ handleAdd }) {
 
     return (
         <div>
-            {/* <AddButton></AddButton> */}
-            <Button onClick={handleOpen}>Agregar</Button>
+            <Button variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -57,29 +57,29 @@ function AddLabForm({ close, add }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Llama a la función proporcionada desde el componente padre y pasa los datos del nuevo laboratorio
-        add({name, description, img });
+        add({ name, description, img });
         // Limpiar los inputs después de enviar el formulario
         setName('');
         setDescription('');
         setImg('');
         close();
     }
-        return (
-            <form className={FormStyles.form}>
-                <div>
-                    <label>
-                        Nombre:
-                    </label>
-                    <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
-                </div>
-                <div>
-                    <label>Descripción:</label>
-                    <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
-                </div>
-                <div>
-                    <Button onClick={close}>Cancelar</Button>
-                    <Button onClick={handleSubmit}>Agregar</Button>
-                </div>
-            </form>
-        )
+    return (
+        <form className={FormStyles.form}>
+            <div>
+                <label>
+                    Nombre:
+                </label>
+                <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
+            </div>
+            <div>
+                <label>Descripción:</label>
+                <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
+            </div>
+            <div>
+                <Button onClick={close}>Cancelar</Button>
+                <Button onClick={handleSubmit}>Agregar</Button>
+            </div>
+        </form>
+    )
 }

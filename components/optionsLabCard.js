@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import DeleteButton from './deleteButton';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 import { useState } from 'react';
 
@@ -29,7 +30,8 @@ export default function OptionsLabCard({ lab, labs, setLabs }) {
 
     return (
         <div>
-            <Button onClick={handleOpen}>Opciones</Button>
+            {/* <ModeEditIcon></ModeEditIcon> */}
+            <Button onClick={handleOpen} startIcon={<ModeEditIcon />}>Editar</Button>
             <Modal
                 open={open}
                 onClose={handleClose}

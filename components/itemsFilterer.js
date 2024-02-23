@@ -33,16 +33,18 @@ function getStyles(filter, filterName, theme) {
   };
 }
 
-export default function ItemsFilterer() {
+export default function ItemsFilterer({setFilters}) {
   const theme = useTheme();
+
   const [filterName, setfilterName] = React.useState([]);
+
+  setFilters(filterName)
 
   const handleChange = (event) => {
     const {
       target: { value },
     } = event;
     setfilterName(
-      // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value,
     );
   };

@@ -20,6 +20,10 @@
     justify-content: space-between;
 }
 
+.itemsFiltererContainer {
+    text-align: center;
+}
+
 .itemCard {
     padding: 0;
     border-radius: 15px;

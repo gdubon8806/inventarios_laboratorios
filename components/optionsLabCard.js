@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import DeleteButton from './deleteButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 import { useState } from 'react';
@@ -39,12 +39,11 @@ export default function OptionsLabCard({ lab, labs, setLabs }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <div className={FormStyles.eliminarBTN}>
-                        <DeleteButton />
-                    </div>
+                    
                     <Typography id="modal-modal-title" variant="h5" component="h2">
-                        Editar laboratorio
+                        Opciones
                     </Typography>
+                    <DeleteLabCard lab={lab} labs={labs} setLabs={setLabs} />
 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <EditLabCard lab={lab} labs={labs} setLabs={setLabs} close={handleClose}></EditLabCard>
@@ -99,4 +98,55 @@ function EditLabCard({ lab, labs, setLabs, close }) {
             </div>
         </form>
     )
+}
+
+function DeleteLabCard({ lab, labs, setLabs }) {
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        let newLabs = labs.filter((current) => {
+            if (current.id != lab.id) {
+                return current;
+            }
+            
+        });
+        setLabs(() => {
+            return newLabs;
+        })
+        handleClose();
+    }
+
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    return (
+        <div>
+            <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
+                Eliminar
+            </Button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        <h2>Eliminar</h2>
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        <p>
+                            ¿Está seguro que desesa eliminar el laboratorio?
+                            Se eliminarán también los ítems.
+                        </p>
+                    </Typography>
+                    <div className={FormStyles.buttonsContainer}>
+                        <Button onClick={handleClose}>Cancelar</Button>
+                        <Button onClick={handleSubmit}>Confirmar</Button>
+                    </div>
+                </Box>
+            </Modal>
+        </div>
+    );
 }

@@ -13,6 +13,7 @@ import ItemsFilterer from '../components/itemsFilterer';
 
 
 import AddItemCard from "../components/addItemCard";
+import OptionsItemCard from "../components/optionsItemCard";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import InventoryStyles from '../styles/Inventory.module.css';
@@ -23,6 +24,8 @@ import labs from './db';
 export default function inventoryPage() {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
+    const [filters, setFilters] = useState([]);
+
     const searchpParams = useSearchParams();
     let id = parseInt(searchpParams.get("id"));
     let itemCards;
@@ -59,30 +62,54 @@ export default function inventoryPage() {
             setLab(labs.get(id).name)
         }
     }, [id]); // Ejecutar el efecto cuando 'id' cambie
-    itemCards = items.map(item => <Item data={item}></Item>);
+
+    if (items.length == 0) {
+        itemCards = 'No hay items registrados';
+    } else {
+        let itemsToShow;
+
+        if (filters.length > 0) {
+            itemsToShow = items.filter((item) => {
+                let ToShow = false;
+                for(const currentFilter of filters ) {
+                    if(currentFilter == item.tipo) {
+                        ToShow = true;
+                        break;
+                    }
+                }
+                return ToShow;
+            })
+        } else {
+            itemsToShow = items;
+        }
+        console.log(itemsToShow);
+
+        itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems}></Item>);
+    }
+
     return (
         <div>
             <HeaderBar />
             <h2 className={InventoryStyles.subheader}>{lab}</h2>
-            <InventoryControls name={lab} addItem={addItem} />
+            <InventoryControls name={lab} addItem={addItem} setFilters = {setFilters} />
+            <div className= {InventoryStyles.itemsFiltererContainer}>
+                <ItemsFilterer setFilters = {setFilters} />
+            </div>
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
             </div>
-
+        
         </div>
     )
 }
 
-function InventoryControls({ name, addItem }) {
+function InventoryControls({ name, addItem, setFilters }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
                     <Button variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
                 </Link>
-            </div>
-            <div>
-                <ItemsFilterer />
             </div>
             <div>
                 <AddItemCard handleAdd={addItem} />
@@ -92,7 +119,7 @@ function InventoryControls({ name, addItem }) {
     )
 }
 
-function Item({ data }) {
+function Item({ data, items, setItems }) {
     const [show, setShow] = useState(false);
 
     function showItemsDetailsCard() {
@@ -116,10 +143,7 @@ function Item({ data }) {
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small">Opciones
-                    {/* <span className='icon-dot-3'></span> */}
-                </Button>
-
+                <OptionsItemCard item={data} items={items} setItems={setItems} />
             </CardActions>
             <div className={`${!show ? InventoryStyles.hide : ''}`}>
                 <ItemDetailsCard showItemsDetailsCard={showItemsDetailsCard} details={data} />

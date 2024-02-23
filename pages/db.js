@@ -6,6 +6,7 @@ labs.set(1, {
     description: "Laboratorio para ingenieria electronica",
     items: [
         {
+            id: '1',
             equipo: "Programmable DC POWER Supply",
             marca: "EXTECH-Instruments",
             modelo: "382280",
@@ -16,6 +17,29 @@ labs.set(1, {
             img: "/img/items/item1.jpg",
             observaciones: []
         },
+        {
+            id: '2',
+            equipo: "Puntas de prueba de osiloscopio",
+            marca: "NATIONAL-Instruments",
+            modelo: "780594-01",
+            ubicacion: "Armario 1",
+            columnaDeLocalizacion: "Nivel 3",
+            tipo: "Suministro",
+            cantidad: "7",
+            img: "/img/items/item6.jpg",
+            observaciones: []
+        },{
+            id: '3',
+            equipo: "Juego de desarmadores de precision",
+            marca: "NT",
+            modelo: "NT",
+            ubicacion: "Armario 1",
+            columnaDeLocalizacion: "Nivel 4",
+            tipo: "Herramienta",
+            cantidad: "2",
+            img: "/img/items/item5.jpg",
+            observaciones: []
+        }
     ],
     img: '/img/labs/electronica.jpg'
 })
@@ -26,6 +50,7 @@ labs.set(2, {
     description: "Laboratorio para ciencias de la salud",
     items: [
         {
+            id: '1',
             equipo: 'Microscopio',
             marca: 'OPTIKA',
             modelo: 'B-150',
@@ -46,6 +71,7 @@ labs.set(3, {
     description: "Laboratorio para psicologia",
     items: [
         {
+            id: '1',
             equipo: 'Network video Recorder',
             marca: 'HIKVISION',
             modelo: 'DS-7104NI-E1',
@@ -66,6 +92,7 @@ labs.set(4, {
     description: "Laboratorio para instalacion de redes",
     items: [
         {
+            id: '1',
             equipo: 'Router',
             marca: 'MikroTik',
             modelo: 'hEX lite',

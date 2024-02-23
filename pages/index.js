@@ -12,17 +12,20 @@ import labs from './db';
 import HomeStyles from '../styles/Home.module.css';
 
 
-export default function HomePage() {
+export default  
+function HomePage() {
   const [laboratories, setLaboratories] = useState(Array.from(labs.values()));
-
+  let laboratoryCards;
   function addLaboratory({ name, description, img }) {
     const id = laboratories.length + 1;
     const newLaboratory = { id, name, description, img }
     setLaboratories([...laboratories, newLaboratory]);
   }
-  console.log(laboratories)
-
-  let laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} labs={laboratories} setLabs={setLaboratories}></LaboratoryCard>)
+  if (laboratories.length == 0) {
+    laboratoryCards = 'No hay laboratorios registrados';
+  } else {
+    laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} labs={laboratories} setLabs={setLaboratories}></LaboratoryCard>)
+  }
 
   return (
     <>

@@ -127,18 +127,18 @@ function HomePage() {
   const [laboratories, setLaboratories] = useState(Array.from(labs.values()));
   let laboratoryCards;
 
-  useEffect(() => {
-    async function fetchLaboratorios() {
-      try {
-        const { rows } = await sql`SELECT * FROM laboratorios`;
-        console.log(rows);
-      } catch (error) {
-        console.error('Error fetching laboratorios:', error);
-      }
-    }
-    fetchLaboratorios();
-  }, []);
-
+  // useEffect(() => {
+  //   async function fetchLaboratorios() {
+  //     try {
+  //       const { rows } = await sql`SELECT * FROM laboratorios`;
+  //       console.log(rows);
+  //       console.log("Hi");
+  //     } catch (error) {
+  //       console.error('Error fetching laboratorios:', error);
+  //     }
+  //   }
+  //   fetchLaboratorios();
+  // }, []);
 
   function addLaboratory({ name, description, img }) {
     const id = laboratories.length + 1;

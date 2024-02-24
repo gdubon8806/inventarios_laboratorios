@@ -1,4 +1,4 @@
-import Link from "next/Link"
+import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
 import { HeaderBar } from './index';
 import Image from 'next/image';

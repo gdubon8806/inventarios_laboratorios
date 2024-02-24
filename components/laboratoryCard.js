@@ -5,7 +5,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import Link from 'next/Link';
+import Link from 'next/link';
 
 import HomeStyles from '../styles/Home.module.css';
 import OptionsLabCard from './optionsLabCard';

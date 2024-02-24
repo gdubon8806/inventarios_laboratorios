@@ -1,12 +1,15 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 
+//db components
+import Inventarios from './test.postgres';
+import { sql } from "@vercel/postgres";
 //Styles
 import HomeStyles from '../styles/Home.module.css';
 
@@ -123,6 +126,20 @@ export default
 function HomePage() {
   const [laboratories, setLaboratories] = useState(Array.from(labs.values()));
   let laboratoryCards;
+
+  useEffect(() => {
+    async function fetchLaboratorios() {
+      try {
+        const { rows } = await sql`SELECT * FROM laboratorios`;
+        console.log(rows);
+      } catch (error) {
+        console.error('Error fetching laboratorios:', error);
+      }
+    }
+    fetchLaboratorios();
+  }, []);
+
+
   function addLaboratory({ name, description, img }) {
     const id = laboratories.length + 1;
     const newLaboratory = { id, name, description, img }
@@ -140,6 +157,7 @@ function HomePage() {
         <title>Inventarios</title>
       </Head>
       <div className={HomeStyles.fixedContainer}>
+        {/* <Inventarios /> */}
         <HeaderBar />
         <LabsContainerControls handleAdd={addLaboratory} />
       </div>

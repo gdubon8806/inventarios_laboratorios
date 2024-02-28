@@ -23,7 +23,7 @@ const style = {
     p: 4,
 };
 
-export default function OptionsLabCard({ lab, labs, setLabs }) {
+export default function OptionsLabCard({ lab }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -43,42 +43,47 @@ export default function OptionsLabCard({ lab, labs, setLabs }) {
                     <Typography id="modal-modal-title" variant="h5" component="h2">
                         Opciones
                     </Typography>
-                    <DeleteLabCard lab={lab} labs={labs} setLabs={setLabs} />
+                    <DeleteLabCard lab={lab} close = {handleClose} />
 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <EditLabCard lab={lab} labs={labs} setLabs={setLabs} close={handleClose}></EditLabCard>
+                        <EditLabCard lab={lab} close={handleClose}></EditLabCard>
                     </Typography>
                 </Box>
             </Modal>
         </div>
     );
 }
-function EditLabCard({ lab, labs, setLabs, close }) {
+function EditLabCard({ lab, close }) {
+    const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
     const [img, setImg] = useState(lab.img);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let newLabs = labs.map((current) => {
-            if (current.id == lab.id) {
-                current.name = name;
-                current.description = description;
-                current.img = img;
-                return current;
-            } else {
-                return current;
-            }
-        });
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+    
+        try {
+          const response = await fetch('/api/update_lab', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id, name, description })
+          });
+    
+          if (!response.ok) {
+            throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+          }
+    
+          // Limpiar los campos del formulario después de la actualización exitosa
+          setName('');
+          setDescription('');
+          close();
+        } catch (error) {
+          console.error(error.message);
+        }
+      };
 
-        setLabs(() => {
-            return newLabs;
-        })
-        setName('');
-        setDescription('');
-        setImg('');
-        close();
-    }
     return (
         <form className={FormStyles.form}>
             <div>
@@ -100,20 +105,30 @@ function EditLabCard({ lab, labs, setLabs, close }) {
     )
 }
 
-function DeleteLabCard({ lab, labs, setLabs }) {
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let newLabs = labs.filter((current) => {
-            if (current.id != lab.id) {
-                return current;
-            }
-            
-        });
-        setLabs(() => {
-            return newLabs;
-        })
-        handleClose();
-    }
+function DeleteLabCard({ lab, close }) {
+    const [id, useID] = useState(lab.id);
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+    
+        try {
+          const response = await fetch('/api/delete_lab', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+          });
+    
+          if (!response.ok) {
+            throw new Error('Error al eliminar laboratorio: ' + response.statusText);
+          }
+    
+          // Limpiar el campo del formulario después de la eliminación exitosa
+          close();
+        } catch (error) {
+          console.error(error.message);
+        }
+      };
 
 
     const [open, setOpen] = React.useState(false);

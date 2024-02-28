@@ -36,7 +36,7 @@ export default
   if (laboratories.length == 0) {
     laboratoryCards = 'Cargando laboratorios...';
   } else {
-    laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} labs={laboratories} setLabs={setLaboratories}></LaboratoryCard>)
+    laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key = {laboratory.id} lab={laboratory}> </LaboratoryCard>)
   }
 
   return (

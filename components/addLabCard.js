@@ -54,15 +54,31 @@ function AddLabForm({ close }) {
     const [description, setDescription] = useState('');
     const [img, setImg] = useState('');
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-       
-        // Limpiar los inputs después de enviar el formulario
-        setName('');
-        setDescription('');
-        setImg('');
-        close();
-    }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+    
+        try {
+          const response = await fetch('/api/create_lab', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, description })
+          });
+    
+          if (!response.ok) {
+            throw new Error('Error al insertar laboratorio: ' + response.statusText);
+          }
+    
+          // Limpiar los campos del formulario después de la inserción exitosa
+          setName('');
+          setDescription('');
+          close()
+          alert("Se ha insertado el nuevo laboratorio exitosamente.")
+        } catch (error) {
+          console.error(error.message);
+        }
+      };
     return (
         <form className={FormStyles.form}>
             <div>

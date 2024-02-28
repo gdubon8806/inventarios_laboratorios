@@ -22,7 +22,7 @@ const style = {
     p: 4,
 };
 
-export default function AddLabCard({ handleAdd }) {
+export default function AddLabCard() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -41,7 +41,7 @@ export default function AddLabCard({ handleAdd }) {
                         Agregar nuevo laboratorio
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <AddLabForm close={handleClose} add={handleAdd} />
+                        <AddLabForm close={handleClose} />
                     </Typography>
                 </Box>
             </Modal>
@@ -49,15 +49,14 @@ export default function AddLabCard({ handleAdd }) {
     );
 }
 
-function AddLabForm({ close, add }) {
+function AddLabForm({ close }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [img, setImg] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Llama a la función proporcionada desde el componente padre y pasa los datos del nuevo laboratorio
-        add({ name, description, img });
+       
         // Limpiar los inputs después de enviar el formulario
         setName('');
         setDescription('');

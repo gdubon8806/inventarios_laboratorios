@@ -11,6 +11,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
+    "@vercel/blob": "^0.22.1",
     "@vercel/postgres": "^0.7.2",
     "antd": "^5.14.1",
     "next": "latest",

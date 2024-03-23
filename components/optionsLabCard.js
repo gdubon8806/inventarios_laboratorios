@@ -85,7 +85,6 @@ function EditLabCard({ lab, close }) {
             setName('');
             setDescription('');
             close();
-            location.reload();
         } catch (error) {
             console.error(error.message);
         }

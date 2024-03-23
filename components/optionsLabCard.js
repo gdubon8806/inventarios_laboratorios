@@ -6,6 +6,8 @@ import Modal from '@mui/material/Modal';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
+import Uploader from './uploader'
+
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
@@ -39,11 +41,11 @@ export default function OptionsLabCard({ lab }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    
+
                     <Typography id="modal-modal-title" variant="h5" component="h2">
                         Opciones
                     </Typography>
-                    <DeleteLabCard lab={lab} close = {handleClose} />
+                    <DeleteLabCard lab={lab} close={handleClose} />
 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <EditLabCard lab={lab} close={handleClose}></EditLabCard>
@@ -57,51 +59,60 @@ function EditLabCard({ lab, close }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
-    const [img, setImg] = useState(lab.img);
+    const [imgurl, setImgURL] = useState(lab.imgurl);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
+
         try {
-          const response = await fetch('/api/update_lab', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id, name, description })
-          });
-    
-          if (!response.ok) {
-            throw new Error('Error al actualizar laboratorio: ' + response.statusText);
-          }
-    
-          // Limpiar los campos del formulario después de la actualización exitosa
-          setName('');
-          setDescription('');
-          close();
+            const response = await fetch('/api/update_lab', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    id, 
+                    name, 
+                    description, 
+                    imgurl })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+            }
+
+            // Limpiar los campos del formulario después de la actualización exitosa
+            setName('');
+            setDescription('');
+            close();
+            location.reload();
         } catch (error) {
-          console.error(error.message);
+            console.error(error.message);
         }
-      };
+    };
 
     return (
-        <form className={FormStyles.form}>
-            <div>
-                <label>
-                    Nombre:
-                </label>
-                <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
-            </div>
-            <div>
-                <label>Descripción:</label>
-                <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
-            </div>
+        <div>
 
+            <form className={FormStyles.form}>
+                <div>
+                    <label>
+                        Nombre:
+                    </label>
+                    <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
+                </div>
+                <div>
+                    <label>Descripción:</label>
+                    <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
+                </div>
             <div className={FormStyles.buttonsContainer}>
                 <Button onClick={close}>Cancelar</Button>
                 <Button onClick={handleSubmit}>Guardar cambios</Button>
             </div>
         </form>
+            <Uploader setImgURL = {setImgURL}></Uploader>
+        </div>
+
     )
 }
 
@@ -109,26 +120,26 @@ function DeleteLabCard({ lab, close }) {
     const [id, useID] = useState(lab.id);
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
+
         try {
-          const response = await fetch('/api/delete_lab', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id })
-          });
-    
-          if (!response.ok) {
-            throw new Error('Error al eliminar laboratorio: ' + response.statusText);
-          }
-    
-          // Limpiar el campo del formulario después de la eliminación exitosa
-          close();
+            const response = await fetch('/api/delete_lab', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar laboratorio: ' + response.statusText);
+            }
+
+            // Limpiar el campo del formulario después de la eliminación exitosa
+            close();
         } catch (error) {
-          console.error(error.message);
+            console.error(error.message);
         }
-      };
+    };
 
 
     const [open, setOpen] = React.useState(false);

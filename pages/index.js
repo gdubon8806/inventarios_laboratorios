@@ -23,13 +23,13 @@ export default
           throw new Error('Error al obtener datos: ' + response.statusText);
         }
         const data = await response.json();
+
         const fetchedLabs = data.result.rows;
         setLaboratories([...laboratories, ...fetchedLabs])
       } catch (error) {
         console.error(error.message);
       }
     };
-
     fetchLabs();
   }, []);
   

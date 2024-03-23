@@ -16,12 +16,14 @@
     "antd": "^5.14.1",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-hot-toast": "^2.4.1"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
+    "tailwindcss": "^3.4.1",
     "typescript": "5.3.3"
   }
 }

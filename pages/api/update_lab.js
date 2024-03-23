@@ -4,10 +4,10 @@ import { sql } from '@vercel/postgres';
 export default async function updateLab(request, response) {
     try {
         // Obtener los datos a actualizar del cuerpo de la solicitud
-        const { id, name, description } = request.body;
+        const { id, name, description, imgurl } = request.body;
 
         // Realizar la actualización en la base de datos
-        await sql`UPDATE laboratorios SET name = ${name}, description = ${description} WHERE id = ${id}`;
+        await sql`UPDATE laboratorios SET name = ${name}, description = ${description}, imgurl = ${imgurl} WHERE id = ${id}`;
 
         // Responder con un mensaje de éxito
         response.status(200).json({ message: 'Laboratorio actualizado exitosamente' });

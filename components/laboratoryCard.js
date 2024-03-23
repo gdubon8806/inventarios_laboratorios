@@ -17,7 +17,7 @@ export default function LaboratoryCard({ lab }) {
         component="img"
         alt=""
         height="140"
-        image={lab.img}
+        image={lab.imgurl}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">

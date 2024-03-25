@@ -10,7 +10,7 @@ import Link from 'next/link';
 import HomeStyles from '../styles/Home.module.css';
 import OptionsLabCard from './optionsLabCard';
 
-export default function LaboratoryCard({ lab }) {
+export default function LaboratoryCard({ lab, handleRefresh }) {
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -30,7 +30,7 @@ export default function LaboratoryCard({ lab }) {
         </Typography>
       </CardContent>
       <CardActions>
-        <OptionsLabCard lab={lab} />
+        <OptionsLabCard lab={lab} handleRefresh = {handleRefresh} />
       </CardActions>
     </Card>
   );

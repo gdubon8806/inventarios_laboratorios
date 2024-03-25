@@ -11,6 +11,7 @@ import Uploader from './uploader'
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
+import { FormatAlignCenterOutlined } from '@mui/icons-material';
 
 
 const style = {
@@ -18,14 +19,16 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '100vw',
+    height: '80vh',
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
+    overflow: "auto"
 };
 
-export default function OptionsLabCard({ lab }) {
+export default function OptionsLabCard({ lab, handleRefresh }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -48,14 +51,14 @@ export default function OptionsLabCard({ lab }) {
                     <DeleteLabCard lab={lab} close={handleClose} />
 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <EditLabCard lab={lab} close={handleClose}></EditLabCard>
+                        <EditLabCard lab={lab} close={handleClose} handleRefresh = {handleRefresh}></EditLabCard>
                     </Typography>
                 </Box>
             </Modal>
         </div>
     );
 }
-function EditLabCard({ lab, close }) {
+function EditLabCard({ lab, close, handleRefresh}) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
@@ -85,14 +88,14 @@ function EditLabCard({ lab, close }) {
             setName('');
             setDescription('');
             close();
+            handleRefresh();
         } catch (error) {
             console.error(error.message);
         }
     };
 
     return (
-        <div>
-
+        <div className={FormStyles.editLabFormContainer}>
             <form className={FormStyles.form}>
                 <div>
                     <label>

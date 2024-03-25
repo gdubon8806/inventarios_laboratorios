@@ -15,21 +15,23 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '50vw',
+    height: '70vh',
+    "min-width": "500px",
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
 };
 
-export default function AddLabCard() {
+export default function AddLabCard({handleRefresh}) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     return (
         <div>
-            <Button variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>
+            <Button className='add-lab-btn' variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -41,7 +43,7 @@ export default function AddLabCard() {
                         Agregar nuevo laboratorio
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <AddLabForm close={handleClose} />
+                        <AddLabForm close={handleClose} handleRefresh = {handleRefresh}/>
                     </Typography>
                 </Box>
             </Modal>
@@ -49,7 +51,7 @@ export default function AddLabCard() {
     );
 }
 
-function AddLabForm({ close }) {
+function AddLabForm({ close, handleRefresh }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [img, setImg] = useState('');
@@ -73,8 +75,9 @@ function AddLabForm({ close }) {
           // Limpiar los campos del formulario después de la inserción exitosa
           setName('');
           setDescription('');
-          close()
           alert("Se ha insertado el nuevo laboratorio exitosamente.")
+          handleRefresh();
+          close();
         } catch (error) {
           console.error(error.message);
         }

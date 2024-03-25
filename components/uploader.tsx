@@ -42,7 +42,7 @@ export default function Uploader({setImgURL}) {
 
   return (
     <form
-      className="grid gap-6"
+      className="grid gap-6 form-uploader"
       onSubmit={async (e) => {
         e.preventDefault()
         setSaving(true)

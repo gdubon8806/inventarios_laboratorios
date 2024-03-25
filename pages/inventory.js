@@ -23,6 +23,7 @@ export default function inventoryPage() {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
     const [filters, setFilters] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const searchpParams = useSearchParams();
     let id = parseInt(searchpParams.get("id"));
@@ -30,7 +31,15 @@ export default function inventoryPage() {
 
     const fetchItems = async () => {
         try {
-            const response = await fetch('/api/read_items'); // Aquí debes poner la ruta correcta a tu API
+            const response = await fetch('/api/read_items', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id
+                })
+            }); // Aquí debes poner la ruta correcta a tu API
             if (!response.ok) {
                 throw new Error('Error al obtener datos: ' + response.statusText);
             }
@@ -38,6 +47,7 @@ export default function inventoryPage() {
 
             const fetchedItems = data.result.rows;
             setItems(fetchedItems)
+            setLoading(false);
         } catch (error) {
             console.error(error.message);
         }
@@ -53,28 +63,34 @@ export default function inventoryPage() {
     };
 
 
-    if (items.length == 0) {
-        itemCards = 'No hay items registrados';
+    if (loading) {
+        itemCards = 'Cargando items...';
     } else {
-        let itemsToShow;
 
-        if (filters.length > 0) {
-            itemsToShow = items.filter((item) => {
-                let ToShow = false;
-                for (const currentFilter of filters) {
-                    if (currentFilter == item.tipo) {
-                        ToShow = true;
-                        break;
-                    }
-                }
-                return ToShow;
-            })
+        if (items.length == 0) {
+            itemCards = 'No hay registros de items en este laboratorio.';
         } else {
-            itemsToShow = items;
-        }
-        console.log(itemsToShow);
 
-        itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
+            let itemsToShow;
+
+            if (filters.length > 0) {
+                itemsToShow = items.filter((item) => {
+                    let ToShow = false;
+                    for (const currentFilter of filters) {
+                        if (currentFilter == item.tipo) {
+                            ToShow = true;
+                            break;
+                        }
+                    }
+                    return ToShow;
+                })
+            } else {
+                itemsToShow = items;
+            }
+            console.log(itemsToShow);
+
+            itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
+        }
     }
 
     function addItem() {
@@ -162,7 +178,7 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                         component="img"
                         alt=""
                         height="230"
-                        width = "333"
+                        width="333"
                         image={details.imgurl}
                     />
                     <div>

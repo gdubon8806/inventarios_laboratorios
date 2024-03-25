@@ -19,115 +19,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InventoryStyles from '../styles/Inventory.module.css';
 import { useEffect, useState } from "react";
 
-const labs = new Map();
-
-labs.set(1, {
-    id: 1,
-    name: "Laboratorio de electrónica",
-    description: "Laboratorio para ingenieria electronica",
-    items: [
-        {
-            id: '1',
-            equipo: "Programmable DC POWER Supply",
-            marca: "EXTECH-Instruments",
-            modelo: "382280",
-            ubicacion: "Mesa de trabajo",
-            columnaDeLocalizacion: "3/F2-1/E2-3/D2",
-            tipo: "Equipo",
-            cantidad: "7",
-            img: "/img/items/item1.jpg",
-            observaciones: []
-        },
-        {
-            id: '2',
-            equipo: "Puntas de prueba de osiloscopio",
-            marca: "NATIONAL-Instruments",
-            modelo: "780594-01",
-            ubicacion: "Armario 1",
-            columnaDeLocalizacion: "Nivel 3",
-            tipo: "Suministro",
-            cantidad: "7",
-            img: "/img/items/item6.jpg",
-            observaciones: []
-        },{
-            id: '3',
-            equipo: "Juego de desarmadores de precision",
-            marca: "NT",
-            modelo: "NT",
-            ubicacion: "Armario 1",
-            columnaDeLocalizacion: "Nivel 4",
-            tipo: "Herramienta",
-            cantidad: "2",
-            img: "/img/items/item5.jpg",
-            observaciones: []
-        }
-    ],
-    img: '/img/labs/electronica.jpg'
-})
-
-labs.set(2, {
-    id: 2,
-    name: "Laboratorio de quimica",
-    description: "Laboratorio para ciencias de la salud",
-    items: [
-        {
-            id: '1',
-            equipo: 'Microscopio',
-            marca: 'OPTIKA',
-            modelo: 'B-150',
-            ubicacion: 'Repisa',
-            columnaDeLocalizacion: 'C1',
-            tipo: 'Equipo',
-            cantidad: '4',
-            img: '/img/items/item2.jpg',
-            observaciones: []
-        },
-    ],
-    img: '/img/labs/quimica.jpg'
-});
-
-labs.set(3, {
-    id: 3,
-    name: "Laboratorio de Gesell",
-    description: "Laboratorio para psicologia",
-    items: [
-        {
-            id: '1',
-            equipo: 'Network video Recorder',
-            marca: 'HIKVISION',
-            modelo: 'DS-7104NI-E1',
-            ubicacion: 'Mesa',
-            columnaDeLocalizacion: '',
-            tipo: 'Equipo',
-            cantidad: '1',
-            img: '/img/items/item3.jpg',
-            observaciones: []
-        },
-    ],
-    img: '/img/labs/camaraGesell.jpg'
-})
-
-labs.set(4, {
-    id: 4,
-    name: "Taller de Redes",
-    description: "Laboratorio para instalacion de redes",
-    items: [
-        {
-            id: '1',
-            equipo: 'Router',
-            marca: 'MikroTik',
-            modelo: 'hEX lite',
-            ubicacion: 'Armario 3',
-            columnaDeLocalizacion: 'Nivel 4',
-            tipo: 'Equipo',
-            cantidad: '5',
-            img: '/img/items/item4.jpg',
-            observaciones: []
-        },
-    ],
-    img: '/img/labs/tallerRedes.jpg'
-})
-
 export default function inventoryPage() {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
@@ -137,38 +28,30 @@ export default function inventoryPage() {
     let id = parseInt(searchpParams.get("id"));
     let itemCards;
 
-    function addItem({
-        equipo,
-        marca,
-        modelo,
-        ubicacion,
-        columnaDeLocalizacion,
-        tipo,
-        cantidad,
-        img,
-        observaciones
-    }) {
-        const newItem = {
-            equipo,
-            marca,
-            modelo,
-            ubicacion,
-            columnaDeLocalizacion,
-            tipo,
-            cantidad,
-            img,
-            observaciones
+    const fetchItems = async () => {
+        try {
+            const response = await fetch('/api/read_items'); // Aquí debes poner la ruta correcta a tu API
+            if (!response.ok) {
+                throw new Error('Error al obtener datos: ' + response.statusText);
+            }
+            const data = await response.json();
+
+            const fetchedItems = data.result.rows;
+            setItems(fetchedItems)
+        } catch (error) {
+            console.error(error.message);
         }
-        setItems([...items, newItem]);
-    }
+    };
+
 
     useEffect(() => {
-        if (!isNaN(id)) {
-            // Aquí puedes realizar otras operaciones que dependan de 'id'
-            setItems(labs.get(id).items);
-            setLab(labs.get(id).name)
-        }
-    }, [id]); // Ejecutar el efecto cuando 'id' cambie
+        fetchItems();
+    }, [id]);
+
+    const handleRefresh = () => {
+        fetchItems();
+    };
+
 
     if (items.length == 0) {
         itemCards = 'No hay items registrados';
@@ -178,8 +61,8 @@ export default function inventoryPage() {
         if (filters.length > 0) {
             itemsToShow = items.filter((item) => {
                 let ToShow = false;
-                for(const currentFilter of filters ) {
-                    if(currentFilter == item.tipo) {
+                for (const currentFilter of filters) {
+                    if (currentFilter == item.tipo) {
                         ToShow = true;
                         break;
                     }
@@ -191,21 +74,25 @@ export default function inventoryPage() {
         }
         console.log(itemsToShow);
 
-        itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems}></Item>);
+        itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
+    }
+
+    function addItem() {
+
     }
 
     return (
         <div>
             <HeaderBar />
             <h2 className={InventoryStyles.subheader}>{lab}</h2>
-            <InventoryControls name={lab} addItem={addItem} setFilters = {setFilters} />
-            <div className= {InventoryStyles.itemsFiltererContainer}>
-                <ItemsFilterer setFilters = {setFilters} />
+            <InventoryControls name={lab} addItem={addItem} setFilters={setFilters} />
+            <div className={InventoryStyles.itemsFiltererContainer}>
+                <ItemsFilterer setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
             </div>
-        
+
         </div>
     )
 }
@@ -226,7 +113,7 @@ function InventoryControls({ name, addItem, setFilters }) {
     )
 }
 
-function Item({ data, items, setItems }) {
+function Item({ data, items, setItems, handleRefresh }) {
     const [show, setShow] = useState(false);
 
     function showItemsDetailsCard() {
@@ -239,7 +126,7 @@ function Item({ data, items, setItems }) {
                 component="img"
                 alt="Item de laboratorio"
                 height="140"
-                image={data.img}
+                image={data.imgurl}
             />
             <CardContent>
                 <Typography className={InventoryStyles.ItemLink} onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
@@ -250,7 +137,7 @@ function Item({ data, items, setItems }) {
                 </Typography>
             </CardContent>
             <CardActions>
-                <OptionsItemCard item={data} items={items} setItems={setItems} />
+                <OptionsItemCard item={data} items={items} setItems={setItems} handleRefresh={handleRefresh} />
             </CardActions>
             <div className={`${!show ? InventoryStyles.hide : ''}`}>
                 <ItemDetailsCard showItemsDetailsCard={showItemsDetailsCard} details={data} />
@@ -270,7 +157,14 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     <button className={InventoryStyles.btnC1} onClick={showItemsDetailsCard} >Hecho</button>
                 </div>
                 <div className={InventoryStyles.itemDetails}>
-                    <Image src={details.img} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image>
+                    {/* <Image src={details.imgurl} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image> */}
+                    <CardMedia
+                        component="img"
+                        alt=""
+                        height="230"
+                        width = "333"
+                        image={details.imgurl}
+                    />
                     <div>
                         <label>Equipo:</label>
                         <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} />

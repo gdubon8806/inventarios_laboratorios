@@ -7,6 +7,7 @@ import Modal from '@mui/material/Modal';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import Uploader from './uploader';
 
 import { useState } from 'react';
 
@@ -18,14 +19,16 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: "90vw",
+    height: "80vh",
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
+    overflow: "auto"
 };
 
-export default function OptionsItemCard({ item, items, setItems }) {
+export default function OptionsItemCard({ item, items, setItems, handleRefresh }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -45,7 +48,7 @@ export default function OptionsItemCard({ item, items, setItems }) {
                         <h2>Opciones</h2>
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <EditItemCard item={item} items={items} setItems={setItems} />
+                        <EditItemCard item={item} items={items} setItems={setItems} handleRefresh ={handleRefresh} close = {handleClose} />
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <DeleteItemCard item={item} items={items} setItems={setItems} startIcon={<DeleteIcon />} />
@@ -57,7 +60,8 @@ export default function OptionsItemCard({ item, items, setItems }) {
 }
 
 
-function EditItemCard({ item, items, setItems }) {
+function EditItemCard({ item, items, setItems, handleRefresh,close }) {
+    const [id, setID] = useState(item.id);
     const [equipo, setEquipo] = useState(item.equipo);
     const [marca, setMarca] = useState(item.marca);
     const [modelo, setModelo] = useState(item.modelo);
@@ -65,43 +69,85 @@ function EditItemCard({ item, items, setItems }) {
     const [columnaDeLocalizacion, setcolumnaDeLocalizacion] = useState(item.columnaDeLocalizacion);
     const [tipo, setTipo] = useState(item.tipo);
     const [cantidad, setCantidad] = useState(item.cantidad);
-    const [img, setImg] = useState(item.img);
+    const [imgURL, setImgURL] = useState(item.imgURL);
     const [observaciones, setObservaciones] = useState(item.observaciones);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let newItems = items.map((current) => {
-            if (current.id == item.id) {
-                current.equipo = equipo;
-                current.marca = marca;
-                current.modelo = modelo;
-                current.ubicacion = ubicacion;
-                current.columnaDeLocalizacion = columnaDeLocalizacion;
-                current.tipo = tipo;
-                current.cantidad = cantidad;
-                current.img = img;
-                current.observaciones = observaciones;
-                return current;
-            } else {
-                return current;
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await fetch('/api/update_item', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    id, 
+                    equipo,
+                    marca, 
+                    modelo,
+                    ubicacion,
+                    columnaDeLocalizacion,
+                    tipo,
+                    cantidad,
+                    imgURL,
+                    observaciones
+                 })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar laboratorio: ' + response.statusText);
             }
-        });
 
-        setItems(() => {
-            return newItems;
-        })
-        setEquipo('');
-        setMarca('');
-        setModelo('');
-        setUbicacion('');
-        setcolumnaDeLocalizacion('');
-        setTipo('');
-        setCantidad('');
-        setImg('');
-        setObservaciones('');
+            // Limpiar los campos del formulario después de la actualización exitosa
+            setEquipo('');
+            setMarca('')
+            setModelo('');
+            setUbicacion('');
+            setcolumnaDeLocalizacion('');
+            setTipo('');
+            setCantidad('');
+            setObservaciones('');
+            
+            handleRefresh();
+            close();
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
 
-        handleClose();
-    }
+    // const handleSubmit2 = (e) => {
+    //     e.preventDefault();
+    //     let newItems = items.map((current) => {
+    //         if (current.id == item.id) {
+    //             current.equipo = equipo;
+    //             current.marca = marca;
+    //             current.modelo = modelo;
+    //             current.ubicacion = ubicacion;
+    //             current.columnaDeLocalizacion = columnaDeLocalizacion;
+    //             current.tipo = tipo;
+    //             current.cantidad = cantidad;
+    //             current.imgURL = imgURL;
+    //             current.observaciones = observaciones;
+    //             return current;
+    //         } else {
+    //             return current;
+    //         }
+    //     });
+
+    //     setItems(() => {
+    //         return newItems;
+    //     })
+
+    //     setEquipo('');
+    //     setMarca('');
+    //     setModelo('');
+    //     setUbicacion('');
+    //     setcolumnaDeLocalizacion('');
+    //     setTipo('');
+    //     setCantidad('');
+    //     setObservaciones('');
+    //     handleClose();
+    // }
 
 
     const [open, setOpen] = React.useState(false);
@@ -121,7 +167,7 @@ function EditItemCard({ item, items, setItems }) {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <h2>Editar</h2>
+                        <h2>Editar ítem</h2>
                     </Typography>
                     <form className={FormStyles.form}>
                         <div>
@@ -165,14 +211,6 @@ function EditItemCard({ item, items, setItems }) {
                             </label>
                             <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='7' />
                         </div>
-
-                        <div>
-                            <label>
-                                Img:
-                            </label>
-                            <input type="text" name="img" value={img} onChange={(e) => setImg(e.target.value)} placeholder='/img/items/item1.jpg' />
-                        </div>
-
                         <div>
                             <label>
                                 Observaciones:
@@ -185,7 +223,7 @@ function EditItemCard({ item, items, setItems }) {
                             <Button onClick={handleSubmit}>Guardar cambios</Button>
                         </div>
                     </form>
-
+                    <Uploader setImgURL = {setImgURL}></Uploader>
                 </Box>
             </Modal>
         </div>
@@ -212,7 +250,7 @@ function DeleteItemCard({ item, items, setItems }) {
         setcolumnaDeLocalizacion('');
         setTipo('');
         setCantidad('');
-        setImg('');
+        setImgURL('');
         setObservaciones('');
         handleClose();
     }

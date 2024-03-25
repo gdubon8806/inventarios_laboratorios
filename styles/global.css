@@ -14,6 +14,13 @@ h1 {
     color: rgb(100, 100, 100)
 }
 
+h2 {
+    font-size: 1.2rem;
+    font-weight: bolder;
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 10px;
+}
+
 .add-lab-btn {
     background-color: #1976d2;
 }

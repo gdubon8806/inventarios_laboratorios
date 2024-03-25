@@ -28,6 +28,7 @@ export default function inventoryPage() {
     const searchpParams = useSearchParams();
     let id = parseInt(searchpParams.get("id"));
     let itemCards;
+    let id_lab = id;
 
     const fetchItems = async () => {
         try {
@@ -101,7 +102,7 @@ export default function inventoryPage() {
         <div>
             <HeaderBar />
             <h2 className={InventoryStyles.subheader}>{lab}</h2>
-            <InventoryControls name={lab} addItem={addItem} setFilters={setFilters} />
+            <InventoryControls handleRefresh={handleRefresh} id_lab = {id_lab} name={lab} addItem={addItem} setFilters={setFilters} />
             <div className={InventoryStyles.itemsFiltererContainer}>
                 <ItemsFilterer setFilters={setFilters} />
             </div>
@@ -113,7 +114,7 @@ export default function inventoryPage() {
     )
 }
 
-function InventoryControls({ name, addItem, setFilters }) {
+function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
@@ -122,7 +123,7 @@ function InventoryControls({ name, addItem, setFilters }) {
                 </Link>
             </div>
             <div>
-                <AddItemCard handleAdd={addItem} />
+                <AddItemCard handleRefresh={handleRefresh} id_lab= {id_lab} handleAdd={addItem} />
             </div>
 
         </div>

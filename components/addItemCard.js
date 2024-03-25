@@ -22,7 +22,7 @@ const style = {
     p: 4,
 };
 
-export default function AddItemCard({ handleAdd }) {
+export default function AddItemCard({handleRefresh, id_lab, handleAdd }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -42,7 +42,7 @@ export default function AddItemCard({ handleAdd }) {
                         Agregar nuevo Item
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <AddLabForm close={handleClose} add={handleAdd} />
+                        <AddLabForm handleRefresh={handleRefresh} id_lab = {id_lab} close={handleClose} add={handleAdd} />
                     </Typography>
                 </Box>
             </Modal>
@@ -50,7 +50,8 @@ export default function AddItemCard({ handleAdd }) {
     );
 }
 
-function AddLabForm({ close, add }) {
+function AddLabForm({handleRefresh, id_lab, close, add }) {
+    const [idLab, setIdLab] = useState(id_lab);
     const [equipo, setEquipo] = useState('');
     const [marca, setMarca] = useState('');
     const [modelo, setModelo] = useState('');
@@ -58,32 +59,51 @@ function AddLabForm({ close, add }) {
     const [columnaDeLocalizacion, setColumnaDeLocalizacion] = useState('');
     const [tipo, setTipo] = useState('');
     const [cantidad, setCantidad] = useState('');
-    const [img, setImg] = useState('');
+    const [imgURL, setImgURL] = useState('');
     const [observaciones, setObservaciones] = useState([]);
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        add({ 
-            equipo, 
-            marca, 
-            modelo,
-            ubicacion,
-            columnaDeLocalizacion,
-            tipo,
-            cantidad,
-            img,
-            observaciones
-        });
-        setEquipo('');
-        setMarca('');
-        setModelo('');
-        setUbicacion('');
-        setColumnaDeLocalizacion('');
-        setTipo('');
-        setCantidad('');
-        setImg('');
-        setObservaciones('');
-        close();
-    }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await fetch('/api/create_item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    equipo, 
+                    marca,
+                    modelo,
+                    ubicacion,
+                    columnaDeLocalizacion,
+                    tipo,
+                    cantidad,
+                    imgURL,
+                    observaciones,
+                    idLab
+                    })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al insertar laboratorio: ' + response.statusText);
+            }
+
+            // Limpiar los campos del formulario después de la inserción exitosa
+            setEquipo('');
+            setMarca('');
+            setModelo('');
+            setUbicacion('');
+            setColumnaDeLocalizacion('');
+            setTipo('');
+            setCantidad('');
+            setImgURL('');
+            setObservaciones('');
+            alert("Se ha insertado el nuevo laboratorio exitosamente.")
+            handleRefresh();
+            close();
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
     return (
         <form className={FormStyles.form}>
             <div>
@@ -125,12 +145,6 @@ function AddLabForm({ close, add }) {
                     Cantidad:
                 </label>
                 <input type="text" name="nombre" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='5' />
-            </div>
-            <div>
-                <label>
-                    Imagen:
-                </label>
-                <input type="text" name="nombre" value={img} onChange={(e) => setImg(e.target.value)} placeholder='/img/items/item4.jpg' />
             </div>
             <div>
                 <label>

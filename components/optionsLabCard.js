@@ -48,7 +48,7 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
                     <Typography id="modal-modal-title" variant="h5" component="h2">
                         Opciones
                     </Typography>
-                    <DeleteLabCard lab={lab} close={handleClose} />
+                    <DeleteLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <EditLabCard lab={lab} close={handleClose} handleRefresh = {handleRefresh}></EditLabCard>
@@ -118,7 +118,7 @@ function EditLabCard({ lab, close, handleRefresh}) {
     )
 }
 
-function DeleteLabCard({ lab, close }) {
+function DeleteLabCard({ lab, close, handleRefresh }) {
     const [id, useID] = useState(lab.id);
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -137,6 +137,7 @@ function DeleteLabCard({ lab, close }) {
             }
 
             // Limpiar el campo del formulario después de la eliminación exitosa
+            handleRefresh();
             close();
         } catch (error) {
             console.error(error.message);

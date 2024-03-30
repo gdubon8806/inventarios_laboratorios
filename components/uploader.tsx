@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 import toast from 'react-hot-toast'
 import LoadingDots from './loading-dots'
 import { PutBlobResult } from '@vercel/blob'
+import Compressor from 'compressorjs';
 
 export default function Uploader({setImgURL}) {
   const [data, setData] = useState<{
@@ -11,7 +12,7 @@ export default function Uploader({setImgURL}) {
   }>({
     image: null,
   })
-  const [file, setFile] = useState<File | null>(null)
+  const [file, setFile] = useState<File | Blob | null>(null); // Ajuste de tipo aquí
 
   const [dragActive, setDragActive] = useState(false)
 
@@ -22,12 +23,22 @@ export default function Uploader({setImgURL}) {
         if (file.size / 1024 / 1024 > 50) {
           toast.error('File size too big (max 50MB)')
         } else {
-          setFile(file)
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            setData((prev) => ({ ...prev, image: e.target?.result as string }))
-          }
-          reader.readAsDataURL(file)
+          new Compressor(file, {
+            quality: 0.1,
+            maxWidth: 800,
+            maxHeight:  800,
+            success: (compressedFile) => {
+              setFile(compressedFile);
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                setData((prev) => ({ ...prev, image: e.target?.result as string }));
+              };
+              reader.readAsDataURL(compressedFile);
+            },
+            error: (error) => {
+              console.error('Compression error:', error);
+            },
+          });
         }
       }
     },

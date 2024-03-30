@@ -21,15 +21,12 @@ export default function SearchAppBar() {
   const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
+    backgroundColor: "#F8F8F8",
     marginLeft: 0,
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(1),
-      width: 'auto',
+      width: '100%',
     },
   }));
   const SearchIconWrapper = styled('div')(({ theme }) => ({

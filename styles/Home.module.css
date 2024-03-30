@@ -16,7 +16,8 @@
     align-items: center;
     font-family: 'Roboto', sans-serif;
     margin-bottom: 1rem;
-    color: rgb(100, 100, 100)
+    /* color: rgb(100, 100, 100) */
+    color: black;
 }
 
 .labsControls {
@@ -26,7 +27,7 @@
 .labsControls .controls {
     display: grid;
     align-items: center;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     text-align: right;
 }
 

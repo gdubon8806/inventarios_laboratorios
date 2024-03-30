@@ -1,25 +1,30 @@
 .form {
     display: grid;
-    gap: 10px;
+    grid-gap: 10px;
 }
+
+.inputsForm {
+    place-self: start;
+}
+
+.btnsForm {
+    place-self: end;
+}
+
+.addLabUploaderImageForm {
+    
+}
+
+.addLabUploaderImage, .btnFormContainer {
+    grid-column: 1 / -1;
+    /* El div ocupará desde la primera hasta la última columna */
+}
+
 .form input {
     padding: 0.75rem;
 }
 
 
-.editLabFormContainer {
-}
-
-.form div {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 30% 70%;
-}
-
 .eliminarBTN {
     text-align: right;
-}
-
-.form-uploader {
-    overflow-y: auto;
 }

@@ -4,10 +4,10 @@ import { sql } from '@vercel/postgres';
 export default async function createLab(request, response) {
     try {
         // Obtener los datos a insertar del cuerpo de la solicitud
-        const { name, description } = request.body;
+        const { name, description, imgURL } = request.body;
 
         // Realizar la inserción en la base de datos
-        await sql`INSERT INTO laboratorios (name, description) VALUES (${name}, ${description})`;
+        await sql`INSERT INTO laboratorios (name, description, imgurl) VALUES (${name}, ${description} , ${imgURL})`;
 
         // Responder con un mensaje de éxito
         response.status(201).json({ message: 'Laboratorio insertado exitosamente' });

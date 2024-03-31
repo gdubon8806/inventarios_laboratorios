@@ -13,6 +13,7 @@ import HomeStyles from '../styles/Home.module.css';
 export default
   function HomePage() {
   const [laboratories, setLaboratories] = useState([]);
+  const [loading, setLoading] = useState(true);
   let laboratoryCards;
 
   const fetchLabs = async () => {
@@ -25,6 +26,7 @@ export default
 
       const fetchedLabs = data.result.rows;
       setLaboratories(fetchedLabs)
+      setLoading(false);
     } catch (error) {
       console.error(error.message);
     }
@@ -39,10 +41,14 @@ export default
     fetchLabs();
   };
 
-  if (laboratories.length == 0) {
+  if (loading) {
     laboratoryCards = 'Cargando laboratorios...';
   } else {
-    laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
+    if (laboratories.length == 0) {
+      laboratoryCards = 'No hay registros de laboratorios.';
+    } else {
+      laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
+    }
   }
 
   return (
@@ -64,7 +70,7 @@ export function HeaderBar() {
   return (
     <header>
       <div className={HomeStyles.headerBar}>
-        <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image>
+        {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
         <h1>Inventario de laboratorios</h1>
       </div>
     </header>
@@ -76,7 +82,7 @@ function LabsContainerControls({ handleRefresh }) {
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
         <SearchAppBar />
-        <AddLabCard handleRefresh = {handleRefresh} />
+        <AddLabCard handleRefresh={handleRefresh} />
       </div>
     </div>
   )

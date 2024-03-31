@@ -51,7 +51,7 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
                         <EditItemCard item={item} items={items} setItems={setItems} handleRefresh ={handleRefresh} close = {handleClose} />
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <DeleteItemCard item={item} items={items} setItems={setItems} startIcon={<DeleteIcon />} />
+                        <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} />
                     </Typography>
                 </Box>
             </Modal>
@@ -66,10 +66,10 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
     const [marca, setMarca] = useState(item.marca);
     const [modelo, setModelo] = useState(item.modelo);
     const [ubicacion, setUbicacion] = useState(item.ubicacion);
-    const [columnaDeLocalizacion, setcolumnaDeLocalizacion] = useState(item.columnaDeLocalizacion);
+    const [columnaDeLocalizacion, setcolumnaDeLocalizacion] = useState(item.columnadelocalizacion);
     const [tipo, setTipo] = useState(item.tipo);
     const [cantidad, setCantidad] = useState(item.cantidad);
-    const [imgURL, setImgURL] = useState(item.imgURL);
+    const [imgURL, setImgURL] = useState(item.imgurl);
     const [observaciones, setObservaciones] = useState(item.observaciones);
 
     const handleSubmit = async (event) => {
@@ -231,29 +231,31 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
 }
 
 
-function DeleteItemCard({ item, items, setItems }) {
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let newItems = items.filter((current) => {
-            if (current.id != item.id) {
-                return current;
+function DeleteItemCard({ item, close, handleRefresh }) {
+    const [id, useID] = useState(item.id);
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await fetch('/api/delete_item', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar item: ' + response.statusText);
             }
-            
-        });
-        setItems(() => {
-            return newItems;
-        })
-        setEquipo('');
-        setMarca('');
-        setModelo('');
-        setUbicacion('');
-        setcolumnaDeLocalizacion('');
-        setTipo('');
-        setCantidad('');
-        setImgURL('');
-        setObservaciones('');
-        handleClose();
-    }
+
+            // Limpiar el campo del formulario después de la eliminación exitosa
+            handleRefresh();
+            close();
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
 
 
     const [open, setOpen] = React.useState(false);

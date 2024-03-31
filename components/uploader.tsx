@@ -50,14 +50,13 @@ export default function Uploader({setImgURL}) {
   const saveDisabled = useMemo(() => {
     return !data.image || saving
   }, [data.image, saving])
-
   return (
     <form
       className="grid gap-6 form-uploader"
       onSubmit={async (e) => {
         e.preventDefault()
         setSaving(true)
-        fetch('/api/upload/route', {
+        fetch('/api/create_blob', {
           method: 'POST',
           headers: { 'content-type': file?.type || 'application/octet-stream' },
           body: file,
@@ -85,6 +84,7 @@ export default function Uploader({setImgURL}) {
                       </a>
                     </p>
                   </div>
+
                   <button
                     onClick={() => toast.dismiss(t.id)}
                     className="absolute top-0 -right-2 inline-flex text-gray-400 focus:outline-none focus:text-gray-500 rounded-full p-1.5 hover:bg-gray-100 transition ease-in-out duration-150"

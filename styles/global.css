@@ -26,6 +26,14 @@ h2 {
     background-color: #1976d2;
 }
 
+.backBTN {
+    background-color: #1976d2;
+}
+
+.addItemBtnContainer {
+    background-color: #1976d2;
+}
+
 body {
     padding: 0.8rem;
     font-family: 'Roboto', sans-serif;

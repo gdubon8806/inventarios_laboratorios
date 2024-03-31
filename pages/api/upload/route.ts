@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob'
+import { del } from '@vercel/blob' 
 import { NextResponse } from 'next/server'
 import { customAlphabet } from 'nanoid'
 
@@ -8,7 +9,8 @@ const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   7
 ) // 7-character random string
-export default async function POST(req: Request) {
+
+export  async function POST(req: Request) {
   const file = req.body || ''
   const contentType = req.headers.get('content-type') || 'text/plain'
   const filename = `${nanoid()}.${contentType.split('/')[1]}`
@@ -16,6 +18,7 @@ export default async function POST(req: Request) {
     contentType,
     access: 'public',
   })
-
   return NextResponse.json(blob)
 }
+
+

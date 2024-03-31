@@ -4,10 +4,9 @@ import { sql } from '@vercel/postgres';
 export default async function deleteLab(request, response) {
     try {
         // Obtener el ID del laboratorio a eliminar del cuerpo de la solicitud
-        const { id } = request.body;
-
+        const { idLab } = request.body;
         // Realizar la eliminación en la base de datos
-        await sql`DELETE FROM laboratorios WHERE id = ${id}`;
+        await sql`DELETE FROM laboratorios WHERE id = ${idLab}`;
 
         // Responder con un mensaje de éxito
         response.status(200).json({ message: 'Laboratorio eliminado exitosamente' });

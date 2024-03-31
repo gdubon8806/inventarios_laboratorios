@@ -119,10 +119,10 @@ function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters })
         <div className={InventoryStyles.InventoryControls}>
             <div>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
-                    <Button variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
+                    <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
                 </Link>
             </div>
-            <div>
+            <div className="addItemBtnContainer">
                 <AddItemCard handleRefresh={handleRefresh} id_lab= {id_lab} handleAdd={addItem} />
             </div>
 

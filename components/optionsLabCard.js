@@ -44,21 +44,17 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-
                     <Typography id="modal-modal-title" variant="h5" component="h2">
                         Opciones
                     </Typography>
                     <DeleteLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
-
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <EditLabCard lab={lab} close={handleClose} handleRefresh = {handleRefresh}></EditLabCard>
-                    </Typography>
+                    <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh}></EditLabCard>
                 </Box>
             </Modal>
         </div>
     );
 }
-function EditLabCard({ lab, close, handleRefresh}) {
+function EditLabCard({ lab, close, handleRefresh }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
@@ -73,11 +69,12 @@ function EditLabCard({ lab, close, handleRefresh}) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    id, 
-                    name, 
-                    description, 
-                    imgurl })
+                body: JSON.stringify({
+                    id,
+                    name,
+                    description,
+                    imgurl
+                })
             });
 
             if (!response.ok) {
@@ -107,12 +104,12 @@ function EditLabCard({ lab, close, handleRefresh}) {
                     <label>Descripción:</label>
                     <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
                 </div>
-            <div className={FormStyles.buttonsContainer}>
-                <Button onClick={close}>Cancelar</Button>
-                <Button onClick={handleSubmit}>Guardar cambios</Button>
-            </div>
-        </form>
-            <Uploader setImgURL = {setImgURL}></Uploader>
+                <div className={FormStyles.buttonsContainer}>
+                    <Button onClick={close}>Cancelar</Button>
+                    <Button onClick={handleSubmit}>Guardar cambios</Button>
+                </div>
+            </form>
+            <Uploader setImgURL={setImgURL}></Uploader>
         </div>
 
     )
@@ -120,20 +117,31 @@ function EditLabCard({ lab, close, handleRefresh}) {
 
 function DeleteLabCard({ lab, close, handleRefresh }) {
     const [id, useID] = useState(lab.id);
+    const [imgURL, useImgURL] = useState(lab.imgurl);
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
-            const response = await fetch('/api/delete_lab', {
+            const responsePOSTGRES = await fetch('/api/delete_lab', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ idLab: id })
             });
 
-            if (!response.ok) {
-                throw new Error('Error al eliminar laboratorio: ' + response.statusText);
+            const responseBLOB = await fetch('/api/delete_blob', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: imgURL })
+            });
+
+
+            if (!responsePOSTGRES.ok || !responseBLOB.ok) {
+                throw new Error('Error al eliminar laboratorio: ' + responsePOSTGRES.statusText);
+            } else {
+                alert("Se ha eliminado correctamente.");
             }
 
             // Limpiar el campo del formulario después de la eliminación exitosa
@@ -162,13 +170,11 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <h2>Eliminar</h2>
+                        Eliminar
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <p>
-                            ¿Está seguro que desesa eliminar el laboratorio?
-                            Se eliminarán también los ítems.
-                        </p>
+                        ¿Está seguro que desesa eliminar el laboratorio?
+                        Se eliminarán también los ítems.
                     </Typography>
                     <div className={FormStyles.buttonsContainer}>
                         <Button onClick={handleClose}>Cancelar</Button>

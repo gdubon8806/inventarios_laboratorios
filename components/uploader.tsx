@@ -24,9 +24,9 @@ export default function Uploader({setImgURL}) {
           toast.error('File size too big (max 50MB)')
         } else {
           new Compressor(file, {
-            quality: 0.1,
-            maxWidth: 800,
-            maxHeight:  800,
+            quality: 0.2,
+            maxWidth: 500,
+            maxHeight:  500,
             success: (compressedFile) => {
               setFile(compressedFile);
               const reader = new FileReader();

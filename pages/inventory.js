@@ -88,9 +88,8 @@ export default function inventoryPage() {
             } else {
                 itemsToShow = items;
             }
-            console.log(itemsToShow);
 
-            itemCards = itemsToShow.map(item => <Item data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
+            itemCards = itemsToShow.map(item => <Item key={item.id} data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
         }
     }
 
@@ -184,33 +183,32 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     />
                     <div>
                         <label>Equipo:</label>
-                        <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} />
+                        <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} readOnly/>
                     </div>
                     <div>
                         <label>Marca:</label>
-                        <input type="text" name="marca_item" placeholder="Sin datos" value={details.marca} />
+                        <input type="text" name="marca_item" placeholder="Sin datos" value={details.marca} readOnly />
                     </div>
                     <div>
                         <label>Ubicación:</label>
-                        <input type="text" name="ubicacion_item" placeholder="Sin datos" value={details.ubicacion} />
+                        <input type="text" name="ubicacion_item" placeholder="Sin datos" value={details.ubicacion} readOnly/>
                     </div>
                     <div>
                         <label>Modelo:</label>
-                        <input type="text" name="modelo_item" placeholder="Sin datos" value={details.modelo} />
+                        <input type="text" name="modelo_item" placeholder="Sin datos" value={details.modelo} readOnly/>
                     </div>
                     <div>
                         <label>Columna de localización:</label>
-                        <input type="text" name="localizacion_item" placeholder="Sin datos" value={details.columnaDeLocalizacion} />
+                        <input type="text" name="localizacion_item" placeholder="Sin datos" value={details.columnaDeLocalizacion}  readOnly/>
                     </div>
                     <div>
                         <label>Tipo:</label>
-                        <input type="text" name="tipo_item" placeholder="Sin datos" value={details.tipo} />
+                        <input type="text" name="tipo_item" placeholder="Sin datos" value={details.tipo} readOnly/>
                     </div>
                     <div>
                         <label>Cantidad:</label>
-                        <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad} />
+                        <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad}  readOnly/>
                     </div>
-
                 </div>
             </div>
         </div >

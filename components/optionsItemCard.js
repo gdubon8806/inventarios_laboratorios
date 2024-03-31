@@ -45,14 +45,10 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <h2>Opciones</h2>
+                        Opciones
                     </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <EditItemCard item={item} items={items} setItems={setItems} handleRefresh ={handleRefresh} close = {handleClose} />
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} />
-                    </Typography>
+                    <EditItemCard item={item} items={items} setItems={setItems} handleRefresh={handleRefresh} close={handleClose} />
+                    <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} />
                 </Box>
             </Modal>
         </div >
@@ -60,7 +56,7 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
 }
 
 
-function EditItemCard({ item, items, setItems, handleRefresh,close }) {
+function EditItemCard({ item, items, setItems, handleRefresh, close }) {
     const [id, setID] = useState(item.id);
     const [equipo, setEquipo] = useState(item.equipo);
     const [marca, setMarca] = useState(item.marca);
@@ -80,10 +76,10 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    id, 
+                body: JSON.stringify({
+                    id,
                     equipo,
-                    marca, 
+                    marca,
                     modelo,
                     ubicacion,
                     columnaDeLocalizacion,
@@ -91,7 +87,7 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
                     cantidad,
                     imgURL,
                     observaciones
-                 })
+                })
             });
 
             if (!response.ok) {
@@ -107,49 +103,13 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
             setTipo('');
             setCantidad('');
             setObservaciones('');
-            
+
             handleRefresh();
             close();
         } catch (error) {
             console.error(error.message);
         }
     };
-
-    // const handleSubmit2 = (e) => {
-    //     e.preventDefault();
-    //     let newItems = items.map((current) => {
-    //         if (current.id == item.id) {
-    //             current.equipo = equipo;
-    //             current.marca = marca;
-    //             current.modelo = modelo;
-    //             current.ubicacion = ubicacion;
-    //             current.columnaDeLocalizacion = columnaDeLocalizacion;
-    //             current.tipo = tipo;
-    //             current.cantidad = cantidad;
-    //             current.imgURL = imgURL;
-    //             current.observaciones = observaciones;
-    //             return current;
-    //         } else {
-    //             return current;
-    //         }
-    //     });
-
-    //     setItems(() => {
-    //         return newItems;
-    //     })
-
-    //     setEquipo('');
-    //     setMarca('');
-    //     setModelo('');
-    //     setUbicacion('');
-    //     setcolumnaDeLocalizacion('');
-    //     setTipo('');
-    //     setCantidad('');
-    //     setObservaciones('');
-    //     handleClose();
-    // }
-
-
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -167,7 +127,7 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <h2>Editar ítem</h2>
+                        Editar ítem
                     </Typography>
                     <form className={FormStyles.form}>
                         <div>
@@ -223,7 +183,7 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
                             <Button onClick={handleSubmit}>Guardar cambios</Button>
                         </div>
                     </form>
-                    <Uploader setImgURL = {setImgURL}></Uploader>
+                    <Uploader setImgURL={setImgURL}></Uploader>
                 </Box>
             </Modal>
         </div>
@@ -232,7 +192,8 @@ function EditItemCard({ item, items, setItems, handleRefresh,close }) {
 
 
 function DeleteItemCard({ item, close, handleRefresh }) {
-    const [id, useID] = useState(item.id);
+    const [idItem, setIdItem] = useState(item.id);
+    const [imgURL, setImgURL] = useState(item.imgurl);
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -242,7 +203,15 @@ function DeleteItemCard({ item, close, handleRefresh }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ id: idItem })
+            });
+
+            const responseBLOB = await fetch('/api/delete_blob', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: imgURL })
             });
 
             if (!response.ok) {
@@ -275,12 +244,10 @@ function DeleteItemCard({ item, close, handleRefresh }) {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <h2>Eliminar</h2>
+                        Eliminar
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <p>
-                            ¿Está seguro que desesa eliminar el ítem?
-                        </p>
+                        ¿Está seguro que desesa eliminar el ítem?
                     </Typography>
                     <div className={FormStyles.buttonsContainer}>
                         <Button onClick={handleClose}>Cancelar</Button>

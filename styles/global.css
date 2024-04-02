@@ -26,6 +26,11 @@ h2 {
     background-color: #1976d2;
 }
 
+.add-lab-btn-container {
+    /* background-color: #F8F8F8; */
+    /* padding: 0.25rem; */
+}
+
 .backBTN {
     background-color: #1976d2;
 }
@@ -41,4 +46,8 @@ body {
     /* background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(218, 218, 218, 1) 0%, rgba(70, 196, 252, 1) 100%); */
     /* background: rgb(230, 240, 240); */
     /* background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(218,218,218,1) 0%, rgba(143,207,235,1) 100%); */
+}
+
+.hide {
+    display: none;
 }

@@ -13,6 +13,7 @@
 }
 
 .InventoryControls {
+    margin-top: 3.8rem;
     font-size: 0.95rem;
     display: flex;
     align-items: center;

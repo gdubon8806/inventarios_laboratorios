@@ -14,6 +14,8 @@ export default
   function HomePage() {
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+
   let laboratoryCards;
 
   const fetchLabs = async () => {
@@ -40,6 +42,12 @@ export default
   const handleRefresh = () => {
     fetchLabs();
   };
+
+  //primero cargan los labs
+  //por cada caracter en el input se usa una funcion para iterar sobre los labs
+  // y determinar si contiene ese caracter, para usar toggleClassList
+
+  
 
   if (loading) {
     laboratoryCards = 'Cargando laboratorios...';

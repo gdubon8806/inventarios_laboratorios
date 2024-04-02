@@ -23,6 +23,7 @@ const style = {
     boxShadow: 24,
     p: 4,
     overflowY: 'auto'
+    
 };
 
 export default function AddLabCard({ handleRefresh }) {
@@ -31,7 +32,7 @@ export default function AddLabCard({ handleRefresh }) {
     const handleClose = () => setOpen(false);
 
     return (
-        <div>
+        <div className='add-lab-btn-container'>
             <Button className='add-lab-btn' variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>
             <Modal
                 open={open}

@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useCallback, useMemo, ChangeEvent } from 'react'
-import toast from 'react-hot-toast'
+// import '../node_modules/react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
+
 import LoadingDots from './loading-dots'
 import { PutBlobResult } from '@vercel/blob'
 import Compressor from 'compressorjs';
+import { uploadImage } from './firebaseStuff/uploadImages';
 
-export default function Uploader({setImgURL}) {
+export default function Uploader({setImgURL, setImgName}) {
   const [data, setData] = useState<{
     image: string | null
   }>({
@@ -24,9 +27,9 @@ export default function Uploader({setImgURL}) {
           toast.error('File size too big (max 50MB)')
         } else {
           new Compressor(file, {
-            quality: 0.2,
-            maxWidth: 500,
-            maxHeight:  500,
+            quality: 0.8,
+            maxWidth: 1200,
+            maxHeight:  1200,
             success: (compressedFile) => {
               setFile(compressedFile);
               const reader = new FileReader();
@@ -51,41 +54,30 @@ export default function Uploader({setImgURL}) {
     return !data.image || saving
   }, [data.image, saving])
   return (
+    <>
     <form
       className="grid gap-6 form-uploader"
       onSubmit={async (e) => {
         e.preventDefault()
-        setSaving(true)
-        fetch('/api/create_blob', {
-          method: 'POST',
-          headers: { 'content-type': file?.type || 'application/octet-stream' },
-          body: file,
-        }).then(async (res) => {
-          if (res.status === 200) {
-            const { url } = (await res.json()) as PutBlobResult
-            setImgURL(url);
+        setSaving(true);
+        await uploadImage(file)
+        .then(async (res) => {
+          if (res[0] === 1) {
+            // const { url } = (await res.json()) as PutBlobResult
+            setImgURL(res[1]);
+            console.log(res[2]);
+            setImgName(res[2]);
             toast(
               (t: { id: string } 
                 ) => (
                 <div className="relative">
-                  <div className="p-2">
+                  <div className="p-4">
                     <p className="font-semibold text-gray-900">
-                      File uploaded!
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Your file has been uploaded to{' '}
-                      <a
-                        className="font-medium text-gray-900 underline"
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {url}
-                      </a>
+                      ¡Imagen subida exitosamente!
                     </p>
                   </div>
 
-                  <button
+                  {/* <button
                     onClick={() => toast.dismiss(t.id)}
                     className="absolute top-0 -right-2 inline-flex text-gray-400 focus:outline-none focus:text-gray-500 rounded-full p-1.5 hover:bg-gray-100 transition ease-in-out duration-150"
                   >
@@ -104,14 +96,14 @@ export default function Uploader({setImgURL}) {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </button>
+                  </button> */}
                 </div>
               ),
-              { duration: 300000 }
+              { duration: 2500 }
             )
           } else {
-            const error = await res.text()
-            toast.error(error)
+            // const error = await res.text()
+            toast.error("Error")
           }
           setSaving(false)
         })
@@ -238,5 +230,6 @@ export default function Uploader({setImgURL}) {
         )}
       </button>
     </form>
+  </>
   )
 }

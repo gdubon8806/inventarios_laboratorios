@@ -16,6 +16,7 @@
     "antd": "^5.14.1",
     "autoprefixer": "^10.4.19",
     "compressorjs": "^1.2.1",
+    "firebase": "^10.10.0",
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",

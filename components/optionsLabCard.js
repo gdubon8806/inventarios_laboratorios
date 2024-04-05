@@ -8,10 +8,14 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 import Uploader from './uploader'
 
+import updateLab from './firebaseStuff/update-lab';
+import deleteLab from './firebaseStuff/delete-lab';
+
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
 import { FormatAlignCenterOutlined } from '@mui/icons-material';
+import deleteImage from './firebaseStuff/delete-blob';
 
 
 const style = {
@@ -64,22 +68,36 @@ function EditLabCard({ lab, close, handleRefresh }) {
         event.preventDefault();
 
         try {
-            const response = await fetch('/api/update_lab', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id,
-                    name,
-                    description,
-                    imgurl
-                })
-            });
+            // const response = await fetch('/api/update_lab', {
+            //     method: 'PUT',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         id,
+            //         name,
+            //         description,
+            //         imgurl
+            //     })
+            // });
 
-            if (!response.ok) {
-                throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+            // if (!response.ok) {
+            //     throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+            // }
+
+            const labId = id; // Reemplaza 'ID_DEL_LABORATORIO' con el ID del laboratorio que deseas actualizar
+            const newData = {
+                name,
+                description,
+                imgurl
+            };
+            const resultado = await updateLab(labId, newData);
+            if (resultado) {
+                console.log('El laboratorio se actualizó correctamente.');
+            } else {
+                console.log('Hubo un error al actualizar el laboratorio.');
             }
+
 
             // Limpiar los campos del formulario después de la actualización exitosa
             setName('');
@@ -121,67 +139,82 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const responsePOSTGRES = await fetch('/api/delete_lab', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ idLab: id })
-            });
-
-            const responseBLOB = await fetch('/api/delete_blob', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: imgURL })
-            });
-
-
-            if (!responsePOSTGRES.ok || !responseBLOB.ok) {
-                throw new Error('Error al eliminar laboratorio: ' + responsePOSTGRES.statusText);
+            // const responsePOSTGRES = await fetch('/api/delete_lab', {
+            //     method: 'DELETE',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ idLab: id })
+            // });
+            const labId = id; // Reemplaza 'ID_DEL_LABORATORIO' con el ID del laboratorio que deseas eliminar
+            const resFireStore = await deleteLab(labId);
+            if (resFireStore) {
+                console.log('El laboratorio se eliminó correctamente.');
             } else {
-                alert("Se ha eliminado correctamente.");
+                console.log('Hubo un error al eliminar el laboratorio.');
             }
 
-            // Limpiar el campo del formulario después de la eliminación exitosa
-            handleRefresh();
-            close();
-        } catch (error) {
-            console.error(error.message);
-        }
-    };
+            const resStorage = await deleteImage(`images/${lab.imgname}`);
+            if (resStorage) {
+                console.log('El laboratorio se eliminó correctamente.');
+            } else {
+                console.log('Hubo un error al eliminar el laboratorio.');
+            }
 
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+        // const responseBLOB = await fetch('/api/delete_blob', {
+        //     method: 'DELETE',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({ url: imgURL })
+        // });
 
-    return (
-        <div>
-            <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
-                Eliminar
-            </Button>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Eliminar
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        ¿Está seguro que desesa eliminar el laboratorio?
-                        Se eliminarán también los ítems.
-                    </Typography>
-                    <div className={FormStyles.buttonsContainer}>
-                        <Button onClick={handleClose}>Cancelar</Button>
-                        <Button onClick={handleSubmit}>Confirmar</Button>
-                    </div>
-                </Box>
-            </Modal>
-        </div>
-    );
+
+        // if (!responsePOSTGRES.ok || !responseBLOB.ok) {
+        //     throw new Error('Error al eliminar laboratorio: ' + responsePOSTGRES.statusText);
+        // } else {
+        //     alert("Se ha eliminado correctamente.");
+        // }
+
+        // Limpiar el campo del formulario después de la eliminación exitosa
+        handleRefresh();
+        close();
+    } catch (error) {
+        console.error(error.message);
+    }
+};
+
+
+const [open, setOpen] = React.useState(false);
+const handleOpen = () => setOpen(true);
+const handleClose = () => setOpen(false);
+
+return (
+    <div>
+        <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
+            Eliminar
+        </Button>
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    Eliminar
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    ¿Está seguro que desesa eliminar el laboratorio?
+                    Se eliminarán también los ítems.
+                </Typography>
+                <div className={FormStyles.buttonsContainer}>
+                    <Button onClick={handleClose}>Cancelar</Button>
+                    <Button onClick={handleSubmit}>Confirmar</Button>
+                </div>
+            </Box>
+        </Modal>
+    </div>
+);
 }

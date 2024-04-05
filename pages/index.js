@@ -7,8 +7,12 @@ import SearchAppBar from '../components/searchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 
+import toast, { Toaster } from 'react-hot-toast';
+
+
 //Styles
 import HomeStyles from '../styles/Home.module.css';
+import readLab from '../components/firebaseStuff/read-lab';
 
 export default
   function HomePage() {
@@ -20,17 +24,13 @@ export default
 
   const fetchLabs = async () => {
     try {
-      const response = await fetch('/api/read_lab'); // Aquí debes poner la ruta correcta a tu API
-      if (!response.ok) {
-        throw new Error('Error al obtener datos: ' + response.statusText);
-      }
-      const data = await response.json();
-
-      const fetchedLabs = data.result.rows;
-      setLaboratories(fetchedLabs)
-      setLoading(false);
+      await readLab().then((res) => {
+        console.log('Se extrayeron de la db los labs exitosamente.')
+        setLaboratories(res);
+        setLoading(false);
+      })
     } catch (error) {
-      console.error(error.message);
+      console.error('Error al extraer los laboratorios de la db.')
     }
   };
 
@@ -47,7 +47,7 @@ export default
   //por cada caracter en el input se usa una funcion para iterar sobre los labs
   // y determinar si contiene ese caracter, para usar toggleClassList
 
-  
+
 
   if (loading) {
     laboratoryCards = 'Cargando laboratorios...';
@@ -70,6 +70,7 @@ export default
         <LabsContainerControls handleRefresh={handleRefresh} />
       </div>
       <LabsContainer labs={laboratoryCards} />
+      <Toaster />
     </>
   );
 }

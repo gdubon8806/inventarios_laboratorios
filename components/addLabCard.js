@@ -9,6 +9,7 @@ import Uploader from './uploader';
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
+import createLab from './firebaseStuff/create-lab';
 
 
 const style = {
@@ -55,22 +56,31 @@ function AddLabForm({ close, handleRefresh }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [imgURL, setImgURL] = useState('');
+    const [imgName, setImgName] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
-            const response = await fetch('/api/create_lab', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, description, imgURL })
-            });
+            createLab(name, description, imgURL, imgName).then(() => {
+                console.log("Exitoso")
+            })
+        } catch (error) {
+            console.error("No se pudo insertar el laboratorio.");
+        }
+        
+        try {
+            // const response = await fetch('/api/create_lab', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ name, description, imgURL })
+            // });
 
-            if (!response.ok) {
-                throw new Error('Error al insertar laboratorio: ' + response.statusText);
-            }
+            // if (!response.ok) {
+            //     throw new Error('Error al insertar laboratorio: ' + response.statusText);
+            // }
 
             // Limpiar los campos del formulario después de la inserción exitosa
             setName('');
@@ -101,7 +111,7 @@ function AddLabForm({ close, handleRefresh }) {
                     {/* <Uploader setImgURL = {setImgURL}></Uploader> */}
                 </div>
             </form>
-            <Uploader setImgURL={setImgURL}></Uploader>
+            <Uploader setImgURL={setImgURL} setImgName = {setImgName}></Uploader>
             <div className={FormStyles.btnsForm}>
                 <Button onClick={close}>Cancelar</Button>
                 <Button onClick={handleSubmit}>Agregar</Button>

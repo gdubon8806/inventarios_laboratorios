@@ -9,6 +9,7 @@ import { useState } from 'react';
 import Uploader from './uploader';
 
 import FormStyles from '../styles/Form.module.css'
+import createItem from './firebaseStuff/create-item';
 
 
 const style = {
@@ -61,32 +62,51 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
     const [tipo, setTipo] = useState('');
     const [cantidad, setCantidad] = useState('');
     const [imgURL, setImgURL] = useState('');
+    const [imgName, setImgName] = useState('');
+
     const [observaciones, setObservaciones] = useState([]);
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('/api/create_item', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    equipo,
-                    marca,
-                    modelo,
-                    ubicacion,
-                    columnaDeLocalizacion,
-                    tipo,
-                    cantidad,
-                    imgURL,
-                    observaciones,
-                    idLab
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al insertar laboratorio: ' + response.statusText);
+            // const response = await fetch('/api/create_item', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         equipo,
+            //         marca,
+            //         modelo,
+            //         ubicacion,
+            //         columnaDeLocalizacion,
+            //         tipo,
+            //         cantidad,
+            //         imgURL,
+            //         observaciones,
+            //         idLab
+            //     })
+            // });
+            const itemData =  {
+                equipo,
+                marca,
+                modelo,
+                ubicacion,
+                columnadelocalizacion: columnaDeLocalizacion ,
+                tipo,
+                cantidad,
+                imgurl: imgURL,
+                imgname: imgName,
+                observaciones,
+                id_lab: idLab
             }
+
+            const resFireStore = await createItem(itemData).then((res) => {
+                
+            })
+
+            // if (!response.ok) {
+            //     throw new Error('Error al insertar laboratorio: ' + response.statusText);
+            // }
 
             // Limpiar los campos del formulario después de la inserción exitosa
             setEquipo('');
@@ -159,7 +179,7 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
                     <Button onClick={handleSubmit}>Agregar</Button>
                 </div>
             </form>
-            <Uploader setImgURL={setImgURL}></Uploader>
+            <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
 
         </div>
     )

@@ -1,24 +1,22 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
+import { Toaster } from 'react-hot-toast';
 
-import toast, { Toaster } from 'react-hot-toast';
-
+//Request data components
+import readLab from '../components/firebaseStuff/read-lab';
 
 //Styles
 import HomeStyles from '../styles/Home.module.css';
-import readLab from '../components/firebaseStuff/read-lab';
 
 export default
   function HomePage() {
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState('');
 
   let laboratoryCards;
 
@@ -42,12 +40,6 @@ export default
   const handleRefresh = () => {
     fetchLabs();
   };
-
-  //primero cargan los labs
-  //por cada caracter en el input se usa una funcion para iterar sobre los labs
-  // y determinar si contiene ese caracter, para usar toggleClassList
-
-
 
   if (loading) {
     laboratoryCards = 'Cargando laboratorios...';

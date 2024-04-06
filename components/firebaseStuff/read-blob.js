@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import { getStorage, ref, listAll, getDownloadURL, list } from "firebase/storage";
-import { storage } from './uploadImages';
+import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { storage } from '../../firebaseConfig';
 
-export default async function getImageUrl(name) {
+export default async function getImageUrl() {
   let urls = '';
   try {
     const storageRef = ref(storage, 'images/');

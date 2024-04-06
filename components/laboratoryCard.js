@@ -2,16 +2,14 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
 import Link from 'next/link';
-import getImageUrl from '../components/firebaseStuff/mostrar-imgs';
+// import getImageUrl from './firebaseStuff/read-blob';
 
 
 import HomeStyles from '../styles/Home.module.css';
 import OptionsLabCard from './optionsLabCard';
-import { useEffect, useState } from 'react';
 
 export default function LaboratoryCard({ lab, handleRefresh }) {
   // const [imageUrl, setImageUrl] = useState(''); // Estado local para almacenar la URL de la imagen

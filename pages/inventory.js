@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import InventoryStyles from '../styles/Inventory.module.css';
 import { useEffect, useState } from "react";
+import readItem from "../components/firebaseStuff/read-item";
 
 export default function inventoryPage() {
     const [items, setItems] = useState([]);
@@ -26,29 +27,32 @@ export default function inventoryPage() {
     const [loading, setLoading] = useState(true);
 
     const searchpParams = useSearchParams();
-    let id = parseInt(searchpParams.get("id"));
+    let id = searchpParams.get("id");
     let itemCards;
     let id_lab = id;
 
     const fetchItems = async () => {
         try {
-            const response = await fetch('/api/read_items', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id
-                })
-            }); // Aquí debes poner la ruta correcta a tu API
-            if (!response.ok) {
-                throw new Error('Error al obtener datos: ' + response.statusText);
-            }
-            const data = await response.json();
+            // const response = await fetch('/api/read_items', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         id
+            //     })
+            // }); // Aquí debes poner la ruta correcta a tu API
+            // if (!response.ok) {
+            //     throw new Error('Error al obtener datos: ' + response.statusText);
+            // }
+            // const data = await response.json();
 
-            const fetchedItems = data.result.rows;
-            setItems(fetchedItems)
-            setLoading(false);
+            // const fetchedItems = data.result.rows;
+            const response = await readItem(id_lab).then((res) => {
+                setItems(res)
+                setLoading(false);
+            })
+
         } catch (error) {
             console.error(error.message);
         }
@@ -101,7 +105,7 @@ export default function inventoryPage() {
         <div>
             <HeaderBar />
             <h2 className={InventoryStyles.subheader}>{lab}</h2>
-            <InventoryControls handleRefresh={handleRefresh} id_lab = {id_lab} name={lab} addItem={addItem} setFilters={setFilters} />
+            <InventoryControls handleRefresh={handleRefresh} id_lab={id_lab} name={lab} addItem={addItem} setFilters={setFilters} />
             <div className={InventoryStyles.itemsFiltererContainer}>
                 <ItemsFilterer setFilters={setFilters} />
             </div>
@@ -122,7 +126,7 @@ function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters })
                 </Link>
             </div>
             <div className="addItemBtnContainer">
-                <AddItemCard handleRefresh={handleRefresh} id_lab= {id_lab} handleAdd={addItem} />
+                <AddItemCard handleRefresh={handleRefresh} id_lab={id_lab} handleAdd={addItem} />
             </div>
 
         </div>
@@ -183,7 +187,7 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     />
                     <div>
                         <label>Equipo:</label>
-                        <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} readOnly/>
+                        <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} readOnly />
                     </div>
                     <div>
                         <label>Marca:</label>
@@ -191,23 +195,23 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     </div>
                     <div>
                         <label>Ubicación:</label>
-                        <input type="text" name="ubicacion_item" placeholder="Sin datos" value={details.ubicacion} readOnly/>
+                        <input type="text" name="ubicacion_item" placeholder="Sin datos" value={details.ubicacion} readOnly />
                     </div>
                     <div>
                         <label>Modelo:</label>
-                        <input type="text" name="modelo_item" placeholder="Sin datos" value={details.modelo} readOnly/>
+                        <input type="text" name="modelo_item" placeholder="Sin datos" value={details.modelo} readOnly />
                     </div>
                     <div>
                         <label>Columna de localización:</label>
-                        <input type="text" name="localizacion_item" placeholder="Sin datos" value={details.columnaDeLocalizacion}  readOnly/>
+                        <input type="text" name="localizacion_item" placeholder="Sin datos" value={details.columnadelocalizacion} readOnly />
                     </div>
                     <div>
                         <label>Tipo:</label>
-                        <input type="text" name="tipo_item" placeholder="Sin datos" value={details.tipo} readOnly/>
+                        <input type="text" name="tipo_item" placeholder="Sin datos" value={details.tipo} readOnly />
                     </div>
                     <div>
                         <label>Cantidad:</label>
-                        <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad}  readOnly/>
+                        <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad} readOnly />
                     </div>
                 </div>
             </div>

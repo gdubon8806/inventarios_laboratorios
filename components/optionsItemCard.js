@@ -9,6 +9,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import Uploader from './uploader';
 
+import updateItem from './firebaseStuff/update-item';
+import deleteItem from './firebaseStuff/delete-item';
+import deleteImage from './firebaseStuff/delete-blob';
+
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
@@ -66,33 +70,51 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
     const [tipo, setTipo] = useState(item.tipo);
     const [cantidad, setCantidad] = useState(item.cantidad);
     const [imgURL, setImgURL] = useState(item.imgurl);
+    const [imgName, setImgName] = useState(item.imgname);
     const [observaciones, setObservaciones] = useState(item.observaciones);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('/api/update_item', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id,
-                    equipo,
-                    marca,
-                    modelo,
-                    ubicacion,
-                    columnaDeLocalizacion,
-                    tipo,
-                    cantidad,
-                    imgURL,
-                    observaciones
-                })
-            });
+            // const response = await fetch('/api/update_item', {
+            //     method: 'PUT',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         id,
+            //         equipo,
+            //         marca,
+            //         modelo,
+            //         ubicacion,
+            //         columnaDeLocalizacion,
+            //         tipo,
+            //         cantidad,
+            //         imgURL,
+            //         observaciones
+            //     })
+            // });
 
-            if (!response.ok) {
-                throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+            // if (!response.ok) {
+            //     throw new Error('Error al actualizar laboratorio: ' + response.statusText);
+            // }
+
+            const newData = {
+                equipo,
+                marca,
+                modelo,
+                ubicacion,
+                columnaDeLocalizacion,
+                tipo,
+                cantidad,
+                imgurl: imgURL,
+                imgname: imgName,
+                observaciones
             }
+
+            const response = updateItem(id, newData).then(() => {
+                console.log("Se hizo la actualizacion de item exitosamente");
+            })
 
             // Limpiar los campos del formulario después de la actualización exitosa
             setEquipo('');
@@ -183,7 +205,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                             <Button onClick={handleSubmit}>Guardar cambios</Button>
                         </div>
                     </form>
-                    <Uploader setImgURL={setImgURL}></Uploader>
+                    <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
                 </Box>
             </Modal>
         </div>
@@ -193,30 +215,44 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
 
 function DeleteItemCard({ item, close, handleRefresh }) {
     const [idItem, setIdItem] = useState(item.id);
-    const [imgURL, setImgURL] = useState(item.imgurl);
+    const [imgURL, setImgURL] = useState(item.imgname);
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
-            const response = await fetch('/api/delete_item', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: idItem })
-            });
+            // const response = await fetch('/api/delete_item', {
+            //     method: 'DELETE',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ id: idItem })
+            // });
 
-            const responseBLOB = await fetch('/api/delete_blob', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: imgURL })
-            });
+            // const responseBLOB = await fetch('/api/delete_blob', {
+            //     method: 'DELETE',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ url: imgURL })
+            // });
 
-            if (!response.ok) {
-                throw new Error('Error al eliminar item: ' + response.statusText);
+            // if (!response.ok) {
+            //     throw new Error('Error al eliminar item: ' + response.statusText);
+            // }
+            const resFireStore = await deleteItem(idItem);
+            if (resFireStore) {
+                console.log('El ítem se eliminó correctamente.');
+            } else {
+                console.log('Hubo un error al eliminar el ítem.');
             }
+            const resStorage = await deleteImage(`images/${item.imgname}`);
+            if (resStorage) {
+                console.log('El laboratorio se eliminó correctamente.');
+            } else {
+                console.log('Hubo un error al eliminar el laboratorio.');
+            }
+
+
 
             // Limpiar el campo del formulario después de la eliminación exitosa
             handleRefresh();

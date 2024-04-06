@@ -8,6 +8,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import Uploader from './uploader';
+import toast from 'react-hot-toast';
 
 import updateItem from './firebaseStuff/update-item';
 import deleteItem from './firebaseStuff/delete-item';
@@ -23,13 +24,12 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: "90vw",
-    height: "80vh",
+    width: '90vw',
+    height: '80vh',
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
-    overflow: "auto"
+    overflowY: 'auto',
 };
 
 export default function OptionsItemCard({ item, items, setItems, handleRefresh }) {
@@ -76,29 +76,6 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            // const response = await fetch('/api/update_item', {
-            //     method: 'PUT',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({
-            //         id,
-            //         equipo,
-            //         marca,
-            //         modelo,
-            //         ubicacion,
-            //         columnaDeLocalizacion,
-            //         tipo,
-            //         cantidad,
-            //         imgURL,
-            //         observaciones
-            //     })
-            // });
-
-            // if (!response.ok) {
-            //     throw new Error('Error al actualizar laboratorio: ' + response.statusText);
-            // }
-
             const newData = {
                 equipo,
                 marca,
@@ -113,7 +90,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
             }
 
             const response = updateItem(id, newData).then(() => {
-                console.log("Se hizo la actualizacion de item exitosamente");
+                toast("Se ha actualizado el ítem exitosamente.");
             })
 
             // Limpiar los campos del formulario después de la actualización exitosa
@@ -152,60 +129,42 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                         Editar ítem
                     </Typography>
                     <form className={FormStyles.form}>
-                        <div>
-                            <label>
-                                Equipo:
-                            </label>
-                            <input type="text" name="equipo" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Programmable DC POWER Supply' />
-                        </div>
-                        <div>
-                            <label>Marca:</label>
-                            <input type="text" name="marca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='EXTECH-Instruments' />
-                        </div>
-                        <div>
-                            <label>
-                                Modelo:
-                            </label>
-                            <input type="text" name="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='382280' />
-                        </div>
-                        <div>
-                            <label>
-                                Ubicacion:
-                            </label>
-                            <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Mesa de trabajo' />
-                        </div>
-                        <div>
-                            <label>
-                                Columna de localizacion:
-                            </label>
-                            <input type="text" name="columnaDeLocalizacion" value={columnaDeLocalizacion} onChange={(e) => setcolumnaDeLocalizacion(e.target.value)} placeholder='3/F2-1/E2-3/D2' />
-                        </div>
-                        <div>
-                            <label>
-                                Tipo:
-                            </label>
-                            <input type="text" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Equipo' />
-                        </div>
-
-                        <div>
-                            <label>
-                                Cantidad:
-                            </label>
-                            <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='7' />
-                        </div>
-                        <div>
-                            <label>
-                                Observaciones:
-                            </label>
-                            <input type="text" name="observaciones" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='' />
-                        </div>
-
-                        <div className={FormStyles.buttonsContainer}>
-                            <Button onClick={handleClose}>Cancelar</Button>
-                            <Button onClick={handleSubmit}>Guardar cambios</Button>
-                        </div>
+                        <label>
+                            Equipo:
+                        </label>
+                        <input type="text" name="equipo" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Programmable DC POWER Supply' />
+                        <label>Marca:</label>
+                        <input type="text" name="marca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='EXTECH-Instruments' />
+                        <label>
+                            Modelo:
+                        </label>
+                        <input type="text" name="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='382280' />
+                        <label>
+                            Ubicacion:
+                        </label>
+                        <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Mesa de trabajo' />
+                        <label>
+                            Columna de localizacion:
+                        </label>
+                        <input type="text" name="columnaDeLocalizacion" value={columnaDeLocalizacion} onChange={(e) => setcolumnaDeLocalizacion(e.target.value)} placeholder='3/F2-1/E2-3/D2' />
+                        <label>
+                            Tipo:
+                        </label>
+                        <input type="text" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Equipo' />
+                        <label>
+                            Cantidad:
+                        </label>
+                        <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='7' />
+                        <label>
+                            Observaciones:
+                        </label>
+                        <input type="text" name="observaciones" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='' />
                     </form>
                     <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+                    <div className={FormStyles.btnsContainer}>
+                        <Button onClick={handleClose}>Cancelar</Button>
+                        <Button onClick={handleSubmit}>Guardar cambios</Button>
+                    </div>
                 </Box>
             </Modal>
         </div>
@@ -220,40 +179,18 @@ function DeleteItemCard({ item, close, handleRefresh }) {
         event.preventDefault();
 
         try {
-            // const response = await fetch('/api/delete_item', {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({ id: idItem })
-            // });
-
-            // const responseBLOB = await fetch('/api/delete_blob', {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({ url: imgURL })
-            // });
-
-            // if (!response.ok) {
-            //     throw new Error('Error al eliminar item: ' + response.statusText);
-            // }
             const resFireStore = await deleteItem(idItem);
             if (resFireStore) {
-                console.log('El ítem se eliminó correctamente.');
+                toast('¡El ítem se eliminó correctamente!');
             } else {
-                console.log('Hubo un error al eliminar el ítem.');
+                toast.error('¡Hubo un error al eliminar el ítem!');
             }
             const resStorage = await deleteImage(`images/${item.imgname}`);
             if (resStorage) {
-                console.log('El laboratorio se eliminó correctamente.');
+                toast('¡La imagen asociada se eliminó correctamente tambien!');
             } else {
-                console.log('Hubo un error al eliminar el laboratorio.');
+                toast.error('¡Hubo un error al eliminar la imagen asociada al ítem!');
             }
-
-
-
             // Limpiar el campo del formulario después de la eliminación exitosa
             handleRefresh();
             close();

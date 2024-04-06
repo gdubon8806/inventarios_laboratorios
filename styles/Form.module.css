@@ -1,19 +1,31 @@
 .form {
+    --bk-input-text:  #f8f8f8b3;
     display: grid;
-    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    row-gap: 1rem;
+    column-gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-.inputsForm {
-    place-self: start;
+.form input {
+    min-width: 100px;
+    border-radius: 10px;
+    background-color: var(--bk-input-text);
 }
 
-.btnsForm {
-    place-self: end;
+.btnsAddLabContainer, .btnsContainer {
+    margin-top: 10px;
+    display: flex;
+    justify-content: end;
 }
 
-.addLabUploaderImageForm {
-    
+
+.headerForm {
+    font-weight: lighter;
+    text-align: center;
 }
+
 
 .addLabUploaderImage, .btnFormContainer {
     grid-column: 1 / -1;

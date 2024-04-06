@@ -7,6 +7,7 @@
     width: 100%;
     border-radius: 5px;
     gap: 1rem;
+    justify-items: center;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     grid-auto-rows: min-content;
@@ -38,7 +39,7 @@
 }
 
 .ItemLink:hover {
-    color: gray;
+    color: #1976d2;
     cursor: pointer;
 }
 

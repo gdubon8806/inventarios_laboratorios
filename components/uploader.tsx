@@ -111,8 +111,8 @@ export default function Uploader({setImgURL, setImgName}) {
     >
       <div>
         <div className="space-y-1 mb-4">
-          <h3 className="text-xl font-semibold">Subir imagen de elemento</h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-xl text-center">Subir imagen</p>
+          <p className="text-sm text-gray-500 text-center">
             Formatos aceptados: .png, .jpg, .gif
           </p>
         </div>
@@ -219,14 +219,14 @@ export default function Uploader({setImgURL, setImgName}) {
         disabled={saveDisabled}
         className={`${
           saveDisabled
-            ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
-            : 'border-black bg-black text-white hover:bg-white hover:text-black'
+            ? 'cursor-not-allowed border-lightgray-200 bg-gray-100 text-gray-400'
+            : 'border-white bg-white text-blue-600 hover:bg-blue-50'
         } flex h-10 w-full items-center justify-center rounded-md border text-sm transition-all focus:outline-none`}
       >
         {saving ? (
           <LoadingDots color="#808080" />
         ) : (
-          <p className="text-sm">Confirmar subir este elemento</p>
+          <p className="text-sm">CONFIRMAR SUBIR IMÁGEN</p>
         )}
       </button>
     </form>

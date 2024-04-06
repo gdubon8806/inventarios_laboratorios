@@ -10,7 +10,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ItemsFilterer from '../components/itemsFilterer';
-
+import { Toaster } from 'react-hot-toast';
 
 import AddItemCard from "../components/addItemCard";
 import OptionsItemCard from "../components/optionsItemCard";
@@ -33,23 +33,8 @@ export default function inventoryPage() {
 
     const fetchItems = async () => {
         try {
-            // const response = await fetch('/api/read_items', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({
-            //         id
-            //     })
-            // }); // Aquí debes poner la ruta correcta a tu API
-            // if (!response.ok) {
-            //     throw new Error('Error al obtener datos: ' + response.statusText);
-            // }
-            // const data = await response.json();
-
-            // const fetchedItems = data.result.rows;
             const response = await readItem(id_lab).then((res) => {
-                setItems(res)
+                setItems(res);
                 setLoading(false);
             })
 
@@ -112,6 +97,7 @@ export default function inventoryPage() {
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
             </div>
+            <Toaster />
 
         </div>
     )
@@ -212,6 +198,10 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                     <div>
                         <label>Cantidad:</label>
                         <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad} readOnly />
+                    </div>
+                    <div>
+                        <label>Observaciones:</label>
+                        <input type="text" name="observaciones_item" placeholder="Sin datos" value={details.observaciones} readOnly />
                     </div>
                 </div>
             </div>

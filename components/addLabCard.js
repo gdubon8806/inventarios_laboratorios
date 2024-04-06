@@ -5,8 +5,10 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
 import Uploader from './uploader';
+import toast from 'react-hot-toast';
 
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 import FormStyles from '../styles/Form.module.css'
 import createLab from './firebaseStuff/create-lab';
@@ -17,14 +19,12 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'auto',
-    height: '70vh',
+    width: '90vw',
+    height: '80vh',
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
-    overflowY: 'auto'
-    
+    overflowY: 'auto',
 };
 
 export default function AddLabCard({ handleRefresh }) {
@@ -53,6 +53,7 @@ export default function AddLabCard({ handleRefresh }) {
 }
 
 function AddLabForm({ close, handleRefresh }) {
+    // const router = useRouter();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [imgURL, setImgURL] = useState('');
@@ -60,63 +61,49 @@ function AddLabForm({ close, handleRefresh }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        //validar datos
+        if(name.length < 1) {
+            toast("¡Debes al menos escribir el nombre para agregar el laboratorio!")
+            return;
+        }
+        //intentar enviar datos a db
         try {
             createLab(name, description, imgURL, imgName).then(() => {
-                console.log("Exitoso")
+                toast("¡Se ha insertado el nuevo laboratorio exitosamente!")
             })
         } catch (error) {
-            console.error("No se pudo insertar el laboratorio.");
+            toast.error("Ocurrió algo. No se pudo insertar el laboratorio.");
         }
-        
+
         try {
-            // const response = await fetch('/api/create_lab', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({ name, description, imgURL })
-            // });
-
-            // if (!response.ok) {
-            //     throw new Error('Error al insertar laboratorio: ' + response.statusText);
-            // }
-
             // Limpiar los campos del formulario después de la inserción exitosa
             setName('');
             setDescription('');
             setImgURL('')
-            alert("Se ha insertado el nuevo laboratorio exitosamente.")
-            handleRefresh();
+            handleRefresh(); //cambiar por otra forma
             close();
+
+            //recargar pagina para ver cambios
+            // router.reload();
         } catch (error) {
             console.error(error.message);
         }
     };
     return (
         <div>
-
+            <h2 className={FormStyles.headerForm}>Ingresar datos</h2>
             <form className={FormStyles.form}>
-                <div className={FormStyles.inputsForm}>
-                    <label>
-                        Nombre:
-                    </label>
-                    <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
-                </div>
-                <div>
-                    <label>Descripción:</label>
-                    <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
-                </div>
-                <div className={FormStyles.addLabUploaderImage}>
-                    {/* <Uploader setImgURL = {setImgURL}></Uploader> */}
-                </div>
+                <label>Nombre:</label>
+                <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Ingresar nombre...' minLength={1} required/>
+                <label>Descripción:</label>
+                <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Ingresar detalles...' />
             </form>
-            <Uploader setImgURL={setImgURL} setImgName = {setImgName}></Uploader>
-            <div className={FormStyles.btnsForm}>
+            <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+            <div className={FormStyles.btnsAddLabContainer}>
                 <Button onClick={close}>Cancelar</Button>
                 <Button onClick={handleSubmit}>Agregar</Button>
             </div>
-            
+
         </div>
 
     )

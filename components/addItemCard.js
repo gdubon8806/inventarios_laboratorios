@@ -7,6 +7,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { useState } from 'react';
 import Uploader from './uploader';
+import toast from 'react-hot-toast';
+
 
 import FormStyles from '../styles/Form.module.css'
 import createItem from './firebaseStuff/create-item';
@@ -17,13 +19,12 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'auto',
-    height: '70vh',
+    width: '90vw',
+    height: '80vh',
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
-    overflowY: 'auto'
+    overflowY: 'auto',
 };
 
 export default function AddItemCard({ handleRefresh, id_lab, handleAdd }) {
@@ -68,30 +69,16 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            // const response = await fetch('/api/create_item', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({
-            //         equipo,
-            //         marca,
-            //         modelo,
-            //         ubicacion,
-            //         columnaDeLocalizacion,
-            //         tipo,
-            //         cantidad,
-            //         imgURL,
-            //         observaciones,
-            //         idLab
-            //     })
-            // });
-            const itemData =  {
+            if(equipo.length < 1) {
+                toast("¡Debes al menos escribir el nombre para agregar el ítem!")
+                return;
+            }
+            const itemData = {
                 equipo,
                 marca,
                 modelo,
                 ubicacion,
-                columnadelocalizacion: columnaDeLocalizacion ,
+                columnadelocalizacion: columnaDeLocalizacion,
                 tipo,
                 cantidad,
                 imgurl: imgURL,
@@ -101,12 +88,8 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
             }
 
             const resFireStore = await createItem(itemData).then((res) => {
-                
+                toast("¡Se ha insertado el nuevo ítem exitosamente!")
             })
-
-            // if (!response.ok) {
-            //     throw new Error('Error al insertar laboratorio: ' + response.statusText);
-            // }
 
             // Limpiar los campos del formulario después de la inserción exitosa
             setEquipo('');
@@ -118,68 +101,52 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
             setCantidad('');
             setImgURL('');
             setObservaciones('');
-            alert("Se ha insertado el nuevo laboratorio exitosamente.")
             handleRefresh();
             close();
         } catch (error) {
-            console.error(error.message);
+             toast.error("Ocurrió algo. No se pudo insertar el ítem.");
         }
     };
     return (
         <div>
+            <h2 className={FormStyles.headerForm}>Ingresar datos</h2>
             <form className={FormStyles.form}>
-                <div>
-                    <label>
-                        Equipo:
-                    </label>
-                    <input type="text" name="nombre" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Router' />
-                </div>
-                <div>
-                    <label>Marca:</label>
-                    <input type="text" name="descripcion" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='MikroTik' />
-                </div>
-                <div>
-                    <label>
-                        modelo:
-                    </label>
-                    <input type="text" name="nombre" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='hEX lite' />
-                </div>
-                <div>
-                    <label>
-                        Ubicación:
-                    </label>
-                    <input type="text" name="nombre" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Armario 3' />
-                </div>
-                <div>
-                    <label>
-                        Columna de localización:
-                    </label>
-                    <input type="text" name="nombre" value={columnaDeLocalizacion} onChange={(e) => setColumnaDeLocalizacion(e.target.value)} placeholder='Nivel 4' />
-                </div>
-                <div>
-                    <label>
-                        Tipo:
-                    </label>
-                    <input type="text" name="nombre" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Equipo' />
-                </div>
-                <div>
-                    <label>
-                        Cantidad:
-                    </label>
-                    <input type="text" name="nombre" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='5' />
-                </div>
-                <div>
-                    <label>
-                        Observaciones:
-                    </label>
-                    <input type="text" name="nombre" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='queeee' />
-                </div>
-                <div>
-                    <Button onClick={close}>Cancelar</Button>
-                    <Button onClick={handleSubmit}>Agregar</Button>
-                </div>
+                <label>
+                    Equipo:
+                </label>
+                <input type="text" name="nombre" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Ingresar nombre de equipo...' minLength={1} required />
+                <label>Marca:</label>
+                <input type="text" name="descripcion" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Modelo:
+                </label>
+                <input type="text" name="nombre" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Ubicación:
+                </label>
+                <input type="text" name="nombre" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Columna de localización:
+                </label>
+                <input type="text" name="nombre" value={columnaDeLocalizacion} onChange={(e) => setColumnaDeLocalizacion(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Tipo:
+                </label>
+                <input type="text" name="nombre" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Cantidad:
+                </label>
+                <input type="text" name="nombre" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='Ingresar...' />
+                <label>
+                    Observaciones:
+                </label>
+                <input type="text" name="nombre" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='Ingresar...' />
             </form>
             <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+            <div className={FormStyles.btnsAddLabContainer}>
+                <Button onClick={close}>Cancelar</Button>
+                <Button onClick={handleSubmit}>Agregar</Button>
+            </div>
 
         </div>
     )

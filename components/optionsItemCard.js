@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import Image from 'next/image'
 
@@ -50,9 +51,10 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Opciones
-                    </Typography>
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás </Button>
+                        <h2>Opciones</h2>
+                    </div>
                     <EditItemCard item={item} items={items} setItems={setItems} handleRefresh={handleRefresh} close={handleClose} />
                     <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} />
                 </Box>
@@ -141,41 +143,43 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Editar ítem
-                    </Typography>
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás </Button>
+                        <h2>Opciones</h2>
+                    </div>
                     {setImg(imgURL)}
+                    <br></br>
                     <form className={FormStyles.form}>
                         <label>
                             Equipo:
                         </label>
-                        <input type="text" name="equipo" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Programmable DC POWER Supply' />
+                        <input type="text" name="equipo" value={equipo} onChange={(e) => setEquipo(e.target.value)} placeholder='Ingresar...' />
                         <label>Marca:</label>
-                        <input type="text" name="marca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='EXTECH-Instruments' />
+                        <input type="text" name="marca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Modelo:
                         </label>
-                        <input type="text" name="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='382280' />
+                        <input type="text" name="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Ubicacion:
                         </label>
-                        <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Mesa de trabajo' />
+                        <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Columna de localizacion:
                         </label>
-                        <input type="text" name="columnaDeLocalizacion" value={columnaDeLocalizacion} onChange={(e) => setcolumnaDeLocalizacion(e.target.value)} placeholder='3/F2-1/E2-3/D2' />
+                        <input type="text" name="columnaDeLocalizacion" value={columnaDeLocalizacion} onChange={(e) => setcolumnaDeLocalizacion(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Tipo:
                         </label>
-                        <input type="text" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Equipo' />
+                        <input type="text" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Cantidad:
                         </label>
-                        <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='7' />
+                        <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='Ingresar...' />
                         <label>
                             Observaciones:
                         </label>
-                        <input type="text" name="observaciones" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='' />
+                        <input type="text" name="observaciones" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='Ingresar...' />
                     </form>
                     <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
                     <div className={FormStyles.btnsContainer}>

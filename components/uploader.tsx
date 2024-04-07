@@ -226,7 +226,7 @@ export default function Uploader({setImgURL, setImgName}) {
         {saving ? (
           <LoadingDots color="#808080" />
         ) : (
-          <p className="text-sm">CONFIRMAR SUBIR IMÁGEN</p>
+          <p className="text-sm">CONFIRMAR SUBIR IMAGEN</p>
         )}
       </button>
     </form>

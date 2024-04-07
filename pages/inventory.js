@@ -5,6 +5,7 @@ import HomeStyles from '../styles/Home.module.css';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -109,14 +110,14 @@ export default function inventoryPage() {
 
 export function HeaderBar() {
     return (
-      <header>
-        <div className={InventoryStyles.headerBar}>
-          {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
-          <h1>Inventario de laboratorios</h1>
-        </div>
-      </header>
+        <header>
+            <div className={InventoryStyles.headerBar}>
+                {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
+                <h1>Inventario de laboratorios</h1>
+            </div>
+        </header>
     )
-  }
+}
 
 function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters }) {
     return (
@@ -145,9 +146,15 @@ function Item({ data, items, setItems, handleRefresh }) {
             />
             <CardContent>
                 <ItemDetailsCard details={data} />
-                <Typography variant="body2" color="text.secondary">
-                    {data.marca}
-                </Typography>
+                <br></br>
+                <div className={InventoryStyles.extras}>
+                    <Typography variant="body2" color="text.secondary">
+                        {data.marca}
+                    </Typography>
+                    <Chip color="primary" variant="outlined" label={data.tipo} />
+                    <Chip color="primary" variant="outlined" label={"Cantidad: " + data.cantidad} />
+
+                </div>
             </CardContent>
             <CardActions>
                 <OptionsItemCard item={data} items={items} setItems={setItems} handleRefresh={handleRefresh} />
@@ -155,6 +162,20 @@ function Item({ data, items, setItems, handleRefresh }) {
         </Card>
     );
 }
+function setImg(imgurl) {
+    if (imgurl !== '') {
+        return <CardMedia
+            component="img"
+            alt=""
+            height="230"
+            width="333"
+            image={details.imgurl}
+        />
+    } else {
+        return <p className='text-center text-gray-500'>Sin imagen</p>
+    }
+}
+
 
 function ItemDetailsCard({ details }) {
     const style = {
@@ -194,13 +215,12 @@ function ItemDetailsCard({ details }) {
             >
 
                 <Box sx={style}>
-                    <CardMedia
-                        component="img"
-                        alt=""
-                        height="230"
-                        width="333"
-                        image={details.imgurl}
-                    />
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
+                        <h2>Detalles de ítem</h2>
+                    </div>
+                    {setImg(details.imgurl)}
+                    <br></br>
                     <div className={FormStyles.form}>
                         {/* <Image src={details.imgurl} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image> */}
                         <label>Equipo:</label>

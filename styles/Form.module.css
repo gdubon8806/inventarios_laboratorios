@@ -32,6 +32,14 @@
 
 }
 
+.headerForm {
+    display: grid;
+    align-items: center;
+}
+
+.backBtn {
+    margin-right: auto;
+}
 
 
 .headerForm {

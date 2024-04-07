@@ -131,6 +131,13 @@
     margin-top: 1rem
 }
 
+.extras {
+    display: grid;
+    align-items: center;
+    gap: 0.5rem;
+    grid-template-columns: 2fr 1fr 1fr;
+}
+
 .headerBar {
     display: flex;
     gap: 1rem   ;

@@ -17,6 +17,7 @@ export default
   function HomePage() {
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('');
 
   let laboratoryCards;
 
@@ -47,7 +48,12 @@ export default
     if (laboratories.length == 0) {
       laboratoryCards = 'No hay registros de laboratorios.';
     } else {
-      laboratoryCards = laboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
+      let filteredLaboratories = laboratories.filter((lab) => {
+        if((lab.name.toUpperCase()).includes(filter.toUpperCase())) {
+          return lab;
+        }
+      })
+      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
     }
   }
 
@@ -59,7 +65,7 @@ export default
       <div className={HomeStyles.fixedContainer}>
         {/* <Inventarios /> */}
         <HeaderBar />
-        <LabsContainerControls handleRefresh={handleRefresh} />
+        <LabsContainerControls setFilter = {setFilter} handleRefresh={handleRefresh} />
       </div>
       <LabsContainer labs={laboratoryCards} />
       <Toaster />
@@ -78,11 +84,11 @@ export function HeaderBar() {
   )
 }
 
-function LabsContainerControls({ handleRefresh }) {
+function LabsContainerControls({setFilter, handleRefresh }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
-        <SearchAppBar />
+        <SearchAppBar setFilter = {setFilter} />
         <AddLabCard handleRefresh={handleRefresh} />
       </div>
     </div>

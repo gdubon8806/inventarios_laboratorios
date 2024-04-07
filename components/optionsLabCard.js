@@ -8,6 +8,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 import Uploader from './uploader'
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 import updateLab from './firebaseStuff/update-lab';
 import deleteLab from './firebaseStuff/delete-lab';
@@ -32,6 +33,33 @@ const style = {
     overflowY: 'auto',
 };
 
+// export default function OptionsLabCard({ lab, handleRefresh }) {
+//     const [open, setOpen] = React.useState(false);
+//     const handleOpen = () => setOpen(true);
+//     const handleClose = () => setOpen(false);
+
+//     return (
+//         <div>
+//             {/* <ModeEditIcon></ModeEditIcon> */}
+//             <Button onClick={handleOpen}>Opciones</Button>
+//             <Modal
+//                 open={open}
+//                 onClose={handleClose}
+//                 aria-labelledby="modal-modal-title"
+//                 aria-describedby="modal-modal-description"
+//             >
+//                 <Box sx={style}>
+//                     <Typography id="modal-modal-title" variant="h5" component="h2">
+//                         Opciones
+//                     </Typography>
+//                     {/* <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh}></EditLabCard> */}
+//                     <OptionsLabCard lab = {lab} handleRefresh={handleRefresh}/>
+//                 </Box>
+//             </Modal>
+//         </div>
+//     );
+// }
+
 export default function OptionsLabCard({ lab, handleRefresh }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -40,7 +68,7 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
     return (
         <div>
             {/* <ModeEditIcon></ModeEditIcon> */}
-            <Button onClick={handleOpen} startIcon={<ModeEditIcon />}>Editar</Button>
+            <Button onClick={handleOpen}>Opciones</Button>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -48,21 +76,35 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h5" component="h2">
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         Opciones
                     </Typography>
+                    {/* <EditItemCard item={item} items={items} setItems={setItems} handleRefresh={handleRefresh} close={handleClose} />
+                    <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} /> */}
+                    <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
                     <DeleteLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
-                    <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh}></EditLabCard>
                 </Box>
             </Modal>
-        </div>
+        </div >
     );
 }
+
+
+
+
+
+
+
 function EditLabCard({ lab, close, handleRefresh }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
     const [imgurl, setImgURL] = useState(lab.imgurl);
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -91,25 +133,58 @@ function EditLabCard({ lab, close, handleRefresh }) {
             console.error(error.message);
         }
     };
-
     return (
-        <div className={FormStyles.editLabFormContainer}>
-            <form className={FormStyles.form}>
-                <label>
-                    Nombre:
-                </label>
-                <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Laboratorio de MAC' />
-                <label>Descripción:</label>
-                <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Laboratorio equipado con computadoras iMac.' />
-            </form>
-            <Uploader setImgURL={setImgURL}></Uploader>
-            <div className={FormStyles.buttonsContainer}>
-                <Button onClick={close}>Cancelar</Button>
-                <Button onClick={handleSubmit}>Guardar cambios</Button>
-            </div>
-        </div>
+        <div>
+            <Button onClick={handleOpen} startIcon={<ModeEditIcon />}>
+                Editar
+            </Button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
 
+                <Box sx={style}>
+                    <div>
+                        <div className={FormStyles.editLabFormContainer}>
+                            <h2 className={FormStyles.headerForm}>Datos de laboratorio</h2>
+                            {setImg(imgurl)}
+                            <br />
+                            <form className={FormStyles.form}>
+                                <label>
+                                    Nombre:
+                                </label>
+                                <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Ingresar nombre...' />
+                                <label>Descripción:</label>
+                                <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Ingresar detalles...' />
+                            </form>
+                        </div >
+                        <Uploader setImgURL={setImgURL}></Uploader>
+                        <div className={FormStyles.btnsContainer}>
+                            {/* <DeleteLabCard lab={lab} close={close} handleRefresh={handleRefresh} /> */}
+                            <Button onClick={close}>Cancelar</Button>
+                            <Button onClick={handleSubmit}>Guardar cambios</Button>
+                        </div>
+                    </div >
+                </Box>
+            </Modal>
+        </div>
     )
+}
+
+function setImg(imgurl) {
+    if (imgurl !== '') {
+        return <Image
+            src={imgurl}
+            alt="Imagen de laboratorio"
+            width={500}
+            height={300}
+            layout="responsive"
+        />
+    } else {
+        return <p className='text-center text-gray-500'>Sin imagen</p>
+    }
 }
 
 function DeleteLabCard({ lab, close, handleRefresh }) {
@@ -126,11 +201,13 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
                 toast.error('¡Hubo un error al eliminar el laboratorio!');
             }
 
-            const resStorage = await deleteImage(`images/${lab.imgname}`);
-            if (resStorage) {
-                toast('¡Su imagen asociada se eliminó correctamente tambien!');
-            } else {
-                toast.error('¡Hubo un error al eliminar su imagen asociada!');
+            if (lab.imgname != '') {
+                const resStorage = await deleteImage(`images/${lab.imgname}`);
+                if (resStorage) {
+                    toast('¡Su imagen asociada se eliminó correctamente tambien!');
+                } else {
+                    toast.error('¡Hubo un error al eliminar su imagen asociada!');
+                }
             }
             // Limpiar el campo del formulario después de la eliminación exitosa
             handleRefresh();
@@ -146,7 +223,7 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
     const handleClose = () => setOpen(false);
 
     return (
-        <div>
+        <div className={FormStyles.deleteBtnContainer}>
             <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
                 Eliminar
             </Button>

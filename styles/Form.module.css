@@ -1,7 +1,7 @@
 .form {
     --bk-input-text:  #f8f8f8b3;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 4fr;
     align-items: center;
     row-gap: 1rem;
     column-gap: 0.5rem;
@@ -20,10 +20,27 @@
     justify-content: end;
 }
 
+.deleteBtnContainer {
+    margin-right: auto;
+}
+
+.deleteBtnContainer button {
+    color: rgb(191, 30, 30) 
+}
+.deleteBtnContainer button:hover {
+    background-color: rgb(255, 210, 210) 
+
+}
+
+
 
 .headerForm {
     font-weight: lighter;
     text-align: center;
+}
+
+.editLabFormContainer {
+    margin-bottom: 1rem;
 }
 
 

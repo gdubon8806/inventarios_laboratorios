@@ -38,6 +38,11 @@
     overflow: hidden;
 }
 
+
+.ItemLink {
+    color: black;
+}
+
 .ItemLink:hover {
     color: #1976d2;
     cursor: pointer;

@@ -38,7 +38,7 @@ export default function ItemsFilterer({setFilters}) {
 
   const [filterName, setfilterName] = React.useState([]);
 
-  // setFilters(filterName)
+  setFilters(filterName)
 
   const handleChange = (event) => {
     const {

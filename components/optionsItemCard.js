@@ -4,6 +4,8 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 
+import Image from 'next/image'
+
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -59,6 +61,20 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
     );
 }
 
+
+function setImg(imgurl) {
+    if (imgurl !== '') {
+        return <Image
+            src={imgurl}
+            alt="Imagen de laboratorio"
+            width={500}
+            height={300}
+            layout="responsive"
+        />
+    } else {
+        return <p className='text-center text-gray-500'>Sin imagen</p>
+    }
+}
 
 function EditItemCard({ item, items, setItems, handleRefresh, close }) {
     const [id, setID] = useState(item.id);
@@ -128,6 +144,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         Editar ítem
                     </Typography>
+                    {setImg(imgURL)}
                     <form className={FormStyles.form}>
                         <label>
                             Equipo:
@@ -185,13 +202,16 @@ function DeleteItemCard({ item, close, handleRefresh }) {
             } else {
                 toast.error('¡Hubo un error al eliminar el ítem!');
             }
-            const resStorage = await deleteImage(`images/${item.imgname}`);
-            if (resStorage) {
-                toast('¡La imagen asociada se eliminó correctamente tambien!');
-            } else {
-                toast.error('¡Hubo un error al eliminar la imagen asociada al ítem!');
+
+            if (item.imgname != '') {
+                const resStorage = await deleteImage(`images/${item.imgname}`);
+                if (resStorage) {
+                    toast('¡La imagen asociada se eliminó correctamente tambien!');
+                } else {
+                    toast.error('¡Hubo un error al eliminar la imagen asociada al ítem!');
+                }
+                // Limpiar el campo del formulario después de la eliminación exitosa
             }
-            // Limpiar el campo del formulario después de la eliminación exitosa
             handleRefresh();
             close();
         } catch (error) {
@@ -205,7 +225,7 @@ function DeleteItemCard({ item, close, handleRefresh }) {
     const handleClose = () => setOpen(false);
 
     return (
-        <div>
+        <div className={FormStyles.deleteBtnContainer}>
             <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
                 Eliminar
             </Button>

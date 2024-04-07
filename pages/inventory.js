@@ -3,6 +3,9 @@ import { useSearchParams } from 'next/navigation'
 import { HeaderBar } from './index';
 import Image from 'next/image';
 
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -17,6 +20,8 @@ import OptionsItemCard from "../components/optionsItemCard";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import InventoryStyles from '../styles/Inventory.module.css';
+import FormStyles from '../styles/Form.module.css';
+
 import { useEffect, useState } from "react";
 import readItem from "../components/firebaseStuff/read-item";
 
@@ -62,7 +67,6 @@ export default function inventoryPage() {
         } else {
 
             let itemsToShow;
-
             if (filters.length > 0) {
                 itemsToShow = items.filter((item) => {
                     let ToShow = false;
@@ -120,24 +124,16 @@ function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters })
 }
 
 function Item({ data, items, setItems, handleRefresh }) {
-    const [show, setShow] = useState(false);
-
-    function showItemsDetailsCard() {
-        setShow(!show);
-    }
-
     return (
         <Card sx={{ maxWidth: 345 }}>
             <CardMedia
                 component="img"
-                alt="Item de laboratorio"
+                alt=""
                 height="140"
                 image={data.imgurl}
             />
             <CardContent>
-                <Typography className={InventoryStyles.ItemLink} onClick={showItemsDetailsCard} gutterBottom variant="p" component="div">
-                    {data.equipo}
-                </Typography>
+                <ItemDetailsCard details={data} />
                 <Typography variant="body2" color="text.secondary">
                     {data.marca}
                 </Typography>
@@ -145,25 +141,48 @@ function Item({ data, items, setItems, handleRefresh }) {
             <CardActions>
                 <OptionsItemCard item={data} items={items} setItems={setItems} handleRefresh={handleRefresh} />
             </CardActions>
-            <div className={`${!show ? InventoryStyles.hide : ''}`}>
-                <ItemDetailsCard showItemsDetailsCard={showItemsDetailsCard} details={data} />
-            </div>
         </Card>
     );
 }
 
-function ItemDetailsCard({ showItemsDetailsCard, details }) {
+function ItemDetailsCard({ details }) {
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '90vw',
+        height: '80vh',
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        overflowY: 'auto',
+    };
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const linkItem = {
+        fontSize: '1.2rem',
+        color: 'black',
+        letterSpacing: '1.2px',
+        textDecoration: 'none',
+        textTransform: 'capitalize',
+        paddingLeft: '0',
+    }
 
     return (
-        <div className={InventoryStyles.itemDetailsCardWrapper}>
-            <div className={InventoryStyles.itemDetailsCard}>
-                <div>
-                    <button className={InventoryStyles.btnC1} onClick={showItemsDetailsCard} >Cancel</button>
-                    <h4 className={InventoryStyles.btnC1} >Detalles</h4>
-                    <button className={InventoryStyles.btnC1} onClick={showItemsDetailsCard} >Hecho</button>
-                </div>
-                <div className={InventoryStyles.itemDetails}>
-                    {/* <Image src={details.imgurl} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image> */}
+        <div>
+            {/* <div className={InventoryStyles.ItemLink}> */}
+            <Button style={linkItem} onClick={handleOpen}>{details.equipo}</Button>
+            {/* </div> */}
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+
+                <Box sx={style}>
                     <CardMedia
                         component="img"
                         alt=""
@@ -171,40 +190,27 @@ function ItemDetailsCard({ showItemsDetailsCard, details }) {
                         width="333"
                         image={details.imgurl}
                     />
-                    <div>
+                    <div className={FormStyles.form}>
+                        {/* <Image src={details.imgurl} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image> */}
                         <label>Equipo:</label>
                         <input type="text" name="nombre_item" placeholder="Sin datos" value={details.equipo} readOnly />
-                    </div>
-                    <div>
                         <label>Marca:</label>
                         <input type="text" name="marca_item" placeholder="Sin datos" value={details.marca} readOnly />
-                    </div>
-                    <div>
                         <label>Ubicación:</label>
                         <input type="text" name="ubicacion_item" placeholder="Sin datos" value={details.ubicacion} readOnly />
-                    </div>
-                    <div>
                         <label>Modelo:</label>
                         <input type="text" name="modelo_item" placeholder="Sin datos" value={details.modelo} readOnly />
-                    </div>
-                    <div>
                         <label>Columna de localización:</label>
                         <input type="text" name="localizacion_item" placeholder="Sin datos" value={details.columnadelocalizacion} readOnly />
-                    </div>
-                    <div>
                         <label>Tipo:</label>
                         <input type="text" name="tipo_item" placeholder="Sin datos" value={details.tipo} readOnly />
-                    </div>
-                    <div>
                         <label>Cantidad:</label>
                         <input type="text" name="cantidad_item" placeholder="Sin datos" value={details.cantidad} readOnly />
-                    </div>
-                    <div>
                         <label>Observaciones:</label>
                         <input type="text" name="observaciones_item" placeholder="Sin datos" value={details.observaciones} readOnly />
-                    </div>
-                </div>
-            </div>
-        </div >
+                    </div >
+                </Box>
+            </Modal>
+        </div>
     )
 }

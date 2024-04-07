@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
-import { HeaderBar } from './index';
 import Image from 'next/image';
+import HomeStyles from '../styles/Home.module.css';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -106,6 +106,17 @@ export default function inventoryPage() {
         </div>
     )
 }
+
+export function HeaderBar() {
+    return (
+      <header>
+        <div className={InventoryStyles.headerBar}>
+          {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
+          <h1>Inventario de laboratorios</h1>
+        </div>
+      </header>
+    )
+  }
 
 function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters }) {
     return (

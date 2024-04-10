@@ -1,10 +1,13 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
+import Button from '@mui/material/Button'
 import { Toaster } from 'react-hot-toast';
 
 //Request data components
@@ -12,9 +15,44 @@ import readLab from '../components/firebaseStuff/read-lab';
 
 //Styles
 import HomeStyles from '../styles/Home.module.css';
+import FormStyles from '../styles/Form.module.css';
 
-export default
-  function HomePage() {
+
+export default function Index() {
+  const { user, error, isLoading } = useUser();
+
+  if (isLoading) return <div>Cargando...</div>;
+  if (error) return <div>{error.message}</div>;
+
+  if (user) {
+    return (
+      <div>
+        <HomePage></HomePage>
+        Welcome {user.name}! <a href="/api/auth/logout">Logout</a>
+      </div>
+    );
+  }
+
+  return (
+    <div className={FormStyles.loginContainerWrapper}>
+      <div className={FormStyles.loginContainer}>
+        <Image 
+            src='/img/ceutec_logo.png' 
+            width={180}
+            height={180}
+            alt='Logo de CEUTEC'></Image>
+        <h1>
+          ¡Bienvenido!
+        </h1>
+        <h2>Estás en Inventarios de Laboratorios</h2>
+        <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
+      </div>
+    </div>
+  )
+}
+
+
+export function HomePage() {
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
@@ -49,7 +87,7 @@ export default
       laboratoryCards = 'No hay registros de laboratorios.';
     } else {
       let filteredLaboratories = laboratories.filter((lab) => {
-        if((lab.name.toUpperCase()).includes(filter.toUpperCase())) {
+        if ((lab.name.toUpperCase()).includes(filter.toUpperCase())) {
           return lab;
         }
       })
@@ -63,9 +101,8 @@ export default
         <title>Inventarios</title>
       </Head>
       <div className={HomeStyles.fixedContainer}>
-        {/* <Inventarios /> */}
         <HeaderBar />
-        <LabsContainerControls setFilter = {setFilter} handleRefresh={handleRefresh} />
+        <LabsContainerControls setFilter={setFilter} handleRefresh={handleRefresh} />
       </div>
       <LabsContainer labs={laboratoryCards} />
       <Toaster />
@@ -84,11 +121,11 @@ export function HeaderBar() {
   )
 }
 
-function LabsContainerControls({setFilter, handleRefresh }) {
+function LabsContainerControls({ setFilter, handleRefresh }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
-        <SearchAppBar setFilter = {setFilter} />
+        <SearchAppBar setFilter={setFilter} />
         <AddLabCard handleRefresh={handleRefresh} />
       </div>
     </div>

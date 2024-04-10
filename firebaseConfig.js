@@ -1,6 +1,8 @@
+
 import { initializeApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from "firebase/storage";
+// import firebaseui from 'firebaseui';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -18,4 +20,9 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const firestore = getFirestore(app);
 
-export { storage, firestore };
+//Auth
+// Initialize the FirebaseUI Widget using Firebase.
+// Initialize the FirebaseUI Widget using Firebase.
+
+
+export { storage, firestore, app };

@@ -3,6 +3,8 @@ Cositas por hacer:
 2. Agregar un par de funcionalidades para coronar
 3. Pulir UI y UX.
 
+agregar search bar a cada laboratorio
+agregar nombre de lab a cada lab en encabezado
 
 !!!! Important
 1. Al eliminar un lab, se deben eliminar todos los items?

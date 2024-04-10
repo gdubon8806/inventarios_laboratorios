@@ -21,7 +21,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "pages/imgUploader/upload.tsx"  ],
+, "pages/imgUploader/upload.tsx", "pages/login.js"  ],
   "exclude": [
     "node_modules"
   ]

@@ -3,6 +3,9 @@ import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
 import HomeStyles from '../styles/Home.module.css';
 
+import { useUser } from '@auth0/nextjs-auth0/client';
+
+
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -26,7 +29,40 @@ import FormStyles from '../styles/Form.module.css';
 import { useEffect, useState } from "react";
 import readItem from "../components/firebaseStuff/read-item";
 
-export default function inventoryPage() {
+export default function Index() {
+    const { user, error, isLoading } = useUser();
+
+    if (isLoading) return <div>Cargando...</div>;
+    if (error) return <div>{error.message}</div>;
+
+    if (user) {
+        return (
+            <div>
+                <InventoryPage></InventoryPage>
+                Welcome {user.name}! <a href="/api/auth/logout">Logout</a>
+            </div>
+        );
+    }
+
+    return (
+        <div className={FormStyles.loginContainerWrapper}>
+            <div className={FormStyles.loginContainer}>
+                <Image
+                    src='/img/ceutec_logo.png'
+                    width={180}
+                    height={180}
+                    alt='Logo de CEUTEC'></Image>
+                <h1>
+                    ¡Bienvenido!
+                </h1>
+                <h2>Estás en Inventarios de Laboratorios</h2>
+                <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
+            </div>
+        </div>
+    )
+}
+
+export function InventoryPage() {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
     const [filters, setFilters] = useState([]);

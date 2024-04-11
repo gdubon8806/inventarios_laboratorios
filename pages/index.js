@@ -9,6 +9,7 @@ import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 import Button from '@mui/material/Button'
 import { Toaster } from 'react-hot-toast';
+import NavBar from '../components/profileStuff/NavBar';
 
 //Request data components
 import readLab from '../components/firebaseStuff/read-lab';
@@ -36,11 +37,11 @@ export default function Index() {
   return (
     <div className={FormStyles.loginContainerWrapper}>
       <div className={FormStyles.loginContainer}>
-        <Image 
-            src='/img/ceutec_logo.png' 
-            width={180}
-            height={180}
-            alt='Logo de CEUTEC'></Image>
+        <Image
+          src='/img/ceutec_logo.png'
+          width={180}
+          height={180}
+          alt='Logo de CEUTEC'></Image>
         <h1>
           ¡Bienvenido!
         </h1>
@@ -99,6 +100,13 @@ export function HomePage() {
     <>
       <Head>
         <title>Inventarios</title>
+        <link
+          rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossOrigin="anonymous"
+        />
+        {/* <link rel="stylesheet" href="https://cdn.auth0.com/js/auth0-samples-theme/1.0/css/auth0-theme.min.css" /> */}
       </Head>
       <div className={HomeStyles.fixedContainer}>
         <HeaderBar />
@@ -115,7 +123,10 @@ export function HeaderBar() {
     <header>
       <div className={HomeStyles.headerBar}>
         {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
-        <h1>Inventario de laboratorios</h1>
+        <div className={HomeStyles.gridInsideHeaderBar}>
+          <h1>Inventario de laboratorios</h1>
+        </div>
+        <NavBar />
       </div>
     </header>
   )

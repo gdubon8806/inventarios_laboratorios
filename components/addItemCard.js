@@ -8,10 +8,13 @@ import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import Uploader from './uploader';
 import toast from 'react-hot-toast';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 import FormStyles from '../styles/Form.module.css'
 import createItem from './firebaseStuff/create-item';
+import { uploadImage } from './firebaseStuff/uploadImages';
+
 
 
 const style = {
@@ -27,7 +30,7 @@ const style = {
     overflowY: 'auto',
 };
 
-export default function AddItemCard({ handleRefresh, id_lab, handleAdd }) {
+export default function AddItemCard({ handleRefresh, idLab }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -43,18 +46,14 @@ export default function AddItemCard({ handleRefresh, id_lab, handleAdd }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h5" component="h2">
-                        Agregar nuevo Item
-                    </Typography>
-                    <AddLabForm handleRefresh={handleRefresh} id_lab={id_lab} close={handleClose} add={handleAdd} />
+                    <AddItemForm handleRefresh={handleRefresh} idLab={idLab} close={handleClose} />
                 </Box>
             </Modal>
         </div>
     );
 }
 
-function AddLabForm({ handleRefresh, id_lab, close, add }) {
-    const [idLab, setIdLab] = useState(id_lab);
+function AddItemForm({ handleRefresh, idLab, close }) {
     const [equipo, setEquipo] = useState('');
     const [marca, setMarca] = useState('');
     const [modelo, setModelo] = useState('');
@@ -64,32 +63,65 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
     const [cantidad, setCantidad] = useState('');
     const [imgURL, setImgURL] = useState('');
     const [imgName, setImgName] = useState('');
+    const [imgFile, setImgFile] = useState(null);
+
 
     const [observaciones, setObservaciones] = useState([]);
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            if(equipo.length < 1) {
+            if (equipo.length < 1) {
                 toast("¡Debes al menos escribir el nombre para agregar el ítem!")
                 return;
             }
-            const itemData = {
-                equipo,
-                marca,
-                modelo,
-                ubicacion,
-                columnadelocalizacion: columnaDeLocalizacion,
-                tipo,
-                cantidad,
-                imgurl: imgURL,
-                imgname: imgName,
-                observaciones,
-                id_lab: idLab
-            }
+            try {
+                if (imgFile != null) {
+                    await uploadImage(imgFile)
+                        .then(async (res) => {
+                            if (res[0] === 1) {
+                                setImgURL(res[1]);
+                                setImgName(res[2]);
+                                toast("¡Se ha insertado la imagen exitosamente!")
+                                const itemData = {
+                                    equipo,
+                                    marca,
+                                    modelo,
+                                    ubicacion,
+                                    columnadelocalizacion: columnaDeLocalizacion,
+                                    tipo,
+                                    cantidad,
+                                    imgurl: res[1],
+                                    imgname: res[2],
+                                    observaciones,
+                                    idLab: idLab
+                                }
+                                await createItem(itemData).then((res) => {
+                                    toast("¡Se ha insertado el nuevo ítem exitosamente!")
+                                })
+                            }
+                        })
+                } else {
+                    const itemData = {
+                        equipo,
+                        marca,
+                        modelo,
+                        ubicacion,
+                        columnadelocalizacion: columnaDeLocalizacion,
+                        tipo,
+                        cantidad,
+                        imgurl: imgURL,
+                        imgname: imgName,
+                        observaciones,
+                        idLab: idLab
+                    }
+                    await createItem(itemData).then((res) => {
+                        toast("¡Se ha insertado el nuevo ítem exitosamente!")
+                    })
+                }
 
-            const resFireStore = await createItem(itemData).then((res) => {
-                toast("¡Se ha insertado el nuevo ítem exitosamente!")
-            })
+            } catch (error) {
+                toast.error("Ocurrió algo. No se pudo insertar el ítem.");
+            }
 
             // Limpiar los campos del formulario después de la inserción exitosa
             setEquipo('');
@@ -101,15 +133,21 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
             setCantidad('');
             setImgURL('');
             setObservaciones('');
+            setImgFile(null);
+
             handleRefresh();
             close();
         } catch (error) {
-             toast.error("Ocurrió algo. No se pudo insertar el ítem.");
+            toast.error("Ocurrió algo. No se pudo insertar el ítem.");
         }
     };
     return (
         <div>
-            <h2 className={FormStyles.headerForm}>Ingresar datos</h2>
+            <div className={FormStyles.headerForm}>
+                <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={close}>Atrás</Button>
+                <h2>Nuevo Ítem</h2>
+                <h2 className={FormStyles.headerForm}>Ingresar datos</h2>
+            </div>
             <form className={FormStyles.form}>
                 <label>
                     Equipo:
@@ -142,7 +180,7 @@ function AddLabForm({ handleRefresh, id_lab, close, add }) {
                 </label>
                 <input type="text" name="nombre" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='Ingresar...' />
             </form>
-            <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+            <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
             <div className={FormStyles.btnsAddLabContainer}>
                 <Button onClick={close}>Cancelar</Button>
                 <Button onClick={handleSubmit}>Agregar</Button>

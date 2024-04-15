@@ -14,6 +14,7 @@ import Uploader from './uploader';
 import toast from 'react-hot-toast';
 
 import updateItem from './firebaseStuff/update-item';
+import { uploadImage } from './firebaseStuff/uploadImages';
 import deleteItem from './firebaseStuff/delete-item';
 import deleteImage from './firebaseStuff/delete-blob';
 
@@ -64,15 +65,74 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
 }
 
 
-function setImg(imgurl) {
-    if (imgurl !== '') {
-        return <Image
-            src={imgurl}
-            alt="Imagen de laboratorio"
-            width={500}
-            height={300}
-            layout="responsive"
-        />
+function setImg(item, setImgUrl, setImgName, handleRefresh, close) {
+    const [loading, setLoading] = useState(true);
+
+    const handleLoad = () => {
+        setLoading(false);
+    };
+
+    async function deleteImg() {
+        if (item.imgname != '') {
+            const resStorage = await deleteImage(`images/${item.imgname}`);
+            if (resStorage) {
+                toast('¡Su imagen asociada se eliminó correctamente tambien!');
+            } else {
+                toast.error('¡Hubo un error al eliminar su imagen asociada!');
+            }
+            setImgUrl("");
+            setImgName("");
+            const id = item.id;
+            const newData = {
+                imgurl: "",
+                imgname: ""
+            };
+            const resultado = await updateItem(id, newData);
+            if (resultado) {
+                toast('¡El ítem se actualizó correctamente!');
+            } else {
+                toast.error('¡Hubo un error al actualizar el ítem!');
+            }
+            handleRefresh();
+            close();
+        }
+    }
+    if (item.imgurl !== '') {
+        return (
+            <>
+                <div className={FormStyles.deleteBtnContainer}>
+                    <Button onClick={deleteImg} startIcon={<DeleteIcon />}>
+                        Eliminar imagen
+                    </Button>
+                </div>
+                <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            Cargando imagen...
+                        </div>
+                    )}
+                    <Image
+                        src={item.imgurl}
+                        alt="Imagen de ítem"
+                        width={500}
+                        height={300}
+                        layout="responsive"
+                        onLoad={handleLoad}
+                    />
+                </div>
+            </>
+        )
     } else {
         return <p className='text-center text-gray-500'>Sin imagen</p>
     }
@@ -90,42 +150,92 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
     const [imgURL, setImgURL] = useState(item.imgurl);
     const [imgName, setImgName] = useState(item.imgname);
     const [observaciones, setObservaciones] = useState(item.observaciones);
+    const [imgFile, setImgFile] = useState(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const newData = {
-                equipo,
-                marca,
-                modelo,
-                ubicacion,
-                columnaDeLocalizacion,
-                tipo,
-                cantidad,
-                imgurl: imgURL,
-                imgname: imgName,
-                observaciones
+            //Si tiene imgurl y imgname debe eliminar la imagen anterior
+            if (imgName != "" && imgFile != null) {
+                console.log("Se fue a la 1")
+                const resStorage = await deleteImage(`images/${imgName}`);
+                if (resStorage) {
+                    toast('¡Su imagen asociada previa se eliminó correctamente!');
+                } else {
+                    toast.error('¡Hubo un error al eliminar su imagen asociada previa!');
+                }
+                await uploadImage(imgFile)
+                    .then(async (res) => {
+                        if (res[0] === 1) {
+                            setImgURL(res[1]);
+                            setImgName(res[2]);
+                            toast("¡Se ha insertado la imagen exitosamente!")
+                            const newData = {
+                                equipo,
+                                marca,
+                                modelo,
+                                ubicacion,
+                                columnadelocalizacion: columnaDeLocalizacion,
+                                tipo,
+                                cantidad,
+                                imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
+                                imgname: res[2],
+                                observaciones
+                            };
+                            updateItem(id, newData);
+                        }
+                    })
+                //si no solo debe llamar a uploadImage y luego usar updateLab
+            } else if (imgFile != null && (imgURL == "" || imgName == "")) {
+                console.log("Se fue a la 2")
+
+                await uploadImage(imgFile).then(async (res) => {
+                    if (res[0] === 1) {
+                        toast("¡Se ha insertado la imagen exitosamente!")
+                        setImgURL(res[1]);
+                        setImgName(res[2]);
+                        const newData = {
+                            equipo,
+                            marca,
+                            modelo,
+                            ubicacion,
+                            columnadelocalizacion: columnaDeLocalizacion,
+                            tipo,
+                            cantidad,
+                            imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
+                            imgname: res[2],
+                            observaciones
+                        };
+                        updateItem(id, newData);
+
+                    }
+                }
+                )
+            } else if (imgFile == null) {
+                console.log("Se fue a la 3")
+
+                const newData = {
+                    equipo,
+                    marca,
+                    modelo,
+                    ubicacion,
+                    columnadelocalizacion: columnaDeLocalizacion,
+                    tipo,
+                    cantidad,
+                    imgurl: imgURL,
+                    imgname: imgName,
+                    observaciones
+                }
+                updateItem(id, newData);
             }
-
-            const response = updateItem(id, newData).then(() => {
-                toast("Se ha actualizado el ítem exitosamente.");
-            })
-
-            // Limpiar los campos del formulario después de la actualización exitosa
-            setEquipo('');
-            setMarca('')
-            setModelo('');
-            setUbicacion('');
-            setcolumnaDeLocalizacion('');
-            setTipo('');
-            setCantidad('');
-            setObservaciones('');
-
             handleRefresh();
             close();
         } catch (error) {
             console.error(error.message);
         }
+        handleRefresh();
+        close();
+
     };
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -147,7 +257,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás </Button>
                         <h2>Opciones</h2>
                     </div>
-                    {setImg(imgURL)}
+                    {setImg(item, setImgURL, setImgName, handleRefresh, close)}
                     <br></br>
                     <form className={FormStyles.form}>
                         <label>
@@ -181,7 +291,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                         </label>
                         <input type="text" name="observaciones" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder='Ingresar...' />
                     </form>
-                    <Uploader setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+                    <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
                     <div className={FormStyles.btnsContainer}>
                         <Button onClick={handleClose}>Cancelar</Button>
                         <Button onClick={handleSubmit}>Guardar cambios</Button>
@@ -240,9 +350,10 @@ function DeleteItemCard({ item, close, handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Eliminar
-                    </Typography>
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
+                        <h2>Eliminar de ítem</h2>
+                    </div>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         ¿Está seguro que desesa eliminar el ítem?
                     </Typography>

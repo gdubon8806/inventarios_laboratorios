@@ -5,7 +5,7 @@ import { firestore } from '../../firebaseConfig';
 export default async function readItem(labId) {
   try {
     const itemsRef = collection(firestore, 'items');
-    const q = query(itemsRef, where('id_lab', '==', labId));
+    const q = query(itemsRef, where('idLab', '==', labId));
     const querySnapshot = await getDocs(q);
     const items = [];
     querySnapshot.forEach((doc) => {

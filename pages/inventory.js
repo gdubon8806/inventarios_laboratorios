@@ -1,10 +1,11 @@
 import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
-import HomeStyles from '../styles/Home.module.css';
+import Head from 'next/head';
 
 import { useUser } from '@auth0/nextjs-auth0/client';
 
+import NavBar from '../components/profileStuff/NavBar';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -24,6 +25,7 @@ import OptionsItemCard from "../components/optionsItemCard";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import InventoryStyles from '../styles/Inventory.module.css';
+import HomeStyles from '../styles/Home.module.css';
 import FormStyles from '../styles/Form.module.css';
 
 import { useEffect, useState } from "react";
@@ -70,11 +72,11 @@ export function InventoryPage() {
     const searchpParams = useSearchParams();
     let id = searchpParams.get("id");
     let itemCards;
-    let id_lab = id;
+    let idLab = id;
 
     const fetchItems = async () => {
         try {
-            const response = await readItem(id_lab).then((res) => {
+            const response = await readItem(idLab).then((res) => {
                 setItems(res);
                 setLoading(false);
             })
@@ -121,16 +123,24 @@ export function InventoryPage() {
             itemCards = itemsToShow.map(item => <Item key={item.id} data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
         }
     }
-
-    function addItem() {
-
-    }
-
     return (
         <div>
-            <HeaderBar />
-            <h2 className={InventoryStyles.subheader}>{lab}</h2>
-            <InventoryControls handleRefresh={handleRefresh} id_lab={id_lab} name={lab} addItem={addItem} setFilters={setFilters} />
+            <Head>
+                <title>Inventarios</title>
+                <link
+                    rel="stylesheet"
+                    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                    crossOrigin="anonymous"
+                />
+                {/* <link rel="stylesheet" href="https://cdn.auth0.com/js/auth0-samples-theme/1.0/css/auth0-theme.min.css" /> */}
+            </Head>
+            <div className={HomeStyles.fixedContainer}>
+
+                <HeaderBar />
+                <h2 className={InventoryStyles.subheader}>{lab}</h2>
+                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} name={lab} setFilters={setFilters} />
+            </div>
             <div className={InventoryStyles.itemsFiltererContainer}>
                 <ItemsFilterer setFilters={setFilters} />
             </div>
@@ -146,15 +156,18 @@ export function InventoryPage() {
 export function HeaderBar() {
     return (
         <header>
-            <div className={InventoryStyles.headerBar}>
+            <div className={HomeStyles.headerBar}>
                 {/* <Image src='/img/ceutec_logo.png' width='150' height='80' alt='Logo de CEUTEC'></Image> */}
-                <h1>Inventario de laboratorios</h1>
+                <div className={HomeStyles.gridInsideHeaderBar}>
+                    <h1>Inventario de laboratorios</h1>
+                </div>
+                <NavBar />
             </div>
         </header>
     )
 }
 
-function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters }) {
+function InventoryControls({ handleRefresh, idLab, name, setFilters }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
@@ -163,7 +176,7 @@ function InventoryControls({ handleRefresh, id_lab, name, addItem, setFilters })
                 </Link>
             </div>
             <div className="addItemBtnContainer">
-                <AddItemCard handleRefresh={handleRefresh} id_lab={id_lab} handleAdd={addItem} />
+                <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
             </div>
 
         </div>
@@ -184,11 +197,11 @@ function Item({ data, items, setItems, handleRefresh }) {
                 <br></br>
                 <div className={InventoryStyles.extras}>
                     <Typography variant="body2" color="text.secondary">
-                        {data.marca}
+                        {data.marca == "" ?  "Sin marca": "Marca: " + data.marca}
                     </Typography>
-                    <Chip color="primary" variant="outlined" label={data.tipo} />
-                    <Chip color="primary" variant="outlined" label={"Cantidad: " + data.cantidad} />
-
+                    <Chip color="primary" variant="outlined" label={(data.tipo == "" ?  "Sin tipo": "Tipo: " +data.tipo)} />
+                    <Chip color="primary" variant="outlined" label={(data.cantidad == "" ?  "Cantidad: 0": 
+                    "Cantidad: " + data.cantidad)} />
                 </div>
             </CardContent>
             <CardActions>
@@ -197,8 +210,8 @@ function Item({ data, items, setItems, handleRefresh }) {
         </Card>
     );
 }
-function setImg(imgurl) {
-    if (imgurl !== '') {
+function setImg(details) {
+    if (details.imgurl !== '') {
         return <CardMedia
             component="img"
             alt=""
@@ -252,9 +265,9 @@ function ItemDetailsCard({ details }) {
                 <Box sx={style}>
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
-                        <h2>Detalles de ítem</h2>
+                        <h2>Información de item</h2>
                     </div>
-                    {setImg(details.imgurl)}
+                    {setImg(details)}
                     <br></br>
                     <div className={FormStyles.form}>
                         {/* <Image src={details.imgurl} className={InventoryStyles.ImageItemDetails} width={333} height={230}></Image> */}

@@ -14,7 +14,7 @@
 }
 
 .InventoryControls {
-    margin-top: 3.8rem;
+    margin-top: 4.5rem;
     font-size: 0.95rem;
     display: flex;
     align-items: center;
@@ -24,6 +24,9 @@
 
 .itemsFiltererContainer {
     text-align: center;
+    display: grid;
+    gap: 1rem;
+    align-items: center;
 }
 
 .itemCard {

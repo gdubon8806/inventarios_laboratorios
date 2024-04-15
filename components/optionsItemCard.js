@@ -109,14 +109,7 @@ function setImg(item, setImgUrl, setImgName, handleRefresh, close) {
                     {loading && (
                         <div
                             style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                                textAlign: 'center',
                             }}
                         >
                             Cargando imagen...
@@ -281,8 +274,12 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                         <label>
                             Tipo:
                         </label>
-                        <input type="text" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Ingresar...' />
-                        <label>
+                        <select name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                            <option value="Herramienta">Herramienta</option>
+                            <option value="Suministro">Suministro</option>
+                            <option value="Equipo">Equipo</option>
+                            <option value="Mobiliario">Mobiliario</option>
+                        </select><label>
                             Cantidad:
                         </label>
                         <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='Ingresar...' />
@@ -293,7 +290,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                     </form>
                     <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
                     <div className={FormStyles.btnsContainer}>
-                        <Button onClick={handleClose}>Cancelar</Button>
+                        <Button onClick={close}>Cancelar</Button>
                         <Button onClick={handleSubmit}>Guardar cambios</Button>
                     </div>
                 </Box>

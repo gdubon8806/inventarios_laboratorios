@@ -170,8 +170,12 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                 <label>
                     Tipo:
                 </label>
-                <input type="text" name="nombre" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder='Ingresar...' />
-                <label>
+                <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                    <option value="Herramienta">Herramienta</option>
+                    <option value="Suministro">Suministro</option>
+                    <option value="Equipo">Equipo</option>
+                    <option value="Mobiliario">Mobiliario</option>
+                </select><label>
                     Cantidad:
                 </label>
                 <input type="text" name="nombre" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='Ingresar...' />

@@ -29,7 +29,9 @@ import HomeStyles from '../styles/Home.module.css';
 import FormStyles from '../styles/Form.module.css';
 
 import { useEffect, useState } from "react";
+import SearchAppBar from "../components/searchBar";
 import readItem from "../components/firebaseStuff/read-item";
+import readLabById from "../components/firebaseStuff/read-lab-with-id";
 
 export default function Index() {
     const { user, error, isLoading } = useUser();
@@ -67,6 +69,7 @@ export function InventoryPage() {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
     const [filters, setFilters] = useState([]);
+    const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
 
     const searchpParams = useSearchParams();
@@ -80,6 +83,9 @@ export function InventoryPage() {
                 setItems(res);
                 setLoading(false);
             })
+            const readLabRes = await readLabById(idLab).then((res) => {
+                setLab(res.name);
+            });
 
         } catch (error) {
             console.error(error.message);
@@ -115,9 +121,24 @@ export function InventoryPage() {
                         }
                     }
                     return ToShow;
+                }).filter((item) => {
+                    if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
+                        return item;
+                    }
                 })
+
+                // let filteredItems = itemsToShow.filter((item) => {
+                //     if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
+                //         return item;
+                //     }
+                // })
+                // itemsToShow = filteredItems;
             } else {
-                itemsToShow = items;
+                itemsToShow = items.filter((item) => {
+                        if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
+                            return item;
+                        }
+                    });
             }
 
             itemCards = itemsToShow.map(item => <Item key={item.id} data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
@@ -138,10 +159,13 @@ export function InventoryPage() {
             <div className={HomeStyles.fixedContainer}>
 
                 <HeaderBar />
+                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} lab={lab} setFilters={setFilters} />
+            </div>
+            <div>
                 <h2 className={InventoryStyles.subheader}>{lab}</h2>
-                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} name={lab} setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsFiltererContainer}>
+                <SearchAppBar setFilter={setFilter}  />
                 <ItemsFilterer setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsContainer}>
@@ -167,7 +191,7 @@ export function HeaderBar() {
     )
 }
 
-function InventoryControls({ handleRefresh, idLab, name, setFilters }) {
+function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
@@ -178,7 +202,6 @@ function InventoryControls({ handleRefresh, idLab, name, setFilters }) {
             <div className="addItemBtnContainer">
                 <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
             </div>
-
         </div>
     )
 }
@@ -197,11 +220,11 @@ function Item({ data, items, setItems, handleRefresh }) {
                 <br></br>
                 <div className={InventoryStyles.extras}>
                     <Typography variant="body2" color="text.secondary">
-                        {data.marca == "" ?  "Sin marca": "Marca: " + data.marca}
+                        {data.marca == "" ? "Sin marca" : "Marca: " + data.marca}
                     </Typography>
-                    <Chip color="primary" variant="outlined" label={(data.tipo == "" ?  "Sin tipo": "Tipo: " +data.tipo)} />
-                    <Chip color="primary" variant="outlined" label={(data.cantidad == "" ?  "Cantidad: 0": 
-                    "Cantidad: " + data.cantidad)} />
+                    <Chip color="primary" variant="outlined" label={(data.tipo == "" ? "Sin tipo" : "Tipo: " + data.tipo)} />
+                    <Chip color="primary" variant="outlined" label={(data.cantidad == "" ? "Cantidad: 0" :
+                        "Cantidad: " + data.cantidad)} />
                 </div>
             </CardContent>
             <CardActions>

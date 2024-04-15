@@ -39,7 +39,6 @@ export default function Index() {
         return (
             <div>
                 <InventoryPage></InventoryPage>
-                Welcome {user.name}! <a href="/api/auth/logout">Logout</a>
             </div>
         );
     }

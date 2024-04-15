@@ -66,7 +66,7 @@ const NavBar = () => {
                       </PageLink>
                     </DropdownItem> */}
                     <DropdownItem id="qsLogoutBtn">
-                      <AnchorLink href="/api/auth/logout" icon="power-off" testId="navbar-logout-desktop">
+                      <AnchorLink href="/api/auth/logout" testId="navbar-logout-desktop">
                         Cerrar Sesión
                       </AnchorLink>
                     </DropdownItem>

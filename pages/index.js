@@ -29,7 +29,6 @@ export default function Index() {
     return (
       <div>
         <HomePage></HomePage>
-        Welcome {user.name}! <a href="/api/auth/logout">Logout</a>
       </div>
     );
   }
@@ -63,7 +62,7 @@ export function HomePage() {
   const fetchLabs = async () => {
     try {
       await readLab().then((res) => {
-        console.log('Se extrayeron de la db los labs exitosamente.')
+        // console.log('Se extrayeron de la db los labs exitosamente.')
         setLaboratories(res);
         setLoading(false);
       })

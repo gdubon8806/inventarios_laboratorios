@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,11 +13,11 @@ import Image from 'next/image';
 
 import updateLab from './firebaseStuff/update-lab';
 import deleteLab from './firebaseStuff/delete-lab';
+import { uploadImage } from './firebaseStuff/uploadImages';
 
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
-import { FormatAlignCenterOutlined } from '@mui/icons-material';
 import deleteImage from './firebaseStuff/delete-blob';
 
 
@@ -33,33 +34,6 @@ const style = {
     overflowY: 'auto',
 };
 
-// export default function OptionsLabCard({ lab, handleRefresh }) {
-//     const [open, setOpen] = React.useState(false);
-//     const handleOpen = () => setOpen(true);
-//     const handleClose = () => setOpen(false);
-
-//     return (
-//         <div>
-//             {/* <ModeEditIcon></ModeEditIcon> */}
-//             <Button onClick={handleOpen}>Opciones</Button>
-//             <Modal
-//                 open={open}
-//                 onClose={handleClose}
-//                 aria-labelledby="modal-modal-title"
-//                 aria-describedby="modal-modal-description"
-//             >
-//                 <Box sx={style}>
-//                     <Typography id="modal-modal-title" variant="h5" component="h2">
-//                         Opciones
-//                     </Typography>
-//                     {/* <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh}></EditLabCard> */}
-//                     <OptionsLabCard lab = {lab} handleRefresh={handleRefresh}/>
-//                 </Box>
-//             </Modal>
-//         </div>
-//     );
-// }
-
 export default function OptionsLabCard({ lab, handleRefresh }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -67,7 +41,6 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
 
     return (
         <div>
-            {/* <ModeEditIcon></ModeEditIcon> */}
             <Button onClick={handleOpen}>Opciones</Button>
             <Modal
                 open={open}
@@ -76,11 +49,10 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Opciones
-                    </Typography>
-                    {/* <EditItemCard item={item} items={items} setItems={setItems} handleRefresh={handleRefresh} close={handleClose} />
-                    <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} /> */}
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
+                        <h2>Opciones de laboratorio</h2>
+                    </div>
                     <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
                     <DeleteLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
                 </Box>
@@ -89,46 +61,78 @@ export default function OptionsLabCard({ lab, handleRefresh }) {
     );
 }
 
-
-
-
-
-
-
 function EditLabCard({ lab, close, handleRefresh }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
     const [imgurl, setImgURL] = useState(lab.imgurl);
+    const [imgname, setImgName] = useState(lab.imgname);
+    const [imgFile, setImgFile] = useState(null);
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
-            const labId = id;
-            const newData = {
-                name,
-                description,
-                imgurl
-            };
-            const resultado = await updateLab(labId, newData);
-            if (resultado) {
-                toast('¡El laboratorio se actualizó correctamente!');
-            } else {
-                toast.error('¡Hubo un error al actualizar el laboratorio!');
+            //Si tiene imgurl y imgname debe eliminar la imagen anterior
+            if (imgname != "" && imgFile != null) {
+                console.log("Se fue a la 1")
+                const resStorage = await deleteImage(`images/${imgname}`);
+                if (resStorage) {
+                    toast('¡Su imagen asociada previa se eliminó correctamente!');
+                } else {
+                    toast.error('¡Hubo un error al eliminar su imagen asociada previa!');
+                }
+                await uploadImage(imgFile)
+                    .then(async (res) => {
+                        if (res[0] === 1) {
+                            setImgURL(res[1]);
+                            setImgName(res[2]);
+                            toast("¡Se ha insertado la imagen exitosamente!")
+                            const newData = {
+                                name,
+                                description,
+                                imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
+                                imgname: res[2],
+                            };
+                            updateLab(id, newData);
+                        }
+                    })
+                //si no solo debe llamar a uploadImage y luego usar updateLab
+            } else if (imgFile != null && (imgurl == "" || imgname == "")) {
+                console.log("Se fue a la 2")
+
+                await uploadImage(imgFile).then(async (res) => {
+                    if (res[0] === 1) {
+                        toast("¡Se ha insertado la imagen exitosamente!")
+                        setImgURL(res[1]);
+                        setImgName(res[2]);
+                        const newData = {
+                            name,
+                            description,
+                            imgurl: res[1],
+                            imgname: res[2],
+                        };
+                        updateLab(id, newData);
+
+                    }
+                }
+                )
+            } else if (imgFile == null) {
+                console.log("Se fue a la 3")
+
+                const newData = {
+                    name,
+                    description,
+                    imgurl: imgurl,
+                    imgname: imgname,
+                };
+                updateLab(id, newData);
             }
-
-
-            // Limpiar los campos del formulario después de la actualización exitosa
-            setName('');
-            setDescription('');
-            close();
             handleRefresh();
+            close();
         } catch (error) {
             console.error(error.message);
         }
@@ -144,12 +148,15 @@ function EditLabCard({ lab, close, handleRefresh }) {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-
                 <Box sx={style}>
                     <div>
                         <div className={FormStyles.editLabFormContainer}>
-                            <h2 className={FormStyles.headerForm}>Datos de laboratorio</h2>
-                            {setImg(imgurl)}
+                            <div className={FormStyles.headerForm}>
+                                <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={close}>Atrás</Button>
+                                <h2>Editar laboratorio</h2>
+                                <h2 className={FormStyles.headerForm}>Editar datos</h2>
+                            </div>
+                            {setImg(lab, setImgURL, setImgName, handleRefresh, handleClose)}
                             <br />
                             <form className={FormStyles.form}>
                                 <label>
@@ -160,7 +167,7 @@ function EditLabCard({ lab, close, handleRefresh }) {
                                 <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Ingresar detalles...' />
                             </form>
                         </div >
-                        <Uploader setImgURL={setImgURL}></Uploader>
+                        <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
                         <div className={FormStyles.btnsContainer}>
                             {/* <DeleteLabCard lab={lab} close={close} handleRefresh={handleRefresh} /> */}
                             <Button onClick={close}>Cancelar</Button>
@@ -173,15 +180,74 @@ function EditLabCard({ lab, close, handleRefresh }) {
     )
 }
 
-function setImg(imgurl) {
-    if (imgurl !== '') {
-        return <Image
-            src={imgurl}
-            alt="Imagen de laboratorio"
-            width={500}
-            height={300}
-            layout="responsive"
-        />
+function setImg(lab, setImgUrl, setImgName, handleRefresh, close) {
+    const [loading, setLoading] = useState(true);
+
+    const handleLoad = () => {
+        setLoading(false);
+    };
+
+    async function deleteImg() {
+        if (lab.imgname != '') {
+            const resStorage = await deleteImage(`images/${lab.imgname}`);
+            if (resStorage) {
+                toast('¡Su imagen asociada se eliminó correctamente tambien!');
+            } else {
+                toast.error('¡Hubo un error al eliminar su imagen asociada!');
+            }
+            setImgUrl("");
+            setImgName("");
+            const labId = lab.id;
+            const newData = {
+                imgurl: "",
+                imgname: ""
+            };
+            const resultado = await updateLab(labId, newData);
+            if (resultado) {
+                toast('¡El laboratorio se actualizó correctamente!');
+            } else {
+                toast.error('¡Hubo un error al actualizar el laboratorio!');
+            }
+            handleRefresh();
+            close();
+        }
+    }
+    if (lab.imgurl !== '') {
+        return (
+            <>
+                <div className={FormStyles.deleteBtnContainer}>
+                    <Button onClick={deleteImg} startIcon={<DeleteIcon />}>
+                        Eliminar imagen
+                    </Button>
+                </div>
+                <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            Cargando imagen...
+                        </div>
+                    )}
+                    <Image
+                        src={lab.imgurl}
+                        alt="Imagen de laboratorio"
+                        width={500}
+                        height={300}
+                        layout="responsive"
+                        onLoad={handleLoad}
+                    />
+                </div>
+            </>
+        )
     } else {
         return <p className='text-center text-gray-500'>Sin imagen</p>
     }
@@ -234,9 +300,10 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Eliminar
-                    </Typography>
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
+                        <h2>Eliminar de laboratorio</h2>
+                    </div> 
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         ¿Está seguro que desesa eliminar el laboratorio?
                         Se eliminarán también los ítems.

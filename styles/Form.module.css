@@ -36,16 +36,22 @@
 .headerForm {
     display: grid;
     align-items: center;
+    font-weight: lighter;
+    text-align: center;
+}
+
+.headerForm > :first-child {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+.headerForm > :nth-child(2) {
+    margin-top: 1rem;
+    font-weight: bold;
 }
 
 .backBtn {
     margin-right: auto;
-}
-
-
-.headerForm {
-    font-weight: lighter;
-    text-align: center;
 }
 
 .editLabFormContainer {

@@ -12,13 +12,6 @@ import HomeStyles from '../styles/Home.module.css';
 import OptionsLabCard from './optionsLabCard';
 
 export default function LaboratoryCard({ lab, handleRefresh }) {
-  // function processImgUrl(imgurl) {
-  //   if(imgurl == ''){
-  //     return ''
-  //   }
-  //   return 
-  // }
-  
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia

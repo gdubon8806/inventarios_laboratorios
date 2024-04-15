@@ -5,11 +5,10 @@ import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 import toast, { Toaster } from 'react-hot-toast';
 
 import LoadingDots from './loading-dots'
-import { PutBlobResult } from '@vercel/blob'
 import Compressor from 'compressorjs';
 import { uploadImage } from './firebaseStuff/uploadImages';
 
-export default function Uploader({setImgURL, setImgName}) {
+export default function Uploader({setImgFile, setImgURL, setImgName}) {
   const [data, setData] = useState<{
     image: string | null
   }>({
@@ -32,6 +31,7 @@ export default function Uploader({setImgURL, setImgName}) {
             maxHeight:  1200,
             success: (compressedFile) => {
               setFile(compressedFile);
+              setImgFile(compressedFile);
               const reader = new FileReader();
               reader.onload = (e) => {
                 setData((prev) => ({ ...prev, image: e.target?.result as string }));
@@ -65,7 +65,6 @@ export default function Uploader({setImgURL, setImgName}) {
           if (res[0] === 1) {
             // const { url } = (await res.json()) as PutBlobResult
             setImgURL(res[1]);
-            console.log(res[2]);
             setImgName(res[2]);
             toast(
               (t: { id: string } 
@@ -115,6 +114,9 @@ export default function Uploader({setImgURL, setImgName}) {
           <p className="text-sm text-gray-500 text-center">
             Formatos aceptados: .png, .jpg, .gif
           </p>
+          {/* <p className="text-sm text-red-800 text-center">
+            Nota: Para guardar la imagen deben dar clic al botón 'Confirmar subir imagen antes de 'Guardar cambios'
+          </p> */}
         </div>
         <label
           htmlFor="image-upload"
@@ -147,6 +149,7 @@ export default function Uploader({setImgURL, setImgName}) {
                 if (file.size / 1024 / 1024 > 50) {
                   toast.error('File size too big (max 50MB)')
                 } else {
+                  setImgFile(file);
                   setFile(file)
                   const reader = new FileReader()
                   reader.onload = (e) => {
@@ -215,7 +218,7 @@ export default function Uploader({setImgURL, setImgName}) {
         </div>
       </div>
 
-      <button
+      {/* <button
         disabled={saveDisabled}
         className={`${
           saveDisabled
@@ -226,9 +229,9 @@ export default function Uploader({setImgURL, setImgName}) {
         {saving ? (
           <LoadingDots color="#808080" />
         ) : (
-          <p className="text-sm">CONFIRMAR SUBIR IMAGEN</p>
+          <p className="text-sm">Confirmar subir imagen</p>
         )}
-      </button>
+      </button> */}
     </form>
   </>
   )

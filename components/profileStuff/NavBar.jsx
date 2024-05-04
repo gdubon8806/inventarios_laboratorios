@@ -56,7 +56,7 @@ const NavBar = () => {
                       data-testid="navbar-picture-desktop"
                     />
                   </DropdownToggle>
-                  <DropdownMenu style={{position: "absolute", left: "-200px"}}>
+                  <DropdownMenu style={{position: "absolute", left: "-100px"}}>
                     <DropdownItem header data-testid="navbar-user-desktop">
                       {user.name}
                     </DropdownItem>
@@ -103,7 +103,7 @@ const NavBar = () => {
                       decode="async"
                       data-testid="navbar-picture-mobile"
                     />
-                    <h6 className="d-inline-block" data-testid="navbar-user-mobile">
+                    <h6 style={{position: "relative", left:"-50px"}} className="d-inline-block" data-testid="navbar-user-mobile">
                       {user.name}
                     </h6>
                   </span>

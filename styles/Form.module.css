@@ -8,6 +8,21 @@
     margin-bottom: 1rem;
 }
 
+@media (max-width: 800px) {
+    .form {
+        gap: 0;
+        text-align: center;
+        grid-template-columns: 1fr; /* Cambiar a una sola columna */
+    }
+    .form > :first-child {
+        margin: 0
+    }
+    .form label {
+        margin: 1rem 0 0 0;
+    }
+}
+
+
 .form input {
     min-width: 100px;
     border-radius: 10px;

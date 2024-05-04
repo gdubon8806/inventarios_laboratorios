@@ -288,7 +288,7 @@ function ItemDetailsCard({ details }) {
                 <Box sx={style}>
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
-                        <h2>Información de item</h2>
+                        <h2>Información de ítem</h2>
                     </div>
                     {setImg(details)}
                     <br></br>

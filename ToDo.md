@@ -31,3 +31,8 @@ Por hacer para para el 14 de abril por la noche:
 
 cosa rara que paso:
 cuando quise actulaizar un dato (tipo) le di sin querer a subir oimagen pero lo cancele al final no subi nada y no se aplicaron lso cambios. Que sucedio?  
+
+
+4 de mayo, estoy empezando a ingresar inventario. Cuando estaba en CAM agregando en el form a veces perdia el hover y no se podia hacer scroll en el form que es overflow, luego a veces hasta se perdia el foco y no se podian presionar los botones. Ver eso      
+
+no se que paso pero me decia "sin tipo" en un item que habia agregado creo que fue que no seleccione y deje el predeterminado pero no se

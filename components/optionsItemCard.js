@@ -349,7 +349,7 @@ function DeleteItemCard({ item, close, handleRefresh }) {
                 <Box sx={style}>
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
-                        <h2>Eliminar de ítem</h2>
+                        <h2>Eliminar ítem</h2>
                     </div>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         ¿Está seguro que desesa eliminar el ítem?

@@ -23,6 +23,12 @@ import { Toaster } from 'react-hot-toast';
 import AddItemCard from "../components/addItemCard";
 import OptionsItemCard from "../components/optionsItemCard";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CommentIcon from '@mui/icons-material/Comment';
+import AddIcon from '@mui/icons-material/Add';
+
+import AddItemCommentCard from "../components/ItemComment";
+import { EditItemCommentCard } from "../components/ItemComment";
+import { DeleteItemCommentCard } from "../components/ItemComment";
 
 import InventoryStyles from '../styles/Inventory.module.css';
 import HomeStyles from '../styles/Home.module.css';
@@ -32,6 +38,7 @@ import { useEffect, useState } from "react";
 import SearchAppBar from "../components/searchBar";
 import readItem from "../components/firebaseStuff/read-item";
 import readLabById from "../components/firebaseStuff/read-lab-with-id";
+import readItemCommentsById from "../components/firebaseStuff/readItemComments-with-id";
 
 export default function Index() {
     const { user, error, isLoading } = useUser();
@@ -135,10 +142,10 @@ export function InventoryPage() {
                 // itemsToShow = filteredItems;
             } else {
                 itemsToShow = items.filter((item) => {
-                        if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
-                            return item;
-                        }
-                    });
+                    if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
+                        return item;
+                    }
+                });
             }
 
             itemCards = itemsToShow.map(item => <Item key={item.id} data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
@@ -165,7 +172,7 @@ export function InventoryPage() {
                 <h2 className={InventoryStyles.subheader}>{lab}</h2>
             </div>
             <div className={InventoryStyles.itemsFiltererContainer}>
-                <SearchAppBar setFilter={setFilter}  />
+                <SearchAppBar setFilter={setFilter} />
                 <ItemsFilterer setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsContainer}>
@@ -261,9 +268,19 @@ function ItemDetailsCard({ details }) {
         p: 4,
         overflowY: 'auto',
     };
+    //para abrir detalles de item
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    //para modal de comentarios
+    const [openComments, setOpenComments] = useState(false);
+    const handleOpenComments = () => {
+        fetchItemComments();
+        setOpenComments(true);
+    }
+    const handleCloseComments = () => setOpenComments(false);
+
     const linkItem = {
         fontSize: '1.2rem',
         color: 'black',
@@ -273,11 +290,79 @@ function ItemDetailsCard({ details }) {
         paddingLeft: '0',
     }
 
+    //manejar state de comentarios
+    const [itemComentarios, setItemComentarios] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    let itemCommentsCards;
+
+    const fetchItemComments = async () => {
+        try {
+            await readItemCommentsById(details.id).then((res) => {
+                // console.log('Se extrayeron de la db los labs exitosamente.')
+                setItemComentarios(res);
+                setLoading(false);
+            })
+        } catch (error) {
+            console.error('Error al extraer los comentarios de la db.')
+        }
+    };
+
+    // useEffect(() => {
+    //     fetchItemComments();
+    // }, []);
+
+    const handleRefresh = () => {
+        fetchItemComments();
+    };
+
+    if (loading) {
+        itemCommentsCards = 'Cargando comentarios...';
+    } else {
+        if (itemComentarios.length == 0) {
+            itemCommentsCards = 'No hay registros de comentarios.';
+        } else {
+            itemCommentsCards = itemComentarios.map(itemComment => <ItemCommentCard key={itemComment.id} itemComment={itemComment} handleRefresh = {handleRefresh}> </ItemCommentCard>)
+        }
+
+    }
+
+    function selectComment() {
+
+    }
+
     return (
         <div>
             {/* <div className={InventoryStyles.ItemLink}> */}
-            <Button style={linkItem} onClick={handleOpen}>{details.equipo}</Button>
-            {/* </div> */}
+            <div className={InventoryStyles.detailsContainer}>
+                <Button style={linkItem} onClick={handleOpen}>{details.equipo}</Button>
+                <Button><CommentIcon onClick={handleOpenComments}></CommentIcon></Button>
+            </div>
+            <Modal
+                open={openComments}
+                onClose={handleCloseComments}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                {/*Scope para manejar el state de los comentarios*/}
+
+                <Box sx={style}>
+                    <div className={FormStyles.headerForm}>
+                        <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleCloseComments}>Atrás</Button>
+                        <div className={InventoryStyles.flex}>
+                            <h1>Comentarios</h1>
+                            <AddItemCommentCard idItem={details.id} handleRefresh={handleRefresh}></AddItemCommentCard>
+                        </div>
+
+                    </div>
+                    <div className={InventoryStyles.commentsContainer}>
+                        {itemCommentsCards}
+                    </div>
+
+                </Box>
+
+            </Modal>
+
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -314,5 +399,29 @@ function ItemDetailsCard({ details }) {
                 </Box>
             </Modal>
         </div>
+    )
+}
+
+function ItemCommentCard({ itemComment, handleRefresh }) {
+    const date = itemComment.time ? itemComment.time.toDate() : null;
+    return (
+        <>
+            <div className={InventoryStyles.flex}>
+                <div>
+                    <div className={InventoryStyles.commentHeader}>
+                        <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
+                        <h3>{date ? date.toLocaleString() : 'Fecha no disponible'}</h3>
+                    </div>
+                    <p>
+                        {itemComment.description}
+                    </p>
+                </div>
+                <div>
+                    <EditItemCommentCard itemComment={itemComment} handleRefresh = {handleRefresh}></EditItemCommentCard>
+                    <DeleteItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh} ></DeleteItemCommentCard>
+                </div>
+
+            </div>
+        </>
     )
 }

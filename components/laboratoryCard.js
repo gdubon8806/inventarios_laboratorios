@@ -4,6 +4,9 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 
+import CommentIcon from '@mui/icons-material/Comment';
+
+
 import Link from 'next/link';
 // import getImageUrl from './firebaseStuff/read-blob';
 

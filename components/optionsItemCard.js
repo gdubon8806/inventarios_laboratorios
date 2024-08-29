@@ -17,6 +17,8 @@ import updateItem from './firebaseStuff/update-item';
 import { uploadImage } from './firebaseStuff/uploadImages';
 import deleteItem from './firebaseStuff/delete-item';
 import deleteImage from './firebaseStuff/delete-blob';
+import { useUser } from '@auth0/nextjs-auth0/client';
+
 
 import { useState } from 'react';
 
@@ -40,6 +42,14 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    const { user } = useUser();
+    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+        return (
+            <div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -349,7 +359,7 @@ function DeleteItemCard({ item, close, handleRefresh }) {
                 <Box sx={style}>
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
-                        <h2>Eliminar de ítem</h2>
+                        <h2>Eliminar ítem</h2>
                     </div>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         ¿Está seguro que desesa eliminar el ítem?

@@ -199,6 +199,19 @@ export function HeaderBar() {
 }
 
 function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
+    const { user } = useUser();
+    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+        return (
+            <div className={InventoryStyles.InventoryControls}>
+                <div>
+                    <Link href="/" className={InventoryStyles.beforeIcon}>
+                        <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div>
@@ -272,6 +285,7 @@ function ItemDetailsCard({ details }) {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    
 
     //para modal de comentarios
     const [openComments, setOpenComments] = useState(false);
@@ -322,7 +336,7 @@ function ItemDetailsCard({ details }) {
         if (itemComentarios.length == 0) {
             itemCommentsCards = 'No hay registros de comentarios.';
         } else {
-            itemCommentsCards = itemComentarios.map(itemComment => <ItemCommentCard key={itemComment.id} itemComment={itemComment} handleRefresh = {handleRefresh}> </ItemCommentCard>)
+            itemCommentsCards = itemComentarios.map(itemComment => <ItemCommentCard key={itemComment.id} itemComment={itemComment} handleRefresh={handleRefresh}> </ItemCommentCard>)
         }
 
     }
@@ -404,20 +418,40 @@ function ItemDetailsCard({ details }) {
 
 function ItemCommentCard({ itemComment, handleRefresh }) {
     const date = itemComment.time ? itemComment.time.toDate() : null;
+
+    const { user } = useUser();
+    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+        return (
+            <>
+            <div className={InventoryStyles.flex}>
+                <div>
+                    <div className={InventoryStyles.commentHeader}>
+                        <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
+                        <h3>{date ? date.toLocaleString('es-HN') : 'Fecha no disponible'}</h3>
+                    </div>
+                    <p>
+                        {itemComment.description}
+                    </p>
+                </div>
+            </div>
+        </>
+        );
+    }
+    
     return (
         <>
             <div className={InventoryStyles.flex}>
                 <div>
                     <div className={InventoryStyles.commentHeader}>
                         <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
-                        <h3>{date ? date.toLocaleString() : 'Fecha no disponible'}</h3>
+                        <h3>{date ? date.toLocaleString('es-HN') : 'Fecha no disponible'}</h3>
                     </div>
                     <p>
                         {itemComment.description}
                     </p>
                 </div>
                 <div>
-                    <EditItemCommentCard itemComment={itemComment} handleRefresh = {handleRefresh}></EditItemCommentCard>
+                    <EditItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh}></EditItemCommentCard>
                     <DeleteItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh} ></DeleteItemCommentCard>
                 </div>
 

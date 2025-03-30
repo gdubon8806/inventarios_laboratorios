@@ -25,6 +25,7 @@ import OptionsItemCard from "../components/optionsItemCard";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CommentIcon from '@mui/icons-material/Comment';
 import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
 
 import AddItemCommentCard from "../components/ItemComment";
 import { EditItemCommentCard } from "../components/ItemComment";
@@ -39,6 +40,7 @@ import SearchAppBar from "../components/searchBar";
 import readItem from "../components/firebaseStuff/read-item";
 import readLabById from "../components/firebaseStuff/read-lab-with-id";
 import readItemCommentsById from "../components/firebaseStuff/readItemComments-with-id";
+import exportToXLSX from '../components/exportData/export';
 
 export default function Index() {
     const { user, error, isLoading } = useUser();
@@ -199,6 +201,7 @@ export function HeaderBar() {
 }
 
 function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
+    console.log(idLab);
     const { user } = useUser();
     if (user.email !== 'coordinacionlaboratorios@gmail.com') {
         return (
@@ -207,6 +210,9 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
                     <Link href="/" className={InventoryStyles.beforeIcon}>
                         <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
                     </Link>
+                </div>
+                <div>
+                    <Button startIcon={<DownloadIcon />} className="backBTN" variant="contained" onClick={() => exportToXLSX(idLab)}>Exportar datos</Button>
                 </div>
             </div>
         );
@@ -219,9 +225,16 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
                     <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
                 </Link>
             </div>
-            <div className="addItemBtnContainer">
-                <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
+            <div className={InventoryStyles.flex}>
+                <div className="addItemBtnContainer">
+                    <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
+                </div>
+                <div>
+                    <Button startIcon={<DownloadIcon />} className="backBTN" variant="contained" onClick={() => exportToXLSX(idLab)}>Exportar datos</Button>
+                </div>
             </div>
+            
+
         </div>
     )
 }
@@ -285,7 +298,7 @@ function ItemDetailsCard({ details }) {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    
+
 
     //para modal de comentarios
     const [openComments, setOpenComments] = useState(false);
@@ -423,21 +436,21 @@ function ItemCommentCard({ itemComment, handleRefresh }) {
     if (user.email !== 'coordinacionlaboratorios@gmail.com') {
         return (
             <>
-            <div className={InventoryStyles.flex}>
-                <div>
-                    <div className={InventoryStyles.commentHeader}>
-                        <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
-                        <h3>{date ? date.toLocaleString('es-HN') : 'Fecha no disponible'}</h3>
+                <div className={InventoryStyles.flex}>
+                    <div>
+                        <div className={InventoryStyles.commentHeader}>
+                            <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
+                            <h3>{date ? date.toLocaleString('es-HN') : 'Fecha no disponible'}</h3>
+                        </div>
+                        <p>
+                            {itemComment.description}
+                        </p>
                     </div>
-                    <p>
-                        {itemComment.description}
-                    </p>
                 </div>
-            </div>
-        </>
+            </>
         );
     }
-    
+
     return (
         <>
             <div className={InventoryStyles.flex}>

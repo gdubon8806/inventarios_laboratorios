@@ -37,6 +37,7 @@ h2 {
 
 .addItemBtnContainer {
     background-color: #1976d2;
+    border-radius: 4px;
 }
 
 body {

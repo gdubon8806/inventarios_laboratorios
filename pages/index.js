@@ -14,6 +14,9 @@ import NavBar from '../components/profileStuff/NavBar';
 //Request data components
 import readLab from '../components/firebaseStuff/read-lab';
 
+//export data
+// import xlsx from '../vendor/xlsx';
+
 //Styles
 import HomeStyles from '../styles/Home.module.css';
 import FormStyles from '../styles/Form.module.css';
@@ -42,9 +45,8 @@ export default function Index() {
           height={180}
           alt='Logo de CEUTEC'></Image>
         <h1>
-          ¡Bienvenido!
+          Bienvenido a inventario de laborotorios
         </h1>
-        <h2>Estás en Inventarios de Laboratorios</h2>
         <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
       </div>
     </div>
@@ -74,6 +76,7 @@ export function HomePage() {
 
   useEffect(() => {
     fetchLabs();
+    
   }, []);
 
   const handleRefresh = () => {

@@ -45,7 +45,7 @@ export default function Index() {
           height={180}
           alt='Logo de CEUTEC'></Image>
         <h1>
-          Bienvenido a inventario de laborotorios
+          Bienvenido a inventario de laboratorios
         </h1>
         <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
       </div>

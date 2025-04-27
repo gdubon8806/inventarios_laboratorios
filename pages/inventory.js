@@ -208,11 +208,10 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
             <div className={InventoryStyles.InventoryControls}>
                 <div>
                     <Link href="/" className={InventoryStyles.beforeIcon}>
-                        <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
+                        <Button className={`${InventoryStyles.backBTN} responsiveBackBTN`} variant="contained" startIcon={<ArrowBackIcon />}>
+                            Atrás
+                        </Button>
                     </Link>
-                </div>
-                <div>
-                    <Button startIcon={<DownloadIcon />} className="backBTN" variant="contained" onClick={() => exportToXLSX(idLab)}>Exportar datos</Button>
                 </div>
             </div>
         );
@@ -222,7 +221,9 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
         <div className={InventoryStyles.InventoryControls}>
             <div>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
-                    <Button className="backBTN" variant="contained" startIcon={<ArrowBackIcon />}>Atrás</Button>
+                    <Button className={`${InventoryStyles.backBTN} responsiveBackBTN`} variant="contained" startIcon={<ArrowBackIcon />}>
+                        
+                    </Button>
                 </Link>
             </div>
             <div className={InventoryStyles.flex}>
@@ -230,7 +231,9 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
                     <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
                 </div>
                 <div>
-                    <Button startIcon={<DownloadIcon />} className="backBTN" variant="contained" onClick={() => exportToXLSX(idLab)}>Exportar datos</Button>
+                    <Button startIcon={<DownloadIcon />} 
+                    className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
+                    Exportar</Button>
                 </div>
             </div>
             
@@ -247,6 +250,7 @@ function Item({ data, items, setItems, handleRefresh }) {
                 alt=""
                 height="140"
                 image={data.imgurl}
+                className= {InventoryStyles.cardmediaOverride}
             />
             <CardContent>
                 <ItemDetailsCard details={data} />

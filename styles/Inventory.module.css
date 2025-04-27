@@ -42,6 +42,9 @@
     overflow: hidden;
 }
 
+.cardmediaOverride  {
+    height: 300px;
+}
 
 .ItemLink {
     color: black;
@@ -236,4 +239,27 @@
     display: flex;
     gap: 1rem;
     justify-content: space-between;
+}
+
+.responsiveBackBTN {
+    display: flex;
+    align-items: center;
+}
+
+/* Oculta el texto del botón en pantallas pequeñas */
+@media (max-width: 375px) {
+    .responsiveBackBTN {
+        justify-content: center;
+    }
+
+    .responsiveBackBTN span {
+        display: none; /* Oculta el texto del botón */
+    }
+}
+
+.downloadBTN {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;    /* Centra verticalmente */
+    padding: 0;             /* Elimina el padding extra */
 }

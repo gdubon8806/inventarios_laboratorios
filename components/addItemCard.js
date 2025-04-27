@@ -171,6 +171,7 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                     Tipo:
                 </label>
                 <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                    <option value="" disabled selected>Seleccionar tipo...</option>
                     <option value="Herramienta">Herramienta</option>
                     <option value="Suministro">Suministro</option>
                     <option value="Equipo">Equipo</option>

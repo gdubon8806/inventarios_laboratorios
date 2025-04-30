@@ -102,8 +102,9 @@ export function HomePage() {
         }
         //transforma el nombre del lab tambien de la db sin caracteres especiales
         let newNombreLab = "";
-        lab.name = lab.name.toLowerCase();
-        for (const letter of lab.name) { //termómetro
+        let currentNombreLab = lab.name;
+        currentNombreLab = currentNombreLab.toLowerCase();
+        for (const letter of currentNombreLab) { //termómetro
           if (letter == "á" ||
             letter == "é" ||
             letter == "í" ||

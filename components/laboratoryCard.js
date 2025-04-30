@@ -19,9 +19,10 @@ export default function LaboratoryCard({ lab, handleRefresh }) {
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
         component="img"
-        alt=""
+        alt="Imagen de laboratorio"
         height="140"
         image={lab.imgurl}
+        className={HomeStyles.cardmediaOverride}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">

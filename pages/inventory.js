@@ -144,7 +144,49 @@ export function InventoryPage() {
                 // itemsToShow = filteredItems;
             } else {
                 itemsToShow = items.filter((item) => {
-                    if ((item.equipo.toUpperCase()).includes(filter.toUpperCase())) {
+                    //check en el apartado de buscador desde este lado
+                    const vowels = {
+                        "á": "a",
+                        "é": "e",
+                        "í": "i",
+                        "ó": "o",
+                        "ú": "u",
+                        "ü": "u",
+                        "ñ": "n"
+                    }
+                    //transforma el nombre del equipo tambien de la db sin caracteres especiales
+                    let newNombreEquipo = "";
+                    item.equipo = item.equipo.toLowerCase();
+                    for (const letter of item.equipo) { //termómetro
+                        if (letter == "á" ||
+                            letter == "é" ||
+                            letter == "í" ||
+                            letter == "ó" ||
+                            letter == "ú" ||
+                            letter == "ü" ||
+                            letter == "ñ") {
+                            newNombreEquipo += vowels[letter];
+                        } else {
+                            newNombreEquipo += letter;
+                        }
+                    }
+                    let newFilter = "";
+                    let currentFilter = filter.toLowerCase().trim();
+                    for (const letter of currentFilter) { //termómetro
+                        if (letter == "á" ||
+                            letter == "é" ||
+                            letter == "í" ||
+                            letter == "ó" ||
+                            letter == "ú" ||
+                            letter == "ü" ||
+                            letter == "ñ") {
+                            newFilter += vowels[letter];
+                        } else {
+                            newFilter += letter;
+                        }
+                    }
+
+                    if ((newNombreEquipo.toUpperCase()).includes(newFilter.toUpperCase())) {
                         return item;
                     }
                 });
@@ -201,7 +243,7 @@ export function HeaderBar() {
 }
 
 function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
-    console.log(idLab);
+    // console.log(idLab);
     const { user } = useUser();
     if (user.email !== 'coordinacionlaboratorios@gmail.com') {
         return (
@@ -222,7 +264,7 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
             <div>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
                     <Button className={`${InventoryStyles.backBTN} responsiveBackBTN`} variant="contained" startIcon={<ArrowBackIcon />}>
-                        
+
                     </Button>
                 </Link>
             </div>
@@ -231,12 +273,12 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
                     <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
                 </div>
                 <div>
-                    <Button startIcon={<DownloadIcon />} 
-                    className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
-                    Exportar</Button>
+                    <Button startIcon={<DownloadIcon />}
+                        className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
+                        Exportar</Button>
                 </div>
             </div>
-            
+
 
         </div>
     )
@@ -250,7 +292,7 @@ function Item({ data, items, setItems, handleRefresh }) {
                 alt=""
                 height="140"
                 image={data.imgurl}
-                className= {InventoryStyles.cardmediaOverride}
+                className={InventoryStyles.cardmediaOverride}
             />
             <CardContent>
                 <ItemDetailsCard details={data} />

@@ -76,7 +76,7 @@ export function HomePage() {
 
   useEffect(() => {
     fetchLabs();
-    
+
   }, []);
 
   const handleRefresh = () => {
@@ -90,7 +90,49 @@ export function HomePage() {
       laboratoryCards = 'No hay registros de laboratorios.';
     } else {
       let filteredLaboratories = laboratories.filter((lab) => {
-        if ((lab.name.toUpperCase()).includes(filter.toUpperCase())) {
+        //check en el apartado de buscador desde este lado
+        const vowels = {
+          "á": "a",
+          "é": "e",
+          "í": "i",
+          "ó": "o",
+          "ú": "u",
+          "ü": "u",
+          "ñ": "n"
+        }
+        //transforma el nombre del lab tambien de la db sin caracteres especiales
+        let newNombreLab = "";
+        lab.name = lab.name.toLowerCase();
+        for (const letter of lab.name) { //termómetro
+          if (letter == "á" ||
+            letter == "é" ||
+            letter == "í" ||
+            letter == "ó" ||
+            letter == "ú" ||
+            letter == "ü" ||
+            letter == "ñ") {
+            newNombreLab += vowels[letter];
+          } else {
+            newNombreLab += letter;
+          }
+        }
+        let newFilter = "";
+        let currentFilter = filter.toLowerCase().trim();
+        for (const letter of currentFilter) { //termómetro
+          if (letter == "á" ||
+            letter == "é" ||
+            letter == "í" ||
+            letter == "ó" ||
+            letter == "ú" ||
+            letter == "ü" ||
+            letter == "ñ") {
+            newFilter += vowels[letter];
+          } else {
+            newFilter += letter;
+          }
+        }
+
+        if ((newNombreLab.toUpperCase()).includes(newFilter.toUpperCase())) {
           return lab;
         }
       })

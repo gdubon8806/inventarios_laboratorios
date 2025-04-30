@@ -250,7 +250,7 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
             <div className={InventoryStyles.InventoryControls}>
                 <div>
                     <Link href="/" className={InventoryStyles.beforeIcon}>
-                        <Button className={`${InventoryStyles.backBTN} responsiveBackBTN`} variant="contained" startIcon={<ArrowBackIcon />}>
+                        <Button className={InventoryStyles.backBTN} variant="contained" startIcon={<ArrowBackIcon />}>
                             Atrás
                         </Button>
                     </Link>
@@ -261,21 +261,20 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
 
     return (
         <div className={InventoryStyles.InventoryControls}>
-            <div>
+            <div className={InventoryStyles.flex}>
                 <Link href="/" className={InventoryStyles.beforeIcon}>
-                    <Button className={`${InventoryStyles.backBTN} responsiveBackBTN`} variant="contained" startIcon={<ArrowBackIcon />}>
-
+                    <Button className={InventoryStyles.backBTN} variant="contained" startIcon={<ArrowBackIcon />}>
                     </Button>
                 </Link>
-            </div>
-            <div className={InventoryStyles.flex}>
-                <div className="addItemBtnContainer">
-                    <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
-                </div>
-                <div>
-                    <Button startIcon={<DownloadIcon />}
-                        className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
-                        Exportar</Button>
+                <div className={InventoryStyles.flex}>
+                    <div className="addItemBtnContainer">
+                        <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
+                    </div>
+                    <div>
+                        <Button startIcon={<DownloadIcon />}
+                            className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
+                            Exportar</Button>
+                    </div>
                 </div>
             </div>
 

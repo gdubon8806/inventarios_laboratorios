@@ -14,21 +14,31 @@
 }
 
 .InventoryControls {
-    margin-top: 4.5rem;
+    margin-top: 4rem;
+    padding: 1rem;
     font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    justify-content: space-between;
-    border-color: green thin solid;
 }
 
 .itemsFiltererContainer {
-    text-align: center;
     display: grid;
-    gap: 1rem;
+    grid-template-columns: 75% 1fr;
+    gap: 0.25rem;
     align-items: center;
 }
+
+/* Cuando el ancho es pequeño, pasamos a una sola columna */
+@media (max-width: 1100px) {
+    .itemsFiltererContainer {
+        grid-template-columns: 1fr;
+    }
+
+    .itemsFiltererContainer > :nth-child(2) {
+        justify-self: center;
+        width: 85%; /* opcional, depende de si quieres que se centre ocupando todo el ancho o con su tamaño natural */
+        /* Alternativamente puedes usar margin: 0 auto si no funciona justify-self */
+    }
+}
+
 
 .itemCard {
     padding: 0;
@@ -170,7 +180,7 @@
 }
 
 .subheader{
-    margin: 0.75rem 0;
+    margin: 0.25rem 0;
     text-align: center;
 }
 
@@ -235,31 +245,8 @@
 }
 
 .flex {
-    padding: 1rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-}
-
-.responsiveBackBTN {
     display: flex;
     align-items: center;
-}
-
-/* Oculta el texto del botón en pantallas pequeñas */
-@media (max-width: 375px) {
-    .responsiveBackBTN {
-        justify-content: center;
-    }
-
-    .responsiveBackBTN span {
-        display: none; /* Oculta el texto del botón */
-    }
-}
-
-.downloadBTN {
-    display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center;    /* Centra verticalmente */
-    padding: 0;             /* Elimina el padding extra */
+    gap: 1rem;
+    justify-content: space-between;
 }

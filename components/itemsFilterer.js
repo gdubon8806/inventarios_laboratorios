@@ -5,6 +5,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { alignProperty } from '@mui/material/styles/cssUtils';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -50,8 +51,7 @@ export default function ItemsFilterer({setFilters}) {
   };
 
   return (
-    <div>
-      <FormControl sx={{ m: 1, width: 300 }}>
+      <FormControl sx={{ m: 1, width: 300, padding: '0.40rem'}}>
         <InputLabel id="demo-multiple-filter-label">Filtros</InputLabel>
         <Select
           labelId="demo-multiple-filter-label"
@@ -61,6 +61,7 @@ export default function ItemsFilterer({setFilters}) {
           onChange={handleChange}
           input={<OutlinedInput label="filter" />}
           MenuProps={MenuProps}
+          style={{height: '40px'}}
         >
           {filters.map((filter) => (
             <MenuItem
@@ -73,6 +74,5 @@ export default function ItemsFilterer({setFilters}) {
           ))}
         </Select>
       </FormControl>
-    </div>
   );
 }

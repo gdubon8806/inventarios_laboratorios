@@ -68,6 +68,7 @@ export function HomePage() {
         setLaboratories(res);
         setLoading(false);
       })
+      
     } catch (error) {
       console.error('Error al extraer los laboratorios de la db.')
     }

@@ -6,30 +6,21 @@ import { getStorage } from "firebase/storage";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyBT6cusdCse2rF7YQbKh5sEGQjF3UAPKjM",
-    authDomain: "inventarioslabsceutec.firebaseapp.com",
-    projectId: "inventarioslabsceutec",
-    storageBucket: "inventarioslabsceutec.appspot.com",
-    messagingSenderId: "1015499109529",
-    appId: "1:1015499109529:web:113f40238169121bf43408",
-    measurementId: "G-YTM0GKD1ZV"
+    apiKey: process.env.NEXT_PUBLIC_apiKey,
+    authDomain: process.env.NEXT_PUBLIC_authDomain,
+    projectId: process.env.NEXT_PUBLIC_projectId,
+    storageBucket: process.env.NEXT_PUBLIC_storageBucket,
+    messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
+    appId: process.env.NEXT_PUBLIC_appId,
+    measurementId: process.env.NEXT_PUBLIC_measurementId
 };
-// const firebaseConfig = {
-//     apiKey: process.env.apiKey,
-//     authDomain: process.env.authDomain,
-//     projectId: process.env.projectId,
-//     storageBucket: process.env.storageBucket,
-//     messagingSenderId: process.env.messagingSenderId,
-//     appId: process.env.appId,
-//     measurementId: process.env.measurementId
-// }
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const firestore = getFirestore(app);
 
 //Auth
-// Initialize the FirebaseUI Widget using Firebase.
 // Initialize the FirebaseUI Widget using Firebase.
 
 

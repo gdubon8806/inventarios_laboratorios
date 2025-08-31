@@ -27,3 +27,5 @@ yarn-error.log*
 .env
 
 .vercel
+/asignarRoles.js
+/serviceAccountKey.json

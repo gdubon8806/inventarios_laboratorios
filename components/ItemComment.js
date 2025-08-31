@@ -9,7 +9,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import toast from 'react-hot-toast';
 import Typography from '@mui/material/Typography';
-import { useUser } from '@auth0/nextjs-auth0/client';
+// import { useUser } from '@auth0/nextjs-auth0/client';
 
 
 
@@ -43,13 +43,13 @@ export default function AddItemCommentCard({ idItem, handleRefresh }) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <div>
-            </div>
-        );
-    }
+    // const { user } = useUser();
+    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+    //     return (
+    //         <div>
+    //         </div>
+    //     );
+    // }
     return (
         <div className='add-lab-btn-container'>
             <Button className='add-lab-btn' variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>

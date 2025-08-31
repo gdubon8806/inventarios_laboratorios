@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 // import firebaseui from 'firebaseui';
 
 // Your web app's Firebase configuration
@@ -15,13 +16,11 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_measurementId
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
-const firestore = getFirestore(app);
 
-//Auth
-// Initialize the FirebaseUI Widget using Firebase.
+const auth = getAuth(app);         
+const firestore = getFirestore(app); 
+const storage = getStorage(app);  
 
 
-export { storage, firestore, app };
+export { storage, firestore, app, auth};

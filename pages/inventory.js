@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
-import Image from 'next/image';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-import { useUser } from '@auth0/nextjs-auth0/client';
+// import { useUser } from '@auth0/nextjs-auth0/client';
+import { auth } from '../firebaseConfig';
+import { signOutSession } from '../authService';
 
-import NavBar from '../components/profileStuff/NavBar';
+
+// import NavBar from '../components/profileStuff/NavBar';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -43,38 +46,33 @@ import readItemCommentsById from "../components/firebaseStuff/readItemComments-w
 import exportToXLSX from '../components/exportData/export';
 
 export default function Index() {
-    const { user, error, isLoading } = useUser();
+    const router = useRouter();
+    const [user, setUser] = useState(null);
+    const [checkingAuth, setCheckingAuth] = useState(true);
+    const [role, setRole] = useState(null);
 
-    if (isLoading) return <div>Cargando...</div>;
-    if (error) return <div>{error.message}</div>;
 
-    if (user) {
-        return (
-            <div>
-                <InventoryPage></InventoryPage>
-            </div>
-        );
-    }
+    useEffect(() => {
+        // Aquí deberías obtener el usuario desde Firebase Auth
+        const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+            setUser(firebaseUser);
+            setCheckingAuth(false);
+            if (!firebaseUser) {
+                router.replace('/'); // Redirige a index.js
+            } else {
+                const tokenResult = await firebaseUser.getIdTokenResult(true);
+                setRole(tokenResult.claims.role || null); // Guarda el rol
+                console.log("Custom claims:", tokenResult.claims);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
-    return (
-        <div className={FormStyles.loginContainerWrapper}>
-            <div className={FormStyles.loginContainer}>
-                <Image
-                    src='/img/ceutec_logo.png'
-                    width={180}
-                    height={180}
-                    alt='Logo de CEUTEC'></Image>
-                <h1>
-                    ¡Bienvenido!
-                </h1>
-                <h2>Estás en Inventarios de Laboratorios</h2>
-                <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
-            </div>
-        </div>
-    )
+    if (checkingAuth) return <div>Cargando...</div>;
+    if (user) return <InventoryPage role={role}></InventoryPage>
 }
 
-export function InventoryPage() {
+export function InventoryPage({ role }) {
     const [items, setItems] = useState([]);
     const [lab, setLab] = useState("");
     const [filters, setFilters] = useState([]);
@@ -192,7 +190,15 @@ export function InventoryPage() {
                 });
             }
 
-            itemCards = itemsToShow.map(item => <Item key={item.id} data={item} items={items} setItems={setItems} handleRefresh={handleRefresh}></Item>);
+            itemCards = itemsToShow.map(item => 
+    <Item 
+        key={item.id} 
+        data={item} 
+        items={items} 
+        setItems={setItems} 
+        handleRefresh={handleRefresh} 
+        role={role} // <-- agrega esto
+    />);
         }
     }
     return (
@@ -210,7 +216,7 @@ export function InventoryPage() {
             <div className={HomeStyles.fixedContainer}>
 
                 <HeaderBar />
-                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} lab={lab} setFilters={setFilters} />
+                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} lab={lab} setFilters={setFilters} role={role} />
             </div>
             <div>
                 <h2 className={InventoryStyles.subheader}>{lab}</h2>
@@ -236,29 +242,14 @@ export function HeaderBar() {
                 <div className={HomeStyles.gridInsideHeaderBar}>
                     <h1>Inventario de laboratorios</h1>
                 </div>
-                <NavBar />
+                <Button style={{paddingRight:"1rem"}} onClick={signOutSession}>Cerrar Sesión</Button>
+                {/* <NavBar /> */}
             </div>
         </header>
     )
 }
 
-function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
-    // console.log(idLab);
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <div className={InventoryStyles.InventoryControls}>
-                <div>
-                    <Link href="/" className={InventoryStyles.beforeIcon}>
-                        <Button className={InventoryStyles.backBTN} variant="contained" startIcon={<ArrowBackIcon />}>
-                            Atrás
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
+function InventoryControls({ handleRefresh, idLab, lab, setFilters, role }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div className={InventoryStyles.flex}>
@@ -267,23 +258,26 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters }) {
                     </Button>
                 </Link>
                 <div className={InventoryStyles.flex}>
-                    <div className="addItemBtnContainer">
-                        <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
-                    </div>
-                    <div>
-                        <Button startIcon={<DownloadIcon />}
-                            className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
-                            Exportar</Button>
-                    </div>
+                    {role === 'admin' && (
+                        <>
+                            <div className="addItemBtnContainer">
+                                <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
+                            </div>
+                            <div>
+                                <Button startIcon={<DownloadIcon />}
+                                    className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportToXLSX(idLab)}>
+                                    Exportar
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
-
-
         </div>
     )
 }
 
-function Item({ data, items, setItems, handleRefresh }) {
+function Item({ data, items, setItems, handleRefresh, role }) {
     return (
         <Card sx={{ maxWidth: 345 }}>
             <CardMedia
@@ -294,7 +288,7 @@ function Item({ data, items, setItems, handleRefresh }) {
                 className={InventoryStyles.cardmediaOverride}
             />
             <CardContent>
-                <ItemDetailsCard details={data} />
+                <ItemDetailsCard details={data} role={role} />
                 <br></br>
                 <div className={InventoryStyles.extras}>
                     <Typography variant="body2" color="text.secondary">
@@ -306,7 +300,15 @@ function Item({ data, items, setItems, handleRefresh }) {
                 </div>
             </CardContent>
             <CardActions>
-                <OptionsItemCard item={data} items={items} setItems={setItems} handleRefresh={handleRefresh} />
+                {role === 'admin' && (
+                    <OptionsItemCard
+                        item={data}
+                        items={items}
+                        setItems={setItems}
+                        handleRefresh={handleRefresh}
+                        role={role}
+                    />
+                )}
             </CardActions>
         </Card>
     );
@@ -326,7 +328,7 @@ function setImg(details) {
 }
 
 
-function ItemDetailsCard({ details }) {
+function ItemDetailsCard({ details, role }) {
     const style = {
         position: 'absolute',
         top: '50%',
@@ -394,7 +396,14 @@ function ItemDetailsCard({ details }) {
         if (itemComentarios.length == 0) {
             itemCommentsCards = 'No hay registros de comentarios.';
         } else {
-            itemCommentsCards = itemComentarios.map(itemComment => <ItemCommentCard key={itemComment.id} itemComment={itemComment} handleRefresh={handleRefresh}> </ItemCommentCard>)
+            itemCommentsCards = itemComentarios.map(itemComment => 
+        <ItemCommentCard 
+            key={itemComment.id} 
+            itemComment={itemComment} 
+            handleRefresh={handleRefresh}
+            role={role} // <-- agrega esto
+        />
+    );
         }
 
     }
@@ -408,7 +417,11 @@ function ItemDetailsCard({ details }) {
             {/* <div className={InventoryStyles.ItemLink}> */}
             <div className={InventoryStyles.detailsContainer}>
                 <Button style={linkItem} onClick={handleOpen}>{details.equipo}</Button>
-                <Button><CommentIcon onClick={handleOpenComments}></CommentIcon></Button>
+                {role === 'admin' && (
+                    <Button>
+                        <CommentIcon onClick={handleOpenComments} />
+                    </Button>
+                )}
             </div>
             <Modal
                 open={openComments}
@@ -423,9 +436,10 @@ function ItemDetailsCard({ details }) {
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleCloseComments}>Atrás</Button>
                         <div className={InventoryStyles.flex}>
                             <h1>Comentarios</h1>
-                            <AddItemCommentCard idItem={details.id} handleRefresh={handleRefresh}></AddItemCommentCard>
+                            {role === 'admin' && (
+                                <AddItemCommentCard idItem={details.id} handleRefresh={handleRefresh} />
+                            )}
                         </div>
-
                     </div>
                     <div className={InventoryStyles.commentsContainer}>
                         {itemCommentsCards}
@@ -474,27 +488,8 @@ function ItemDetailsCard({ details }) {
     )
 }
 
-function ItemCommentCard({ itemComment, handleRefresh }) {
+function ItemCommentCard({ itemComment, handleRefresh, role }) {
     const date = itemComment.time ? itemComment.time.toDate() : null;
-
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <>
-                <div className={InventoryStyles.flex}>
-                    <div>
-                        <div className={InventoryStyles.commentHeader}>
-                            <h3 className={InventoryStyles.commentTitle}><strong>{itemComment.title}</strong></h3>
-                            <h3>{date ? date.toLocaleString('es-HN') : 'Fecha no disponible'}</h3>
-                        </div>
-                        <p>
-                            {itemComment.description}
-                        </p>
-                    </div>
-                </div>
-            </>
-        );
-    }
 
     return (
         <>
@@ -509,10 +504,13 @@ function ItemCommentCard({ itemComment, handleRefresh }) {
                     </p>
                 </div>
                 <div>
-                    <EditItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh}></EditItemCommentCard>
-                    <DeleteItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh} ></DeleteItemCommentCard>
+                    {role === 'admin' && (
+                        <>
+                            <EditItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh} />
+                            <DeleteItemCommentCard itemComment={itemComment} handleRefresh={handleRefresh} />
+                        </>
+                    )}
                 </div>
-
             </div>
         </>
     )

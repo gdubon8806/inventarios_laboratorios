@@ -1,1 +1,1 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+Inventario de laboratorios de CEUTEC SN SPS

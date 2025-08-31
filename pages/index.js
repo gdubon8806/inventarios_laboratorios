@@ -1,7 +1,6 @@
+//Next and React
 import Head from 'next/head';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/client';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
@@ -9,52 +8,71 @@ import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 import Button from '@mui/material/Button'
 import { Toaster } from 'react-hot-toast';
-import NavBar from '../components/profileStuff/NavBar';
+
+//Firebase Auth
+import { auth } from '../firebaseConfig';
+import LoginForm from '../loginForm';
+import { signOutSession } from '../authService';
 
 //Request data components
 import readLab from '../components/firebaseStuff/read-lab';
 
-//export data
-// import xlsx from '../vendor/xlsx';
-
 //Styles
 import HomeStyles from '../styles/Home.module.css';
-import FormStyles from '../styles/Form.module.css';
-
 
 export default function Index() {
-  const { user, error, isLoading } = useUser();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
 
-  if (isLoading) return <div>Cargando...</div>;
-  if (error) return <div>{error.message}</div>;
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+
+      if (firebaseUser) {
+        const tokenResult = await firebaseUser.getIdTokenResult(true);
+        setRole(tokenResult.claims.role || null); // Guarda el rol
+        console.log("Custom claims:", tokenResult.claims);
+      } else {
+        setRole(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
+  if (loading) return <div>Cargando...</div>;
 
   if (user) {
     return (
       <div>
-        <HomePage></HomePage>
+        <HomePage user={user} role={role} />
       </div>
     );
   }
 
   return (
-    <div className={FormStyles.loginContainerWrapper}>
-      <div className={FormStyles.loginContainer}>
-        <Image
-          src='/img/ceutec_logo.png'
-          width={180}
-          height={180}
-          alt='Logo de CEUTEC'></Image>
-        <h1>
-          Bienvenido a inventario de laboratorios
-        </h1>
-        <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
-      </div>
-    </div>
+    // <div className={FormStyles.loginContainerWrapper}>
+    //   <div className={FormStyles.loginContainer}>
+    //     <Image
+    //       src='/img/ceutec_logo.png'
+    //       width={180}
+    //       height={180}
+    //       alt='Logo de CEUTEC'></Image>
+    //     <h1>
+    //       Bienvenido a inventario de laboratorios
+    //     </h1>
+    //     <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
+    //   </div>
+    // </div>
+    <LoginForm></LoginForm>
   )
 }
 
 
-export function HomePage() {
+export function HomePage({ user, role }) {
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
@@ -68,7 +86,7 @@ export function HomePage() {
         setLaboratories(res);
         setLoading(false);
       })
-      
+
     } catch (error) {
       console.error('Error al extraer los laboratorios de la db.')
     }
@@ -138,7 +156,7 @@ export function HomePage() {
           return lab;
         }
       })
-      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
+      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard role = {role} key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
     }
   }
 
@@ -146,17 +164,10 @@ export function HomePage() {
     <>
       <Head>
         <title>Inventarios</title>
-        <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossOrigin="anonymous"
-        />
-        {/* <link rel="stylesheet" href="https://cdn.auth0.com/js/auth0-samples-theme/1.0/css/auth0-theme.min.css" /> */}
       </Head>
       <div className={HomeStyles.fixedContainer}>
         <HeaderBar />
-        <LabsContainerControls setFilter={setFilter} handleRefresh={handleRefresh} />
+        <LabsContainerControls user={user} role={role} setFilter={setFilter} handleRefresh={handleRefresh} />
       </div>
       <LabsContainer labs={laboratoryCards} />
       <Toaster />
@@ -172,18 +183,21 @@ export function HeaderBar() {
         <div className={HomeStyles.gridInsideHeaderBar}>
           <h1>Inventario de laboratorios</h1>
         </div>
-        <NavBar />
+        {/* <NavBar /> */}
+        <div>
+          <Button style={{paddingRight:"1rem"}} onClick={signOutSession}>Cerrar Sesión</Button>
+        </div>
       </div>
     </header>
   )
 }
 
-function LabsContainerControls({ setFilter, handleRefresh }) {
+function LabsContainerControls({ user, role, setFilter, handleRefresh }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
         <SearchAppBar setFilter={setFilter} />
-        <AddLabCard handleRefresh={handleRefresh} />
+        {role === 'admin' && <AddLabCard handleRefresh={handleRefresh} />}
       </div>
     </div>
   )

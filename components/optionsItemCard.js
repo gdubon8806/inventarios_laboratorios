@@ -17,7 +17,7 @@ import updateItem from './firebaseStuff/update-item';
 import { uploadImage } from './firebaseStuff/uploadImages';
 import deleteItem from './firebaseStuff/delete-item';
 import deleteImage from './firebaseStuff/delete-blob';
-import { useUser } from '@auth0/nextjs-auth0/client';
+// import { useUser } from '@auth0/nextjs-auth0/client';
 
 
 import { useState } from 'react';
@@ -43,13 +43,13 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <div>
-            </div>
-        );
-    }
+    // const { user } = useUser();
+    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+    //     return (
+    //         <div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div>

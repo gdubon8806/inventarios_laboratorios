@@ -6,7 +6,7 @@ import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
 import Uploader from './uploader';
 import toast from 'react-hot-toast';
-import { useUser } from '@auth0/nextjs-auth0/client';
+// import { useUser } from '@auth0/nextjs-auth0/client';
 
 
 import { useState } from 'react';
@@ -31,13 +31,13 @@ const style = {
 
 export default function AddLabCard({ handleRefresh }) {
     //Si el usuario esta autorizado entonces este componente se renderizara
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <div>
-            </div>
-        );
-    }
+    // const { user } = useUser();
+    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
+    //     return (
+    //         <div>
+    //         </div>
+    //     );
+    // }
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -90,9 +90,12 @@ function AddLabForm({ close, handleRefresh }) {
                         }
                     })
             } else {
-                createLab(name, description, imgURL, imgName).then(() => {
-                    toast("¡Se ha insertado el nuevo laboratorio exitosamente!")
-                })
+                const result = await createLab(name, description, imgURL, imgName);
+                if (result === false) {
+                    toast.error("¡Vaya! Ocurrió un error al insertar el laboratorio.");
+                } else {
+                    toast("Se ha insertado el nuevo laboratorio exitosamente.");
+                }
             }
 
         } catch (error) {

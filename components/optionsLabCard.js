@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useUser } from '@auth0/nextjs-auth0/client';
+// import { useUser } from '@auth0/nextjs-auth0/client';
 
 
 import Uploader from './uploader'
@@ -36,17 +36,13 @@ const style = {
     overflowY: 'auto',
 };
 
-export default function OptionsLabCard({ lab, handleRefresh }) {
+export default function OptionsLabCard({ lab, handleRefresh, role }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const { user } = useUser();
-    if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-        return (
-            <div>
-            </div>
-        );
-    }
+
+    // Solo renderiza el botón si el usuario es admin
+    if (role !== 'admin') return null;
 
     return (
         <div>

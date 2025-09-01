@@ -62,7 +62,6 @@ export default function Index() {
             } else {
                 const tokenResult = await firebaseUser.getIdTokenResult(true);
                 setRole(tokenResult.claims.role || null); // Guarda el rol
-                console.log("Custom claims:", tokenResult.claims);
             }
         });
         return () => unsubscribe();
@@ -223,7 +222,7 @@ export function InventoryPage({ role }) {
             </div>
             <div className={InventoryStyles.itemsFiltererContainer}>
                 <SearchAppBar setFilter={setFilter} />
-                <ItemsFilterer setFilters={setFilters} />
+                <ItemsFilterer filters = {filters } setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
@@ -279,10 +278,10 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters, role }) {
 
 function Item({ data, items, setItems, handleRefresh, role }) {
     return (
-        <Card sx={{ maxWidth: 345 }}>
+        <Card sx={{ width: 300}}>
             <CardMedia
                 component="img"
-                alt=""
+                alt="Ilustración del ítem"
                 height="140"
                 image={data.imgurl}
                 className={InventoryStyles.cardmediaOverride}

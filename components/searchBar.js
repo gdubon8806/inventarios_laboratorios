@@ -2,9 +2,14 @@ import { styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
+import { useDebouncedCallback } from 'use-debounce';
+
 
 export default function SearchAppBar({ setFilter }) {
 
+  const handleSearch = useDebouncedCallback((value) => {
+    setFilter(value)
+  }, 300);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Search>
@@ -13,10 +18,10 @@ export default function SearchAppBar({ setFilter }) {
         </SearchIconWrapper>
         <StyledInputBase
           onChange={(event) => {
-            setFilter(event.target.value)
+            handleSearch(event.target.value);
           }
           }
-          placeholder="Buscar"
+          placeholder="Buscar..."
           inputProps={{ 'aria-label': 'search' }}
         />
       </Search>

@@ -5,7 +5,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { alignProperty } from '@mui/material/styles/cssUtils';
+import { useDebouncedCallback } from 'use-debounce';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -18,7 +19,7 @@ const MenuProps = {
   },
 };
 
-const filters = [
+const filterTypeNames = [
   'Suministro',
   'Herramienta',
   'Mobiliario',
@@ -34,45 +35,45 @@ function getStyles(filter, filterName, theme) {
   };
 }
 
-export default function ItemsFilterer({setFilters}) {
+export default function ItemsFilterer({ setFilters, filters }) {
   const theme = useTheme();
 
-  const [filterName, setfilterName] = React.useState([]);
-
-  setFilters(filterName)
-
-  const handleChange = (event) => {
+  const handleSearch = useDebouncedCallback((event) => {
     const {
       target: { value },
     } = event;
-    setfilterName(
+    setFilters(
       typeof value === 'string' ? value.split(',') : value,
     );
+  }, 10);
+
+  const handleChange = (event) => {
+    handleSearch(event);
   };
 
   return (
-      <FormControl sx={{ m: 1, width: 300, padding: '0.40rem'}}>
-        <InputLabel id="demo-multiple-filter-label">Filtros</InputLabel>
-        <Select
-          labelId="demo-multiple-filter-label"
-          id="demo-multiple-filter"
-          multiple
-          value={filterName}
-          onChange={handleChange}
-          input={<OutlinedInput label="filter" />}
-          MenuProps={MenuProps}
-          style={{height: '40px'}}
-        >
-          {filters.map((filter) => (
-            <MenuItem
-              key={filter}
-              value={filter}
-              style={getStyles(filter, filterName, theme)}
-            >
-              {filter}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+    <FormControl sx={{ m: 1, width: 300, padding: '0.40rem' }}>
+      <InputLabel id="demo-multiple-filter-label">Filtros</InputLabel>
+      <Select
+        labelId="demo-multiple-filter-label"
+        id="demo-multiple-filter"
+        multiple
+        value={filters}
+        onChange={handleChange}
+        input={<OutlinedInput label="filter" />}
+        MenuProps={MenuProps}
+        style={{ height: '40px' }}
+      >
+        {filterTypeNames.map((filter) => (
+          <MenuItem
+            key={filter}
+            value={filter}
+            style={getStyles(filter, filters, theme)}
+          >
+            {filter}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }

@@ -4,7 +4,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
-import Uploader from './uploader';
+import Uploader from './uploader/uploader';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import toast from 'react-hot-toast';
@@ -16,13 +16,13 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
-import createLab from './firebaseStuff/create-lab';
-import createItemComment from './firebaseStuff/create-itemComment';
-import { uploadImage } from './firebaseStuff/uploadImages';
+import createLab from './firebase/create-lab';
+import createItemComment from './firebase/create-itemComment';
+import { uploadImage } from './firebase/uploadImages';
 import { Timestamp } from 'firebase/firestore';
 
-import updateItemComment from './firebaseStuff/update-itemComment';
-import deleteItemComment from './firebaseStuff/delete-itemComment';
+import updateItemComment from './firebase/update-itemComment';
+import deleteItemComment from './firebase/delete-itemComment';
 
 
 const style = {
@@ -43,13 +43,6 @@ export default function AddItemCommentCard({ idItem, handleRefresh }) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     
-    // const { user } = useUser();
-    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-    //     return (
-    //         <div>
-    //         </div>
-    //     );
-    // }
     return (
         <div className='add-lab-btn-container'>
             <Button className='add-lab-btn' variant="contained" onClick={handleOpen} startIcon={<AddIcon />}>Agregar</Button>

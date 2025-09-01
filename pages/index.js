@@ -33,7 +33,6 @@ export default function Index() {
       if (firebaseUser) {
         const tokenResult = await firebaseUser.getIdTokenResult(true);
         setRole(tokenResult.claims.role || null); // Guarda el rol
-        console.log("Custom claims:", tokenResult.claims);
       } else {
         setRole(null);
       }
@@ -54,19 +53,6 @@ export default function Index() {
   }
 
   return (
-    // <div className={FormStyles.loginContainerWrapper}>
-    //   <div className={FormStyles.loginContainer}>
-    //     <Image
-    //       src='/img/ceutec_logo.png'
-    //       width={180}
-    //       height={180}
-    //       alt='Logo de CEUTEC'></Image>
-    //     <h1>
-    //       Bienvenido a inventario de laboratorios
-    //     </h1>
-    //     <Button variant="contained" href='/api/auth/login'>Iniciar Sesión</Button>
-    //   </div>
-    // </div>
     <LoginForm></LoginForm>
   )
 }

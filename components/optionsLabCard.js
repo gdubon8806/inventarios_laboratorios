@@ -9,18 +9,18 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 // import { useUser } from '@auth0/nextjs-auth0/client';
 
 
-import Uploader from './uploader'
+import Uploader from './uploader/uploader'
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 
-import updateLab from './firebaseStuff/update-lab';
-import deleteLab from './firebaseStuff/delete-lab';
-import { uploadImage } from './firebaseStuff/uploadImages';
+import updateLab from './firebase/update-lab';
+import deleteLab from './firebase/delete-lab';
+import { uploadImage } from './firebase/uploadImages';
 
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
-import deleteImage from './firebaseStuff/delete-blob';
+import deleteImage from './firebase/delete-blob';
 
 
 const style = {

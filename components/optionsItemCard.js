@@ -10,7 +10,7 @@ import Image from 'next/image'
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import Uploader from './uploader';
+import Uploader from './uploader/uploader';
 import toast from 'react-hot-toast';
 
 import updateItem from './firebaseStuff/update-item';
@@ -42,14 +42,6 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-
-    // const { user } = useUser();
-    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-    //     return (
-    //         <div>
-    //         </div>
-    //     );
-    // }
 
     return (
         <div>
@@ -160,7 +152,6 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
         try {
             //Si tiene imgurl y imgname debe eliminar la imagen anterior
             if (imgName != "" && imgFile != null) {
-                console.log("Se fue a la 1")
                 const resStorage = await deleteImage(`images/${imgName}`);
                 if (resStorage) {
                     toast('¡Su imagen asociada previa se eliminó correctamente!');
@@ -190,7 +181,6 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                     })
                 //si no solo debe llamar a uploadImage y luego usar updateLab
             } else if (imgFile != null && (imgURL == "" || imgName == "")) {
-                console.log("Se fue a la 2")
 
                 await uploadImage(imgFile).then(async (res) => {
                     if (res[0] === 1) {
@@ -215,7 +205,6 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                 }
                 )
             } else if (imgFile == null) {
-                console.log("Se fue a la 3")
 
                 const newData = {
                     equipo,

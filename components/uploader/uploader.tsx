@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import LoadingDots from './loading-dots'
 import Compressor from 'compressorjs';
-import { uploadImage } from './firebaseStuff/uploadImages';
+import { uploadImage } from '../firebase/uploadImages';
 
 export default function Uploader({setImgFile, setImgURL, setImgName}) {
   const [data, setData] = useState<{

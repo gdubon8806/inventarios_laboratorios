@@ -4,7 +4,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
-import Uploader from './uploader';
+import Uploader from './uploader/uploader';
 import toast from 'react-hot-toast';
 // import { useUser } from '@auth0/nextjs-auth0/client';
 

@@ -6,7 +6,7 @@ import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
 
 import { useState } from 'react';
-import Uploader from './uploader';
+import Uploader from './uploader/uploader';
 import toast from 'react-hot-toast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 

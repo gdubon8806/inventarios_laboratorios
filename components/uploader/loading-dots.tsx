@@ -1,5 +1,4 @@
-import styles from './loading-dots.module.css'
-
+import styles from '../styles/LoadingDots.module.css'
 const LoadingDots = ({ color = '#000' }: { color?: string }) => {
   return (
     <span className={styles.loading}>

@@ -13,10 +13,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Uploader from './uploader/uploader';
 import toast from 'react-hot-toast';
 
-import updateItem from './firebaseStuff/update-item';
-import { uploadImage } from './firebaseStuff/uploadImages';
-import deleteItem from './firebaseStuff/delete-item';
-import deleteImage from './firebaseStuff/delete-blob';
+import updateItem from './firebase/update-item';
+import { uploadImage } from './firebase/uploadImages';
+import deleteItem from './firebase/delete-item';
+import deleteImage from './firebase/delete-blob';
 // import { useUser } from '@auth0/nextjs-auth0/client';
 
 

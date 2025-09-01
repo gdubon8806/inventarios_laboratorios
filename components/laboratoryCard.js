@@ -8,15 +8,15 @@ import CommentIcon from '@mui/icons-material/Comment';
 
 
 import Link from 'next/link';
-// import getImageUrl from './firebaseStuff/read-blob';
+// import getImageUrl from './firebase/read-blob';
 
 
 import HomeStyles from '../styles/Home.module.css';
 import OptionsLabCard from './optionsLabCard';
 
-export default function LaboratoryCard({ lab, handleRefresh, role }) {
+export default function LaboratoryCard({ lab, setLaboratories, role }) {
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ width: 345 }}>
       <CardMedia
         component="img"
         alt="Imagen de laboratorio"
@@ -35,7 +35,7 @@ export default function LaboratoryCard({ lab, handleRefresh, role }) {
         </Typography>
       </CardContent>
       <CardActions>
-        <OptionsLabCard lab={lab} handleRefresh={handleRefresh} role={role} />
+        <OptionsLabCard lab={lab} setLaboratories={setLaboratories} role={role} />
       </CardActions>
     </Card>
   );

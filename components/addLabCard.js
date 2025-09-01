@@ -12,8 +12,8 @@ import toast from 'react-hot-toast';
 import { useState } from 'react';
 
 import FormStyles from '../styles/Form.module.css'
-import createLab from './firebaseStuff/create-lab';
-import { uploadImage } from './firebaseStuff/uploadImages';
+import createLab from './firebase/create-lab';
+import { uploadImage } from './firebase/uploadImages';
 
 
 const style = {
@@ -29,16 +29,7 @@ const style = {
     overflowY: 'auto',
 };
 
-export default function AddLabCard({ handleRefresh }) {
-    //Si el usuario esta autorizado entonces este componente se renderizara
-    // const { user } = useUser();
-    // if (user.email !== 'coordinacionlaboratorios@gmail.com') {
-    //     return (
-    //         <div>
-    //         </div>
-    //     );
-    // }
-
+export default function AddLabCard({ setLaboratories }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -53,14 +44,14 @@ export default function AddLabCard({ handleRefresh }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <AddLabForm close={handleClose} handleRefresh={handleRefresh} />
+                    <AddLabForm close={handleClose} setLaboratories={setLaboratories} />
                 </Box>
             </Modal>
         </div>
     );
 }
 
-function AddLabForm({ close, handleRefresh }) {
+function AddLabForm({ close, setLaboratories }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [imgURL, setImgURL] = useState('');
@@ -80,36 +71,47 @@ function AddLabForm({ close, handleRefresh }) {
                 await uploadImage(imgFile)
                     .then(async (res) => {
                         if (res[0] === 1) {
-                            // const { url } = (await res.json()) as PutBlobResult
                             setImgURL(res[1]);
                             setImgName(res[2]);
-                            toast("¡Se ha insertado la imagen exitosamente!")
-                            createLab(name, description, res[1], res[2]).then(() => {
-                                toast("¡Se ha insertado el nuevo laboratorio exitosamente!")
-                            })
+                            toast("¡Se ha insertado la imagen en base de datos exitosamente!")
+                            const result = await createLab(name, description, res[1], res[2]);
+
+                            toast("¡Se ha insertado el nuevo laboratorio exitosamente en base de datos!");
+
+                            setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, imgurl: res[1], imgname: res[2] }]);
+
+                            setName('');
+                            setDescription('');
+                            setImgURL('');
+                            setImgName('');
+                            setImgFile(null);
+
+                            close();
                         }
                     })
             } else {
                 const result = await createLab(name, description, imgURL, imgName);
+
                 if (result === false) {
                     toast.error("¡Vaya! Ocurrió un error al insertar el laboratorio.");
                 } else {
                     toast("Se ha insertado el nuevo laboratorio exitosamente.");
+                    setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, imgurl: imgURL, imgname: imgName }]);
+
+                    setName('');
+                    setDescription('');
+                    setImgURL('');
+                    setImgName('');
+                    setImgFile(null);
+
+                    close();
                 }
             }
 
         } catch (error) {
+            console.log(error);
             toast.error("Ocurrió algo. No se pudo insertar el laboratorio.");
         }
-
-        // Limpiar los campos del formulario después de la inserción exitosa
-        setName('');
-        setDescription('');
-        setImgURL('');
-        setImgName('');
-        setImgFile(null);
-        handleRefresh();
-        close();
     };
     return (
         <div>

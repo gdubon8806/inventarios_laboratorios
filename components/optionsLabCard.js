@@ -36,7 +36,7 @@ const style = {
     overflowY: 'auto',
 };
 
-export default function OptionsLabCard({ lab, handleRefresh, role }) {
+export default function OptionsLabCard({ lab, setLaboratories, role }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -58,15 +58,15 @@ export default function OptionsLabCard({ lab, handleRefresh, role }) {
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
                         <h2>Opciones de laboratorio</h2>
                     </div>
-                    <EditLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
-                    <DeleteLabCard lab={lab} close={handleClose} handleRefresh={handleRefresh} />
+                    <EditLabCard lab={lab} close={handleClose} setLaboratories={setLaboratories} />
+                    <DeleteLabCard lab={lab} close={handleClose} setLaboratories={setLaboratories} />
                 </Box>
             </Modal>
         </div >
     );
 }
 
-function EditLabCard({ lab, close, handleRefresh }) {
+function EditLabCard({ lab, close, setLaboratories }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
@@ -83,31 +83,39 @@ function EditLabCard({ lab, close, handleRefresh }) {
         try {
             //Si tiene imgurl y imgname debe eliminar la imagen anterior
             if (imgname != "" && imgFile != null) {
-                console.log("Se fue a la 1")
                 const resStorage = await deleteImage(`images/${imgname}`);
                 if (resStorage) {
                     toast('¡Su imagen asociada previa se eliminó correctamente!');
+                    await uploadImage(imgFile)
+                        .then(async (res) => {
+                            if (res[0] === 1) {
+                                setImgURL(res[1]);
+                                setImgName(res[2]);
+                                toast("¡Se ha insertado la imagen exitosamente!")
+                                const newData = {
+                                    name,
+                                    description,
+                                    imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
+                                    imgname: res[2],
+                                };
+                                const success = await updateLab(id, newData);
+                                if (success) {
+                                    // Actualiza el estado de los laboratorios en el componente padre
+                                    setLaboratories(prevLabs => prevLabs.map(l => l.id === id ? { ...l, ...newData } : l));
+                                    toast("Se ha actualizado la información del laboratorio exitosamente");
+                                    close();
+                                } else {
+                                    toast.error('Hubo un error al actualizar la información del laboratorio.');
+                                }
+
+                            }
+                        })
                 } else {
-                    toast.error('¡Hubo un error al eliminar su imagen asociada previa!');
+                    toast.error('Hubo un error al eliminar la imagen asociada previa, no se actualizó la información del laboratorio.');
                 }
-                await uploadImage(imgFile)
-                    .then(async (res) => {
-                        if (res[0] === 1) {
-                            setImgURL(res[1]);
-                            setImgName(res[2]);
-                            toast("¡Se ha insertado la imagen exitosamente!")
-                            const newData = {
-                                name,
-                                description,
-                                imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
-                                imgname: res[2],
-                            };
-                            updateLab(id, newData);
-                        }
-                    })
+
                 //si no solo debe llamar a uploadImage y luego usar updateLab
             } else if (imgFile != null && (imgurl == "" || imgname == "")) {
-                console.log("Se fue a la 2")
 
                 await uploadImage(imgFile).then(async (res) => {
                     if (res[0] === 1) {
@@ -120,24 +128,37 @@ function EditLabCard({ lab, close, handleRefresh }) {
                             imgurl: res[1],
                             imgname: res[2],
                         };
-                        updateLab(id, newData);
+                        const success = await updateLab(id, newData);
+                        if (success) {
+                            // Actualiza el estado de los laboratorios en el componente padre
+                            setLaboratories(prevLabs => prevLabs.map(l => l.id === id ? { ...l, ...newData } : l));
+                            toast("Se ha actualizado la información del laboratorio exitosamente");
+                            close();
+                        } else {
+                            toast.error('Hubo un error al actualizar la información del laboratorio.');
+                        }
 
                     }
                 }
                 )
             } else if (imgFile == null) {
-                console.log("Se fue a la 3")
-
                 const newData = {
                     name,
                     description,
                     imgurl: imgurl,
                     imgname: imgname,
                 };
-                updateLab(id, newData);
+                const success = await updateLab(id, newData);
+                if (success) {
+                    // Actualiza el estado de los laboratorios en el componente padre
+                    setLaboratories(prevLabs => prevLabs.map(l => l.id === id ? { ...l, ...newData } : l));
+                    toast("Se ha actualizado la información del laboratorio exitosamente");
+                    close();
+
+                } else {
+                    toast.error('Hubo un error al actualizar la información del laboratorio.');
+                }
             }
-            handleRefresh();
-            close();
         } catch (error) {
             console.error(error.message);
         }
@@ -161,7 +182,7 @@ function EditLabCard({ lab, close, handleRefresh }) {
                                 <h2>Editar laboratorio</h2>
                                 <h2 className={FormStyles.headerForm}>Editar datos</h2>
                             </div>
-                            {setImg(lab, setImgURL, setImgName, handleRefresh, handleClose)}
+                            {setImg(lab, setImgURL, setImgName, setLaboratories, handleClose)}
                             <br />
                             <form className={FormStyles.form}>
                                 <label>
@@ -185,101 +206,48 @@ function EditLabCard({ lab, close, handleRefresh }) {
     )
 }
 
-function setImg(lab, setImgUrl, setImgName, handleRefresh, close) {
-    const [loading, setLoading] = useState(true);
-
-    const handleLoad = () => {
-        setLoading(false);
-    };
-
-    async function deleteImg() {
-        if (lab.imgname != '') {
-            const resStorage = await deleteImage(`images/${lab.imgname}`);
-            if (resStorage) {
-                toast('¡Su imagen asociada se eliminó correctamente tambien!');
-            } else {
-                toast.error('¡Hubo un error al eliminar su imagen asociada!');
-            }
-            setImgUrl("");
-            setImgName("");
-            const labId = lab.id;
-            const newData = {
-                imgurl: "",
-                imgname: ""
-            };
-            const resultado = await updateLab(labId, newData);
-            if (resultado) {
-                toast('¡El laboratorio se actualizó correctamente!');
-            } else {
-                toast.error('¡Hubo un error al actualizar el laboratorio!');
-            }
-            handleRefresh();
-            close();
-        }
-    }
-    if (lab.imgurl !== '') {
-        return (
-            <>
-                <div className={FormStyles.deleteBtnContainer}>
-                    <Button onClick={deleteImg} startIcon={<DeleteIcon />}>
-                        Eliminar imagen
-                    </Button>
-                </div>
-                <div style={{ position: 'relative' }}>
-                    {loading && (
-                        <div
-                        style={{
-                            textAlign: 'center',
-                        }}                        >
-                            Cargando imagen...
-                        </div>
-                    )}
-                    <Image
-                        src={lab.imgurl}
-                        alt="Imagen de laboratorio"
-                        width={500}
-                        height={300}
-                        layout="responsive"
-                        onLoad={handleLoad}
-                    />
-                </div>
-            </>
-        )
-    } else {
-        return <p className='text-center text-gray-500'>Sin imagen</p>
-    }
-}
-
-function DeleteLabCard({ lab, close, handleRefresh }) {
+function DeleteLabCard({ lab, close, setLaboratories }) {
     const [id, useID] = useState(lab.id);
     const [imgURL, useImgURL] = useState(lab.imgurl);
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const labId = id; // Reemplaza 'ID_DEL_LABORATORIO' con el ID del laboratorio que deseas eliminar
-            const resFireStore = await deleteLab(labId);
-            if (resFireStore) {
-                toast('¡El laboratorio se eliminó correctamente!');
-            } else {
-                toast.error('¡Hubo un error al eliminar el laboratorio!');
-            }
-
+            //Primero elimina la imagen del storage si es que tiene
             if (lab.imgname != '') {
                 const resStorage = await deleteImage(`images/${lab.imgname}`);
                 if (resStorage) {
-                    toast('¡Su imagen asociada se eliminó correctamente tambien!');
+                    //Al eliminar la imagen del storage, elimina el lab de firestore
+                    toast('¡Su imagen asociada se eliminó correctamente!');
+                    const labId = id;
+                    const resFireStore = await deleteLab(labId);
+                    if (resFireStore) {
+                        toast('¡El laboratorio se eliminó correctamente!');
+                        // Limpiar el campo del formulario después de la eliminación exitosa
+                        setLaboratories(prevLabs => prevLabs.filter(l => l.id !== labId));
+                        close();
+                    } else {
+                        toast.error('¡Hubo un error al eliminar el laboratorio!');
+                    }
                 } else {
-                    toast.error('¡Hubo un error al eliminar su imagen asociada!');
+                    toast.error('¡Hubo un error al eliminar su imagen asociada, no se eliminó el laboratorio!');
+                }
+            } else {
+                const labId = id;
+                const resFireStore = await deleteLab(labId);
+                if (resFireStore) {
+                    toast('¡El laboratorio se eliminó correctamente!');
+                    // Limpiar el campo del formulario después de la eliminación exitosa
+                    setLaboratories(prevLabs => prevLabs.filter(l => l.id !== labId));
+                    close();
+                } else {
+                    toast.error('¡Hubo un error al eliminar el laboratorio!');
                 }
             }
-            // Limpiar el campo del formulario después de la eliminación exitosa
-            handleRefresh();
-            close();
+
         } catch (error) {
             console.error(error.message);
         }
     };
-
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -300,7 +268,7 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
                         <h2>Eliminar de laboratorio</h2>
-                    </div> 
+                    </div>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         ¿Está seguro que desesa eliminar el laboratorio?
                         Se eliminarán también los ítems.
@@ -313,4 +281,71 @@ function DeleteLabCard({ lab, close, handleRefresh }) {
             </Modal>
         </div>
     );
+}
+
+function setImg(lab, setImgUrl, setImgName, setLaboratories, close) {
+    const [loading, setLoading] = useState(true);
+
+    const handleLoad = () => {
+        setLoading(false);
+    };
+
+    async function deleteImg() {
+        if (lab.imgname != '') {
+            const resStorage = await deleteImage(`images/${lab.imgname}`);
+            if (resStorage) {
+                toast('Imagen asociada se eliminó exitosamente de la base de datos.');
+                setImgUrl("");
+                setImgName("");
+                const labId = lab.id;
+                const newData = {
+                    imgurl: "", //no se usa el valor de state porque no me da el valor actualizado
+                    imgname: "" //no se usa el valor de state porque no me da el valor actualizado
+                };
+                const success = await updateLab(labId, newData);
+                if (success) {
+                    toast('El laboratorio se actualizó correctamente en la base de datos.');
+                    setLaboratories(prevLabs => prevLabs.map(l => l.id === labId ? { ...l, ...newData } : l));
+                } else {
+                    toast.error('Hubo un error al actualizar el laboratorio en la base de datos.');
+                }
+                
+            } else {
+                toast.error('Hubo un error al eliminar su imagen asociada en la base de datos.');
+            }
+
+        }
+    }
+
+    if (lab.imgurl !== '') {
+        return (
+            <>
+                <div className={FormStyles.deleteBtnContainer}>
+                    <Button onClick={deleteImg} startIcon={<DeleteIcon />}>
+                        Eliminar imagen
+                    </Button>
+                </div>
+                <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div
+                            style={{
+                                textAlign: 'center',
+                            }}                        >
+                            Cargando imagen...
+                        </div>
+                    )}
+                    <Image
+                        src={lab.imgurl}
+                        alt="Imagen de laboratorio"
+                        width={500}
+                        height={300}
+                        layout="responsive"
+                        onLoad={handleLoad}
+                    />
+                </div>
+            </>
+        )
+    } else {
+        return <p className='text-center text-gray-500'>Sin imagen</p>
+    }
 }

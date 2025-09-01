@@ -15,7 +15,7 @@ import LoginForm from '../loginForm';
 import { signOutSession } from '../authService';
 
 //Request data components
-import readLab from '../components/firebaseStuff/read-lab';
+import readLab from '../components/firebase/read-lab';
 
 //Styles
 import HomeStyles from '../styles/Home.module.css';
@@ -68,7 +68,6 @@ export function HomePage({ user, role }) {
   const fetchLabs = async () => {
     try {
       await readLab().then((res) => {
-        // console.log('Se extrayeron de la db los labs exitosamente.')
         setLaboratories(res);
         setLoading(false);
       })
@@ -81,12 +80,7 @@ export function HomePage({ user, role }) {
 
   useEffect(() => {
     fetchLabs();
-
   }, []);
-
-  const handleRefresh = () => {
-    fetchLabs();
-  };
 
   if (loading) {
     laboratoryCards = 'Cargando laboratorios...';
@@ -142,7 +136,7 @@ export function HomePage({ user, role }) {
           return lab;
         }
       })
-      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard role = {role} key={laboratory.id} lab={laboratory} handleRefresh={handleRefresh}> </LaboratoryCard>)
+      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard role={role} key={laboratory.id} lab={laboratory} setLaboratories={setLaboratories}> </LaboratoryCard>)
     }
   }
 
@@ -153,7 +147,7 @@ export function HomePage({ user, role }) {
       </Head>
       <div className={HomeStyles.fixedContainer}>
         <HeaderBar />
-        <LabsContainerControls user={user} role={role} setFilter={setFilter} handleRefresh={handleRefresh} />
+        <LabsContainerControls user={user} role={role} setFilter={setFilter} setLaboratories={setLaboratories} />
       </div>
       <LabsContainer labs={laboratoryCards} />
       <Toaster />
@@ -171,19 +165,19 @@ export function HeaderBar() {
         </div>
         {/* <NavBar /> */}
         <div>
-          <Button style={{paddingRight:"1rem"}} onClick={signOutSession}>Cerrar Sesión</Button>
+          <Button style={{ paddingRight: "1rem" }} onClick={signOutSession}>Cerrar Sesión</Button>
         </div>
       </div>
     </header>
   )
 }
 
-function LabsContainerControls({ user, role, setFilter, handleRefresh }) {
+function LabsContainerControls({ role, setFilter, setLaboratories }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
         <SearchAppBar setFilter={setFilter} />
-        {role === 'admin' && <AddLabCard handleRefresh={handleRefresh} />}
+        {role === 'admin' && <AddLabCard setLaboratories={setLaboratories} />}
       </div>
     </div>
   )

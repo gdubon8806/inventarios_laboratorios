@@ -40,9 +40,9 @@ import FormStyles from '../styles/Form.module.css';
 
 import { useEffect, useState } from "react";
 import SearchAppBar from "../components/searchBar";
-import readItem from "../components/firebaseStuff/read-item";
-import readLabById from "../components/firebaseStuff/read-lab-with-id";
-import readItemCommentsById from "../components/firebaseStuff/readItemComments-with-id";
+import readItem from "../components/firebase/read-item";
+import readLabById from "../components/firebase/read-lab-with-id";
+import readItemCommentsById from "../components/firebase/readItemComments-with-id";
 import exportToXLSX from '../components/exportData/export';
 
 export default function Index() {

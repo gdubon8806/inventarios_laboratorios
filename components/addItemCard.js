@@ -12,8 +12,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 import FormStyles from '../styles/Form.module.css'
-import createItem from './firebaseStuff/create-item';
-import { uploadImage } from './firebaseStuff/uploadImages';
+import createItem from './firebase/create-item';
+import { uploadImage } from './firebase/uploadImages';
 
 
 

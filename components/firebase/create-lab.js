@@ -11,8 +11,8 @@ export default async function createLab(name, description, imgurl, imgname) {
             imgurl: imgurl,
             imgname: imgname
         };
-        await addDoc(laboratoriosRef, nuevoLaboratorio);
-        return true;
+        const response = await addDoc(laboratoriosRef, nuevoLaboratorio);
+        return response.id;
     } catch (error) {
         console.error('Error al agregar laboratorio: ', error);
         return false;

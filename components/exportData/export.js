@@ -1,5 +1,5 @@
 import XLSX from '../../vendor/xlsx';
-import readItem from '../firebaseStuff/read-item';
+import readItem from '../firebase/read-item';
 
 
 export default async function exportToXLSX(idLab) {

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -30,7 +29,7 @@ const style = {
     overflowY: 'auto',
 };
 
-export default function AddItemCard({ handleRefresh, idLab }) {
+export default function AddItemCard({ setItems, idLab }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -46,14 +45,14 @@ export default function AddItemCard({ handleRefresh, idLab }) {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <AddItemForm handleRefresh={handleRefresh} idLab={idLab} close={handleClose} />
+                    <AddItemForm setItems={setItems} idLab={idLab} close={handleClose} />
                 </Box>
             </Modal>
         </div>
     );
 }
 
-function AddItemForm({ handleRefresh, idLab, close }) {
+function AddItemForm({ setItems, idLab, close }) {
     const [equipo, setEquipo] = useState('');
     const [marca, setMarca] = useState('');
     const [modelo, setModelo] = useState('');
@@ -64,9 +63,8 @@ function AddItemForm({ handleRefresh, idLab, close }) {
     const [imgURL, setImgURL] = useState('');
     const [imgName, setImgName] = useState('');
     const [imgFile, setImgFile] = useState(null);
-
-
     const [observaciones, setObservaciones] = useState([]);
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
@@ -81,7 +79,7 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                             if (res[0] === 1) {
                                 setImgURL(res[1]);
                                 setImgName(res[2]);
-                                toast("¡Se ha insertado la imagen exitosamente!")
+                                toast("Se ha insertado la imagen exitosamente en la base de datos.")
                                 const itemData = {
                                     equipo,
                                     marca,
@@ -95,9 +93,16 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                                     observaciones,
                                     idLab: idLab
                                 }
-                                await createItem(itemData).then((res) => {
-                                    toast("¡Se ha insertado el nuevo ítem exitosamente!")
-                                })
+                                const sucess = await createItem(itemData);
+                                if (sucess === false) {
+                                    toast.error("Ocurrió algo. No se pudo insertar el ítem en la base de datos.");
+                                } else {
+                                    setItems(prevItems => [...prevItems, { id: sucess, ...itemData }]);
+                                    toast("Se ha insertado el nuevo ítem exitosamente")
+                                    close();
+                                }
+                            } else {
+                                toast.error("Ocurrió algo. No se pudo insertar la imagen en la base de datos.");
                             }
                         })
                 } else {
@@ -114,29 +119,19 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                         observaciones,
                         idLab: idLab
                     }
-                    await createItem(itemData).then((res) => {
-                        toast("¡Se ha insertado el nuevo ítem exitosamente!")
-                    })
+                    const success = await createItem(itemData);
+                    if (success === false) {
+                        toast.error("Ocurrió algo. No se pudo insertar el ítem en la base de datos.");
+                    } else {
+                        toast("Se ha insertado el nuevo ítem exitosamente en la base de datos.")
+                        setItems(prevItems => [...prevItems, { id: success, ...itemData }]);
+                        close();
+                    }
                 }
 
             } catch (error) {
                 toast.error("Ocurrió algo. No se pudo insertar el ítem.");
             }
-
-            // Limpiar los campos del formulario después de la inserción exitosa
-            setEquipo('');
-            setMarca('');
-            setModelo('');
-            setUbicacion('');
-            setColumnaDeLocalizacion('');
-            setTipo('');
-            setCantidad('');
-            setImgURL('');
-            setObservaciones('');
-            setImgFile(null);
-
-            handleRefresh();
-            close();
         } catch (error) {
             toast.error("Ocurrió algo. No se pudo insertar el ítem.");
         }
@@ -171,7 +166,7 @@ function AddItemForm({ handleRefresh, idLab, close }) {
                     Tipo:
                 </label>
                 <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                    <option value="" disabled selected>Seleccionar tipo...</option>
+                    <option value="" disabled>Seleccionar tipo...</option>
                     <option value="Herramienta">Herramienta</option>
                     <option value="Suministro">Suministro</option>
                     <option value="Equipo">Equipo</option>

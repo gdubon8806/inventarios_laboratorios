@@ -58,8 +58,8 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás </Button>
                         <h2>Opciones</h2>
                     </div>
-                    <EditItemCard item={item} items={items} setItems={setItems} handleRefresh={handleRefresh} close={handleClose} />
-                    <DeleteItemCard item={item} close={handleClose} handleRefresh={handleRefresh} startIcon={<DeleteIcon />} />
+                    <EditItemCard item={item} items={items} setItems={setItems} close={handleClose} />
+                    <DeleteItemCard item={item} close={handleClose} setItems = {setItems} startIcon={<DeleteIcon />} />
                 </Box>
             </Modal>
         </div >
@@ -67,7 +67,7 @@ export default function OptionsItemCard({ item, items, setItems, handleRefresh }
 }
 
 
-function setImg(item, setImgUrl, setImgName, handleRefresh, close) {
+function setImg(item, setImgUrl, setImgName, setItems) {
     const [loading, setLoading] = useState(true);
 
     const handleLoad = () => {
@@ -78,25 +78,26 @@ function setImg(item, setImgUrl, setImgName, handleRefresh, close) {
         if (item.imgname != '') {
             const resStorage = await deleteImage(`images/${item.imgname}`);
             if (resStorage) {
-                toast('¡Su imagen asociada se eliminó correctamente tambien!');
+                toast('Su imagen asociada se eliminó correctamente.');
+
+                setImgUrl("");
+                setImgName("");
+                const id = item.id;
+                const newData = {
+                    imgurl: "",
+                    imgname: ""
+                };
+                const success = await updateItem(id, newData);
+                if (success) {
+                    toast('El ítem se actualizó exitosamente en la base de datos.');
+                    setItems(prevItems => prevItems.map(i => i.id === id ? { ...i, ...newData } : i));
+                } else {
+                    toast.error('Hubo un error al actualizar el ítem.');
+                }
             } else {
-                toast.error('¡Hubo un error al eliminar su imagen asociada!');
+                toast.error('Hubo un error al eliminar su imagen asociada.');
             }
-            setImgUrl("");
-            setImgName("");
-            const id = item.id;
-            const newData = {
-                imgurl: "",
-                imgname: ""
-            };
-            const resultado = await updateItem(id, newData);
-            if (resultado) {
-                toast('¡El ítem se actualizó correctamente!');
-            } else {
-                toast.error('¡Hubo un error al actualizar el ítem!');
-            }
-            handleRefresh();
-            close();
+
         }
     }
     if (item.imgurl !== '') {
@@ -133,7 +134,7 @@ function setImg(item, setImgUrl, setImgName, handleRefresh, close) {
     }
 }
 
-function EditItemCard({ item, items, setItems, handleRefresh, close }) {
+function EditItemCard({ item, items, setItems, close }) {
     const [id, setID] = useState(item.id);
     const [equipo, setEquipo] = useState(item.equipo);
     const [marca, setMarca] = useState(item.marca);
@@ -154,37 +155,47 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
             if (imgName != "" && imgFile != null) {
                 const resStorage = await deleteImage(`images/${imgName}`);
                 if (resStorage) {
-                    toast('¡Su imagen asociada previa se eliminó correctamente!');
+                    toast('Su imagen asociada previa se eliminó correctamente.');
+                    await uploadImage(imgFile)
+                        .then(async (res) => {
+                            if (res[0] === 1) {
+                                setImgURL(res[1]);
+                                setImgName(res[2]);
+                                toast("Se ha insertado la imagen exitosamente")
+                                const newData = {
+                                    equipo,
+                                    marca,
+                                    modelo,
+                                    ubicacion,
+                                    columnadelocalizacion: columnaDeLocalizacion,
+                                    tipo,
+                                    cantidad,
+                                    imgurl: res[1],
+                                    imgname: res[2],
+                                    observaciones
+                                };
+                                const sucess = await updateItem(id, newData);
+                                if (sucess) {
+                                    setItems(prevItems => prevItems.map(i => i.id === id ? { ...i, ...newData } : i));
+                                    toast('El ítem se actualizó correctamente en la base de datos.');
+                                    close();
+                                } else {
+                                    toast.error('Hubo un error al actualizar el ítem en la base de datos.');
+                                }
+                            } else {
+                                toast.error("Hubo un error al insertar la nueva imagen.");
+                            }
+                        })
                 } else {
-                    toast.error('¡Hubo un error al eliminar su imagen asociada previa!');
+                    toast.error('Hubo un error al eliminar su imagen asociada previa');
                 }
-                await uploadImage(imgFile)
-                    .then(async (res) => {
-                        if (res[0] === 1) {
-                            setImgURL(res[1]);
-                            setImgName(res[2]);
-                            toast("¡Se ha insertado la imagen exitosamente!")
-                            const newData = {
-                                equipo,
-                                marca,
-                                modelo,
-                                ubicacion,
-                                columnadelocalizacion: columnaDeLocalizacion,
-                                tipo,
-                                cantidad,
-                                imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
-                                imgname: res[2],
-                                observaciones
-                            };
-                            updateItem(id, newData);
-                        }
-                    })
+
                 //si no solo debe llamar a uploadImage y luego usar updateLab
             } else if (imgFile != null && (imgURL == "" || imgName == "")) {
 
                 await uploadImage(imgFile).then(async (res) => {
                     if (res[0] === 1) {
-                        toast("¡Se ha insertado la imagen exitosamente!")
+                        toast("Se ha insertado la imagen exitosamente.")
                         setImgURL(res[1]);
                         setImgName(res[2]);
                         const newData = {
@@ -195,11 +206,18 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                             columnadelocalizacion: columnaDeLocalizacion,
                             tipo,
                             cantidad,
-                            imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
+                            imgurl: res[1],
                             imgname: res[2],
                             observaciones
                         };
-                        updateItem(id, newData);
+                        const success = updateItem(id, newData);
+                        if (success) {
+                            setItems(prevItems => prevItems.map(i => i.id === id ? { ...i, ...newData } : i));
+                            toast('El ítem se actualizó correctamente en la base de datos.');
+                            close();
+                        } else {
+                            toast.error('Hubo un error al actualizar el ítem en la base de datos.');
+                        }
 
                     }
                 }
@@ -218,15 +236,18 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                     imgname: imgName,
                     observaciones
                 }
-                updateItem(id, newData);
+                const success = await updateItem(id, newData);
+                if (success) {
+                    setItems(prevItems => prevItems.map(i => i.id === id ? { ...i, ...newData } : i));
+                    toast('El ítem se actualizó correctamente en la base de datos.');
+                    close();
+                } else {
+                    toast.error('Hubo un error al actualizar el ítem en la base de datos.');
+                }
             }
-            handleRefresh();
-            close();
         } catch (error) {
             console.error(error.message);
         }
-        handleRefresh();
-        close();
 
     };
     const [open, setOpen] = React.useState(false);
@@ -249,7 +270,7 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás </Button>
                         <h2>Opciones</h2>
                     </div>
-                    {setImg(item, setImgURL, setImgName, handleRefresh, close)}
+                    {setImg(item, setImgURL, setImgName, setItems)}
                     <br></br>
                     <form className={FormStyles.form}>
                         <label>
@@ -274,12 +295,13 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
                             Tipo:
                         </label>
                         <select name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                        <option value="" disabled selected>Seleccionar tipo...</option>
+                            <option value="" disabled>Seleccionar tipo...</option>
                             <option value="Herramienta">Herramienta</option>
                             <option value="Suministro">Suministro</option>
                             <option value="Equipo">Equipo</option>
                             <option value="Mobiliario">Mobiliario</option>
-                        </select><label>
+                        </select>
+                        <label>
                             Cantidad:
                         </label>
                         <input type="text" name="cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder='Ingresar...' />
@@ -300,36 +322,43 @@ function EditItemCard({ item, items, setItems, handleRefresh, close }) {
 }
 
 
-function DeleteItemCard({ item, close, handleRefresh }) {
+function DeleteItemCard({ item, close, setItems }) {
     const [idItem, setIdItem] = useState(item.id);
     const [imgURL, setImgURL] = useState(item.imgname);
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
-            const resFireStore = await deleteItem(idItem);
-            if (resFireStore) {
-                toast('¡El ítem se eliminó correctamente!');
-            } else {
-                toast.error('¡Hubo un error al eliminar el ítem!');
-            }
-
             if (item.imgname != '') {
                 const resStorage = await deleteImage(`images/${item.imgname}`);
                 if (resStorage) {
-                    toast('¡La imagen asociada se eliminó correctamente tambien!');
+                    toast('La imagen asociada se eliminó correctamente.');
+                    const resFireStore = await deleteItem(idItem);
+                    if (resFireStore) {
+                        toast('El ítem se eliminó correctamente.');
+                        setItems(prevItems => prevItems.filter(i => i.id !== idItem));
+                        close();
+                    } else {
+                        toast.error('Hubo un error al eliminar el ítem.');
+                    }
                 } else {
-                    toast.error('¡Hubo un error al eliminar la imagen asociada al ítem!');
+                    toast.error('Hubo un error al eliminar la imagen asociada al ítem.');
                 }
-                // Limpiar el campo del formulario después de la eliminación exitosa
+
+            } else {
+                const resFireStore = await deleteItem(idItem);
+                if (resFireStore) {
+                    toast('El ítem se eliminó correctamente.');
+                    setItems(prevItems => prevItems.filter(i => i.id !== idItem));
+                    close();
+                } else {
+                    toast.error('Hubo un error al eliminar el ítem.');
+                }
             }
-            handleRefresh();
-            close();
         } catch (error) {
             console.error(error.message);
         }
     };
-
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);

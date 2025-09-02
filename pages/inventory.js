@@ -113,7 +113,7 @@ export function InventoryPage({ role }) {
     } else {
 
         if (items.length == 0) {
-            itemCards = 'No hay registros de items en este laboratorio.';
+            itemCards = 'No hay registros de ítems en este laboratorio.';
         } else {
 
             let itemsToShow;
@@ -189,15 +189,15 @@ export function InventoryPage({ role }) {
                 });
             }
 
-            itemCards = itemsToShow.map(item => 
-    <Item 
-        key={item.id} 
-        data={item} 
-        items={items} 
-        setItems={setItems} 
-        handleRefresh={handleRefresh} 
-        role={role} // <-- agrega esto
-    />);
+            itemCards = itemsToShow.map(item =>
+                <Item
+                    key={item.id}
+                    data={item}
+                    items={items}
+                    setItems={setItems}
+                    handleRefresh={handleRefresh}
+                    role={role} // <-- agrega esto
+                />);
         }
     }
     return (
@@ -215,14 +215,14 @@ export function InventoryPage({ role }) {
             <div className={HomeStyles.fixedContainer}>
 
                 <HeaderBar />
-                <InventoryControls handleRefresh={handleRefresh} idLab={idLab} lab={lab} setFilters={setFilters} role={role} />
+                <InventoryControls setItems={setItems} idLab={idLab} lab={lab} setFilters={setFilters} role={role} />
             </div>
             <div>
                 <h2 className={InventoryStyles.subheader}>{lab}</h2>
             </div>
             <div className={InventoryStyles.itemsFiltererContainer}>
                 <SearchAppBar setFilter={setFilter} />
-                <ItemsFilterer filters = {filters } setFilters={setFilters} />
+                <ItemsFilterer filters={filters} setFilters={setFilters} />
             </div>
             <div className={InventoryStyles.itemsContainer}>
                 {itemCards}
@@ -241,14 +241,14 @@ export function HeaderBar() {
                 <div className={HomeStyles.gridInsideHeaderBar}>
                     <h1>Inventario de laboratorios</h1>
                 </div>
-                <Button style={{paddingRight:"1rem"}} onClick={signOutSession}>Cerrar Sesión</Button>
+                <Button style={{ paddingRight: "1rem" }} onClick={signOutSession}>Cerrar Sesión</Button>
                 {/* <NavBar /> */}
             </div>
         </header>
     )
 }
 
-function InventoryControls({ handleRefresh, idLab, lab, setFilters, role }) {
+function InventoryControls({ setItems, idLab, lab, setFilters, role }) {
     return (
         <div className={InventoryStyles.InventoryControls}>
             <div className={InventoryStyles.flex}>
@@ -260,7 +260,7 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters, role }) {
                     {role === 'admin' && (
                         <>
                             <div className="addItemBtnContainer">
-                                <AddItemCard handleRefresh={handleRefresh} idLab={idLab} />
+                                <AddItemCard setItems={setItems} idLab={idLab} />
                             </div>
                             <div>
                                 <Button startIcon={<DownloadIcon />}
@@ -278,7 +278,7 @@ function InventoryControls({ handleRefresh, idLab, lab, setFilters, role }) {
 
 function Item({ data, items, setItems, handleRefresh, role }) {
     return (
-        <Card sx={{ width: 300}}>
+        <Card sx={{ width: 300 }}>
             <CardMedia
                 component="img"
                 alt="Ilustración del ítem"
@@ -395,14 +395,14 @@ function ItemDetailsCard({ details, role }) {
         if (itemComentarios.length == 0) {
             itemCommentsCards = 'No hay registros de comentarios.';
         } else {
-            itemCommentsCards = itemComentarios.map(itemComment => 
-        <ItemCommentCard 
-            key={itemComment.id} 
-            itemComment={itemComment} 
-            handleRefresh={handleRefresh}
-            role={role} // <-- agrega esto
-        />
-    );
+            itemCommentsCards = itemComentarios.map(itemComment =>
+                <ItemCommentCard
+                    key={itemComment.id}
+                    itemComment={itemComment}
+                    handleRefresh={handleRefresh}
+                    role={role} // <-- agrega esto
+                />
+            );
         }
 
     }

@@ -6,7 +6,6 @@ export default async function exportToXLSX(idLab) {
     try {
         
         readItem(idLab).then((data) => {
-            console.log(data);
             const labName = "Laboratorio nombre de prueba"; //cambiar por nombre real de lab.
 
             //Filtrar las columnas que se quieren exportar

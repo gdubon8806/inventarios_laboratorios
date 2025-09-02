@@ -6,10 +6,8 @@ export default async function deleteItem(itemId) {
   try {
     const itemRef = doc(firestore, 'items', itemId);
     await deleteDoc(itemRef);
-    console.log('Ítem eliminado con éxito.');
     return true; // Devuelve true si la eliminación se realizó con éxito
   } catch (error) {
-    console.error('Error al eliminar ítem: ', error);
     return false; // Devuelve false si hubo un error al eliminar el ítem
   }
 }

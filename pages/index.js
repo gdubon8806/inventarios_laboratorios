@@ -1,3 +1,4 @@
+'use client'
 //Next and React
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
@@ -8,6 +9,7 @@ import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 import Button from '@mui/material/Button'
 import { Toaster } from 'react-hot-toast';
+import DownloadIcon from '@mui/icons-material/Download';
 
 //Firebase Auth
 import { auth } from '../firebaseConfig';
@@ -19,6 +21,10 @@ import readLab from '../components/firebase/read-lab';
 
 //Styles
 import HomeStyles from '../styles/Home.module.css';
+import InventoryStyles from '../styles/Inventory.module.css';
+
+//
+import { exportAllToXLSX } from '../components/exportData/export';
 
 export default function Index() {
   const [user, setUser] = useState(null);
@@ -177,7 +183,23 @@ function LabsContainerControls({ role, setFilter, setLaboratories }) {
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
         <SearchAppBar setFilter={setFilter} />
-        {role === 'admin' && <AddLabCard setLaboratories={setLaboratories} />}
+        <div className={InventoryStyles.flex}>
+          {role === 'admin' && (
+            <>
+              <div>
+                <AddLabCard setLaboratories={setLaboratories} />
+              </div>
+              <div>
+                <Button startIcon={<DownloadIcon />}
+                  className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportAllToXLSX()}>
+                  Exportar todo
+                </Button>
+              </div>
+
+            </>
+
+          )}
+        </div>
       </div>
     </div>
   )

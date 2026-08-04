@@ -81,6 +81,15 @@ export default function LoginForm() {
           >
             Iniciar Sesión
           </Button>
+          <Button
+            onClick={() => loginUser('invitadolaboratorios@gmail.com', '$Invitado2025$')}
+            variant="contained"
+            color="primary"
+            fullWidth
+            style={{ marginTop: 24 }}
+          >
+            Ingresar como invitado
+          </Button>
         </form>
       </Paper>
     </div>

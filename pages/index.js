@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
+import CodeSearchBar from '../components/codeSearchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
 import Button from '@mui/material/Button'
@@ -201,6 +202,7 @@ function LabsContainerControls({ role, setFilter, setLaboratories }) {
           )}
         </div>
       </div>
+      <CodeSearchBar role={role} />
     </div>
   )
 }

@@ -22,6 +22,8 @@
     "firebase-admin": "^13.4.0",
     "firebaseui": "^6.1.0",
     "fortawesome": "^0.0.1-security",
+    "jsbarcode": "^3.11.6",
+    "jspdf": "^2.5.1",
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",

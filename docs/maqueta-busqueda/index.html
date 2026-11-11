@@ -100,6 +100,7 @@
     <button class="mbtn" id="btnBuscar" type="button">Buscar</button>
     <button class="mbtn out" id="btnPdf" type="button">Generar código (PDF)</button>
   </div>
+  <div id="ejemplos" style="font-size:.8rem;color:rgba(0,0,0,.6)">Códigos de ejemplo: <span id="listaEj"></span></div>
   <div id="resultado" aria-live="polite"></div>
 </aside>
 
@@ -122,7 +123,14 @@
   const ITEMS = {
     'INV-000123': { equipo: 'Router Cisco 2901', lab: 'Laboratorio de Redes 1', tipo: 'Equipo', marca: 'Cisco', modelo: '2901', cantidad: '2', ubic: 'Estante A', col: 'Columna 2', obs: '', e: '📡' },
     'INV-000045': { equipo: 'Microscopio óptico', lab: 'Laboratorio de Biología', tipo: 'Equipo', marca: 'Olympus', modelo: 'CX23', cantidad: '5', ubic: 'Gabinete 3', col: '', obs: 'Requiere calibración', e: '🔬' },
-    'INV-000207': { equipo: 'Osciloscopio digital', lab: 'Laboratorio de Electrónica', tipo: 'Equipo', marca: 'Rigol', modelo: '', cantidad: '1', ubic: 'Mesa 5', col: 'B', obs: '', e: '📈' }
+    'INV-000207': { equipo: 'Osciloscopio digital', lab: 'Laboratorio de Electrónica', tipo: 'Equipo', marca: 'Rigol', modelo: '', cantidad: '1', ubic: 'Mesa 5', col: 'B', obs: '', e: '📈' },
+    'INV-000001': { equipo: 'Proyector Epson', lab: 'Laboratorio de Cómputo', tipo: 'Equipo', marca: 'Epson', modelo: 'X49', cantidad: '1', ubic: 'Gabinete 1', col: 'A', obs: '', e: '📽️' },
+    'INV-000012': { equipo: 'Balanza analítica', lab: 'Laboratorio de Química', tipo: 'Equipo', marca: 'Ohaus', modelo: 'PX224', cantidad: '2', ubic: 'Mesa 2', col: '', obs: 'Calibrar cada 6 meses', e: '⚖️' },
+    'INV-000078': { equipo: 'Multímetro digital', lab: 'Laboratorio de Electrónica', tipo: 'Herramienta', marca: 'Fluke', modelo: '117', cantidad: '8', ubic: 'Estante C', col: 'Columna 1', obs: '', e: '🔧' },
+    'INV-000089': { equipo: 'Switch 24 puertos', lab: 'Laboratorio de Redes 1', tipo: 'Equipo', marca: 'TP-Link', modelo: 'TL-SG1024', cantidad: '3', ubic: 'Estante A', col: 'Columna 3', obs: '', e: '🖧' },
+    'INV-000150': { equipo: 'Computadora de escritorio', lab: 'Laboratorio de Cómputo', tipo: 'Equipo', marca: 'Dell', modelo: 'OptiPlex 3080', cantidad: '30', ubic: 'Fila 1', col: '', obs: '', e: '🖥️' },
+    'INV-000166': { equipo: 'Dinamómetro', lab: 'Laboratorio de Física', tipo: 'Suministro', marca: '', modelo: '', cantidad: '10', ubic: 'Gabinete 4', col: '', obs: '', e: '🧲' },
+    'INV-000230': { equipo: 'Centrífuga', lab: 'Laboratorio de Biología', tipo: 'Equipo', marca: 'Hettich', modelo: 'EBA 200', cantidad: '1', ubic: 'Mesa 1', col: 'D', obs: 'Uso con supervisión', e: '🌀' }
   };
 
   const $ = (id) => document.getElementById(id);
@@ -168,6 +176,11 @@
       '<button class="mbtn text" type="button" id="btnDetalle">Ir al laboratorio</button></div></div>';
     $('btnDetalle').addEventListener('click', () => toast('En la app real: abre el laboratorio del equipo'));
   }
+  $('listaEj').innerHTML = Object.keys(ITEMS).sort().map((k) => '<a href="#" data-c="' + k + '" style="color:#1976d2;margin-right:8px;display:inline-block">' + k + '</a>').join('');
+  $('listaEj').addEventListener('click', (e) => {
+    const c = e.target.getAttribute && e.target.getAttribute('data-c');
+    if (c) { e.preventDefault(); $('codigo').value = c; buscarCodigo(); }
+  });
   $('btnAbrir').addEventListener('click', () => { $('drawer').classList.add('open'); $('codigo').focus(); });
   $('btnCerrar').addEventListener('click', () => $('drawer').classList.remove('open'));
   $('btnBuscar').addEventListener('click', buscarCodigo);

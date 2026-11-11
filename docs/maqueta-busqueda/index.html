@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta - Pantalla de búsqueda por código</title>
+<style>
+  :root {
+    --bg: #f8f8f8;
+    --card: #ffffff;
+    --ink: #2b2b2b;
+    --muted: #6b6b6b;
+    --brand: #1565c0;
+    --brand-dark: #0d47a1;
+    --accent: #e8f1fb;
+    --ok: #2e7d32;
+    --warn: #b26a00;
+    --line: #dcdcdc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .ribbon {
+    background: #fff4d6;
+    color: #6a4b00;
+    text-align: center;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-bottom: 1px solid #f0d890;
+  }
+  header.top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8f8f8b3;
+    border-bottom: 1px solid var(--line);
+  }
+  header.top h1 { margin: 0; font-size: 1.15rem; font-weight: 500; text-align: center; padding-left: 90px; }
+  header.top button { background: none; border: 0; color: var(--brand); font-weight: 600; cursor: pointer; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  .controls { display: grid; gap: 12px; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); align-items: center; }
+  @media (max-width: 760px) { .controls { grid-template-columns: 1fr; } }
+
+  .search {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--muted); }
+  .search input {
+    width: 100%; border: 0; background: transparent; font-size: 1rem;
+    padding: 11px 12px 11px 42px; outline: none; border-radius: 6px;
+  }
+  .search:focus-within { border-color: var(--brand); box-shadow: 0 0 0 2px #1565c033; }
+
+  .admin-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .btn {
+    border: 0; border-radius: 6px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; background: var(--brand); color: #fff;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn.ghost { background: transparent; color: var(--brand); border: 1px solid var(--brand); }
+  .btn.ghost:hover { background: var(--accent); }
+  .btn.green { background: #2e7d32; }
+  .btn.green:hover { background: #1b5e20; }
+
+  .code-panel {
+    margin-top: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--brand);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .code-panel h2 { margin: 0 0 4px; font-size: 1rem; }
+  .code-panel p.hint { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
+  .code-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .field { display: grid; gap: 4px; flex: 1 1 220px; }
+  .field label { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+  .field input {
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 1rem;
+    font-family: ui-monospace, Consolas, monospace; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .field input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 2px #1565c033; }
+  .field .tiny { font-size: 0.75rem; color: var(--muted); }
+  .linkbtn { background: none; border: 0; color: var(--brand); cursor: pointer; font-size: 0.78rem; padding: 0; text-align: left; text-decoration: underline; }
+
+  #resultado { margin-top: 12px; }
+  .result {
+    display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; align-items: center;
+    background: var(--accent); border: 1px solid #b9d3ee; border-radius: 8px; padding: 10px 12px;
+  }
+  .result.notfound { background: #fdecea; border-color: #f2b8b5; grid-template-columns: 1fr; color: #8a1f17; }
+  .thumb { width: 90px; height: 64px; border-radius: 6px; background: linear-gradient(135deg, #90a4ae, #cfd8dc); display: grid; place-items: center; font-size: 1.6rem; }
+  .result h3 { margin: 0; font-size: 1rem; }
+  .result small { color: var(--muted); }
+  .tag { display: inline-block; font-size: 0.72rem; background: #fff; border: 1px solid #b9d3ee; border-radius: 99px; padding: 2px 8px; margin-right: 4px; }
+
+  .section-title { margin: 22px 0 8px; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
+  .labs {
+    background: var(--bg); border-radius: 5px;
+    display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .lab {
+    background: #cbcbcb; border-radius: 15px; overflow: hidden;
+    box-shadow: 5px 5px 10px rgba(0,0,0,.3);
+  }
+  .lab .img { height: 120px; display: grid; place-items: center; font-size: 2.4rem; background: linear-gradient(135deg, #b0bec5, #eceff1); }
+  .lab .body { padding: 10px 14px 14px; background: #fff; }
+  .lab h4 { margin: 0 0 4px; font-size: 1rem; }
+  .lab p { margin: 0; font-size: 0.82rem; color: var(--muted); }
+  .lab .code { margin-top: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem; color: var(--brand); }
+
+  .legend { margin-top: 26px; font-size: 0.8rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 12px; }
+  .legend code { background: #eee; padding: 1px 5px; border-radius: 4px; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: #323232; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.9rem;
+    opacity: 0; transition: .25s; pointer-events: none; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="ribbon">MAQUETA VISUAL · datos de ejemplo · no está conectada a la base de datos ni a la aplicación real</div>
+
+<header class="top">
+  <h1>Inventario de laboratorios</h1>
+  <button type="button">Cerrar Sesión</button>
+</header>
+
+<main>
+  <div class="controls">
+    <div class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input id="buscar" type="search" placeholder="Buscar laboratorio…" aria-label="Buscar laboratorio">
+    </div>
+    <div class="admin-actions">
+      <button class="btn" type="button">+ Agregar laboratorio</button>
+      <button class="btn ghost" type="button">⬇ Exportar todo</button>
+    </div>
+  </div>
+
+  <section class="code-panel" aria-labelledby="tituloCodigo">
+    <h2 id="tituloCodigo">Buscar por código</h2>
+    <p class="hint">Escribe o escanea el código de un equipo para llegar directo a él, sin importar el laboratorio. También puedes generar el PDF de su etiqueta.</p>
+    <div class="code-row">
+      <div class="field">
+        <label for="codigo">Código del equipo</label>
+        <input id="codigo" type="text" placeholder="INV-000123" autocomplete="off" autofocus>
+        <span class="tiny">Ejemplos de la maqueta: <button class="linkbtn" type="button" data-ej="INV-000123">INV-000123</button> · <button class="linkbtn" type="button" data-ej="INV-000045">INV-000045</button> · <button class="linkbtn" type="button" data-ej="INV-000207">INV-000207</button></span>
+      </div>
+      <button class="btn" id="btnBuscar" type="button">Buscar código</button>
+      <button class="btn green" id="btnPdf" type="button">Generar PDF de etiqueta</button>
+    </div>
+    <div id="resultado" aria-live="polite"></div>
+  </section>
+
+  <div class="section-title">Laboratorios</div>
+  <div class="labs" id="labs"></div>
+
+  <div class="legend">
+    La etiqueta usa Code 128 (legible por cualquier escáner), tamaño de ejemplo 50×30&nbsp;mm.
+    Este PDF es la versión rápida de prueba; la impresión directa a la impresora térmica queda para una fase posterior.
+  </div>
+</main>
+
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  // Datos de ejemplo (en la app real vendrán de Firestore)
+  const LABS = [
+    { n: 'Laboratorio de Redes 1', d: 'Equipos de networking y cableado', e: '🌐' },
+    { n: 'Laboratorio de Química', d: 'Suministros, reactivos y cristalería', e: '🧪' },
+    { n: 'Laboratorio de Electrónica', d: 'Osciloscopios, fuentes y herramientas', e: '🔌' },
+    { n: 'Laboratorio de Cómputo', d: 'Equipos de escritorio y servidores', e: '💻' },
+    { n: 'Laboratorio de Física', d: 'Instrumentos de medición', e: '⚛️' },
+    { n: 'Laboratorio de Biología', d: 'Microscopios y material biológico', e: '🔬' }
+  ];
+  const ITEMS = {
+    'INV-000123': { equipo: 'Router Cisco 2901', lab: 'Laboratorio de Redes 1', tipo: 'Equipo', marca: 'Cisco', ubic: 'Estante A · Columna 2', e: '📡' },
+    'INV-000045': { equipo: 'Microscopio óptico', lab: 'Laboratorio de Biología', tipo: 'Equipo', marca: 'Olympus', ubic: 'Gabinete 3', e: '🔬' },
+    'INV-000207': { equipo: 'Osciloscopio digital', lab: 'Laboratorio de Electrónica', tipo: 'Equipo', marca: 'Rigol', ubic: 'Mesa 5', e: '📈' }
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // Tarjetas de laboratorios
+  function pintarLabs(filtro) {
+    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const f = norm(filtro || '');
+    $('labs').innerHTML = LABS
+      .filter((l) => norm(l.n).includes(f))
+      .map((l, i) => `
+        <article class="lab">
+          <div class="img">${l.e}</div>
+          <div class="body">
+            <h4>${l.n}</h4>
+            <p>${l.d}</p>
+            <div class="code">LAB-${String(i + 1).padStart(3, '0')}</div>
+          </div>
+        </article>`).join('') || '<p>No hay laboratorios con ese nombre.</p>';
+  }
+  $('buscar').addEventListener('input', (e) => pintarLabs(e.target.value));
+  pintarLabs('');
+
+  // Búsqueda por código
+  function limpiarCodigo(v) { return (v || '').trim().toUpperCase(); }
+
+  function buscarCodigo() {
+    const c = limpiarCodigo($('codigo').value);
+    const out = $('resultado');
+    if (!c) { out.innerHTML = ''; toast('Escribe o escanea un código primero'); return; }
+    const it = ITEMS[c];
+    if (!it) {
+      out.innerHTML = `<div class="result notfound">Código <strong>${c}</strong> no encontrado.</div>`;
+      return;
+    }
+    out.innerHTML = `
+      <div class="result">
+        <div class="thumb">${it.e}</div>
+        <div>
+          <h3>${it.equipo}</h3>
+          <small>${it.lab} · ${it.ubic}</small><br>
+          <span class="tag">${c}</span><span class="tag">${it.tipo}</span><span class="tag">${it.marca}</span>
+        </div>
+        <button class="btn ghost" type="button" onclick="toast('En la app real: abre el detalle del equipo')">Ver detalle</button>
+      </div>`;
+  }
+  $('btnBuscar').addEventListener('click', buscarCodigo);
+  // El escáner USB escribe el código y envía Enter
+  $('codigo').addEventListener('keydown', (e) => { if (e.key === 'Enter') { buscarCodigo(); $('codigo').select(); } });
+  document.querySelectorAll('[data-ej]').forEach((b) => b.addEventListener('click', () => {
+    $('codigo').value = b.dataset.ej; buscarCodigo();
+  }));
+
+  // PDF rápido de la etiqueta (50x30 mm)
+  function generarPdf() {
+    const c = limpiarCodigo($('codigo').value);
+    if (!c) { toast('Escribe un código para generar el PDF'); $('codigo').focus(); return; }
+    if (!window.JsBarcode || !window.jspdf) { toast('No se pudieron cargar las librerías (se requiere internet)'); return; }
+    const it = ITEMS[c];
+    const canvas = document.createElement('canvas');
+    try {
+      JsBarcode(canvas, c, { format: 'CODE128', width: 3, height: 90, displayValue: true, fontSize: 28, margin: 10 });
+    } catch (err) {
+      toast('Código no válido para código de barras'); return;
+    }
+    const { jsPDF } = window.jspdf;
+    const W = 50, H = 30;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [W, H] });
+    pdf.setFontSize(6);
+    pdf.text((it ? it.lab : 'Laboratorio').slice(0, 40), W / 2, 4, { align: 'center' });
+    pdf.setFontSize(8);
+    pdf.text((it ? it.equipo : 'Equipo').slice(0, 32), W / 2, 8, { align: 'center' });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 3, 10, W - 6, H - 12);
+    pdf.save('etiqueta-' + c + '.pdf');
+    toast('PDF generado: etiqueta-' + c + '.pdf');
+  }
+  $('btnPdf').addEventListener('click', generarPdf);
+</script>
+</body>
+</html>

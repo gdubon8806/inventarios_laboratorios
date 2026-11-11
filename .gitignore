@@ -29,3 +29,6 @@ yarn-error.log*
 .vercel
 /asignarRoles.js
 /serviceAccountKey.json
+
+# Engram AI agent memory
+.engram/

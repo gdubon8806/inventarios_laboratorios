@@ -1,0 +1,114 @@
+rules_version = '2';
+
+// Reglas de Firestore (PLAN_FUNCIONALIDADES_V2.md §9).
+// Rol: custom claim `role == 'admin'`. Cualquier otro usuario con sesión (incluido el invitado) es de solo lectura,
+// salvo que puede CREAR reportes.
+//
+// IMPORTANTE: estas reglas NO se pudieron probar en el emulador al escribirlas. Pruébalas con el emulador de
+// Firebase (o en el simulador de reglas de la consola) antes de desplegar, y compáralas con las reglas actuales
+// de la consola, que no estaban en el repositorio.
+//
+// NOTA sobre la baja lógica: las reglas no filtran documentos; si una regla de lectura dependiera de
+// `resource.data.activo`, toda consulta que pudiera devolver documentos inactivos sería rechazada. Por eso hoy
+// cualquier usuario con sesión LEE todo y la app filtra en cliente (`activo !== false`). Cuando la migración
+// (scripts/migrate-v3.js) haya puesto `activo` en todos los documentos, se podrá cambiar la app a
+// `where('activo','==',true)` y endurecer la lectura para el invitado.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.role == 'admin';
+    }
+
+    // ¿El documento está en la papelera? (campo ausente = activo)
+    function enPapelera(data) {
+      return 'activo' in data && data.activo == false;
+    }
+
+    // ---- Laboratorios -------------------------------------------------------
+    match /laboratorios/{labId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin();
+      // Eliminación definitiva: solo desde la papelera
+      allow delete: if isAdmin() && enPapelera(resource.data);
+    }
+
+    // ---- Registros (items) y sus unidades -----------------------------------
+    match /items/{itemId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin() && enPapelera(resource.data);
+
+      match /unidades/{unidadId} {
+        allow read: if signedIn();
+        allow create, update: if isAdmin();
+        // Se pueden borrar si la unidad o su registro padre están en la papelera
+        allow delete: if isAdmin() && (
+          enPapelera(resource.data) ||
+          enPapelera(get(/databases/$(database)/documents/items/$(itemId)).data)
+        );
+      }
+    }
+
+    // Comentarios de ítems (colección existente `itemComentarios`): solo el admin escribe
+    match /itemComentarios/{comentarioId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- Códigos de barras --------------------------------------------------
+    // Contadores por tipo (EQU, MOB, HER, INS): solo admin
+    match /counters/{counterId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Índice de unicidad / búsqueda por código (incluye lápidas de códigos eliminados)
+    match /codigos/{codigo} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- Reportes (el invitado puede crear, no modificar) -------------------
+    // Campos de un reporte nuevo; si la fase de reportes agrega campos, actualizar esta lista.
+    match /reportes/{reporteId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'registroId', 'unidadId', 'idLab', 'codigo', 'comentario',
+          'reportadoPor', 'fecha', 'estadoReporte'
+        ])
+        && request.resource.data.keys().hasAll([
+          'registroId', 'idLab', 'comentario', 'reportadoPor', 'fecha', 'estadoReporte'
+        ])
+        && request.resource.data.estadoReporte == 'abierto'
+        && request.resource.data.comentario is string
+        && request.resource.data.comentario.size() > 0
+        && request.resource.data.comentario.size() <= 1000
+        && request.resource.data.reportadoPor.uid == request.auth.uid
+        && request.resource.data.fecha == request.time;
+      allow update, delete: if isAdmin();
+
+      // Solución del reporte: solo admin (ni siquiera lectura para el invitado).
+      // La app guarda la solución en reportes/{id}/privado/solucion = { solucion, nuevoEstado, resueltoPor, fecha }
+      // y marca el reporte padre como estadoReporte:'resuelto' (+ resueltoPor, fechaResolucion) con update de admin.
+      match /privado/{docId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // ---- Auditoría de importaciones Excel ----------------------------------
+    match /importaciones/{importacionId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Todo lo demás, denegado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

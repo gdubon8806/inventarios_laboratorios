@@ -5,7 +5,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useDebouncedCallback } from 'use-debounce';
 
 
-export default function SearchAppBar({ setFilter }) {
+// Props (todas opcionales salvo setFilter; el uso existente `<SearchAppBar setFilter={...} />` no cambia):
+//   onEnter(value): se llama al pulsar Enter (por ejemplo, el escáner USB lo envía al terminar un código).
+//                   Antes de llamarlo se aplica el filtro pendiente del debounce.
+//   placeholder, autoFocus, inputRef.
+export default function SearchAppBar({ setFilter, onEnter, placeholder = 'Buscar...', autoFocus = false, inputRef }) {
 
   const handleSearch = useDebouncedCallback((value) => {
     setFilter(value)
@@ -21,7 +25,15 @@ export default function SearchAppBar({ setFilter }) {
             handleSearch(event.target.value);
           }
           }
-          placeholder="Buscar..."
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && onEnter) {
+              handleSearch.flush();
+              onEnter(event.target.value);
+            }
+          }}
+          placeholder={placeholder}
+          autoFocus={autoFocus}
+          inputRef={inputRef}
           inputProps={{ 'aria-label': 'search' }}
         />
       </Search>

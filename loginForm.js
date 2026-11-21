@@ -15,10 +15,25 @@ export default function LoginForm() {
     e.preventDefault();
     setError('');
     try {
-      loginUser(email, password);
+      // Con await, el catch ahora sí atrapa los errores de inicio de sesión
+      await loginUser(email, password);
       // El usuario será redirigido automáticamente por el listener en index.js
     } catch (err) {
       setError('Correo o contraseña incorrectos');
+    }
+  };
+
+  // Credenciales del usuario invitado: ya NO están en el código; se leen de variables de entorno
+  // (ver .env.example). Siguen siendo visibles en el navegador (NEXT_PUBLIC_*): tratarlo como usuario público.
+  const guestEmail = process.env.NEXT_PUBLIC_GUEST_EMAIL;
+  const guestPassword = process.env.NEXT_PUBLIC_GUEST_PASSWORD;
+
+  const handleGuestLogin = async () => {
+    setError('');
+    try {
+      await loginUser(guestEmail, guestPassword);
+    } catch (err) {
+      setError('No se pudo ingresar como invitado');
     }
   };
 
@@ -81,15 +96,17 @@ export default function LoginForm() {
           >
             Iniciar Sesión
           </Button>
-          <Button
-            onClick={() => loginUser('invitadolaboratorios@gmail.com', '$Invitado2025$')}
-            variant="contained"
-            color="primary"
-            fullWidth
-            style={{ marginTop: 24 }}
-          >
-            Ingresar como invitado
-          </Button>
+          {guestEmail && guestPassword && (
+            <Button
+              onClick={handleGuestLogin}
+              variant="contained"
+              color="primary"
+              fullWidth
+              style={{ marginTop: 24 }}
+            >
+              Ingresar como invitado
+            </Button>
+          )}
         </form>
       </Paper>
     </div>

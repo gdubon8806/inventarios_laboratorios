@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
 import Modal from '@mui/material/Modal';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
@@ -14,7 +15,7 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 
 import updateLab from './firebase/update-lab';
-import deleteLab from './firebase/delete-lab';
+import { deactivateLab } from './firebase/delete-lab';
 import { uploadImage } from './firebase/uploadImages';
 
 import { useState } from 'react';
@@ -70,6 +71,7 @@ function EditLabCard({ lab, close, setLaboratories }) {
     const [id, useID] = useState(lab.id);
     const [name, setName] = useState(lab.name);
     const [description, setDescription] = useState(lab.description);
+    const [ubicacion, setUbicacion] = useState(lab.ubicacion ?? '');
     const [imgurl, setImgURL] = useState(lab.imgurl);
     const [imgname, setImgName] = useState(lab.imgname);
     const [imgFile, setImgFile] = useState(null);
@@ -95,6 +97,7 @@ function EditLabCard({ lab, close, setLaboratories }) {
                                 const newData = {
                                     name,
                                     description,
+                                    ubicacion: ubicacion.trim(),
                                     imgurl: res[1], //aqui no mando a llamar con state porque no me da los datos que recien supuestamente actualice
                                     imgname: res[2],
                                 };
@@ -125,6 +128,7 @@ function EditLabCard({ lab, close, setLaboratories }) {
                         const newData = {
                             name,
                             description,
+                            ubicacion: ubicacion.trim(),
                             imgurl: res[1],
                             imgname: res[2],
                         };
@@ -145,6 +149,7 @@ function EditLabCard({ lab, close, setLaboratories }) {
                 const newData = {
                     name,
                     description,
+                    ubicacion: ubicacion.trim(),
                     imgurl: imgurl,
                     imgname: imgname,
                 };
@@ -191,6 +196,8 @@ function EditLabCard({ lab, close, setLaboratories }) {
                                 <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Ingresar nombre...' />
                                 <label>Descripción:</label>
                                 <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Ingresar detalles...' />
+                                <label>Ubicación:</label>
+                                <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Ej. Edificio B, 2.º piso...' />
                             </form>
                         </div >
                         <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
@@ -206,46 +213,32 @@ function EditLabCard({ lab, close, setLaboratories }) {
     )
 }
 
+// BAJA LÓGICA del laboratorio (plan D3/D14): el laboratorio pasa a la papelera (/bajas) y puede restaurarse.
+// NO se borra su imagen del storage (solo se borraría en la eliminación definitiva desde la papelera)
+// y sus artículos quedan ocultos mientras el laboratorio esté dado de baja.
+// Motivo obligatorio (mínimo 5 caracteres).
 function DeleteLabCard({ lab, close, setLaboratories }) {
-    const [id, useID] = useState(lab.id);
-    const [imgURL, useImgURL] = useState(lab.imgurl);
+    const [motivo, setMotivo] = useState('');
+    const [busy, setBusy] = useState(false);
+    const motivoValido = motivo.trim().length >= 5;
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!motivoValido) {
+            toast.error('Escribe el motivo de la baja (mínimo 5 caracteres).');
+            return;
+        }
+        setBusy(true);
         try {
-            //Primero elimina la imagen del storage si es que tiene
-            if (lab.imgname != '') {
-                const resStorage = await deleteImage(`images/${lab.imgname}`);
-                if (resStorage) {
-                    //Al eliminar la imagen del storage, elimina el lab de firestore
-                    toast('¡Su imagen asociada se eliminó correctamente!');
-                    const labId = id;
-                    const resFireStore = await deleteLab(labId);
-                    if (resFireStore) {
-                        toast('¡El laboratorio se eliminó correctamente!');
-                        // Limpiar el campo del formulario después de la eliminación exitosa
-                        setLaboratories(prevLabs => prevLabs.filter(l => l.id !== labId));
-                        close();
-                    } else {
-                        toast.error('¡Hubo un error al eliminar el laboratorio!');
-                    }
-                } else {
-                    toast.error('¡Hubo un error al eliminar su imagen asociada, no se eliminó el laboratorio!');
-                }
-            } else {
-                const labId = id;
-                const resFireStore = await deleteLab(labId);
-                if (resFireStore) {
-                    toast('¡El laboratorio se eliminó correctamente!');
-                    // Limpiar el campo del formulario después de la eliminación exitosa
-                    setLaboratories(prevLabs => prevLabs.filter(l => l.id !== labId));
-                    close();
-                } else {
-                    toast.error('¡Hubo un error al eliminar el laboratorio!');
-                }
-            }
-
+            await deactivateLab(lab.id, motivo.trim());
+            toast('El laboratorio se dio de baja. Puedes restaurarlo desde la papelera.');
+            setLaboratories(prevLabs => prevLabs.filter(l => l.id !== lab.id));
+            close();
         } catch (error) {
             console.error(error.message);
+            toast.error('¡Hubo un error al dar de baja el laboratorio!');
+        } finally {
+            setBusy(false);
         }
     };
 
@@ -256,7 +249,7 @@ function DeleteLabCard({ lab, close, setLaboratories }) {
     return (
         <div className={FormStyles.deleteBtnContainer}>
             <Button onClick={handleOpen} startIcon={<DeleteIcon />}>
-                Eliminar
+                Dar de baja
             </Button>
             <Modal
                 open={open}
@@ -267,15 +260,25 @@ function DeleteLabCard({ lab, close, setLaboratories }) {
                 <Box sx={style}>
                     <div className={FormStyles.headerForm}>
                         <Button startIcon={<ArrowBackIcon />} className={FormStyles.backBtn} onClick={handleClose}>Atrás</Button>
-                        <h2>Eliminar de laboratorio</h2>
+                        <h2>Dar de baja el laboratorio</h2>
                     </div>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        ¿Está seguro que desesa eliminar el laboratorio?
-                        Se eliminarán también los ítems.
+                        ¿Está seguro que desea dar de baja el laboratorio «{lab.name}»?
+                        Pasará a la papelera (se puede restaurar) y sus artículos quedarán ocultos mientras tanto.
+                        No se borra ninguna imagen ni dato.
                     </Typography>
+                    <TextField
+                        sx={{ mt: 2 }}
+                        fullWidth
+                        label="Motivo de la baja (obligatorio)"
+                        value={motivo}
+                        onChange={(e) => setMotivo(e.target.value)}
+                        error={motivo.length > 0 && !motivoValido}
+                        helperText="Mínimo 5 caracteres"
+                    />
                     <div className={FormStyles.buttonsContainer}>
-                        <Button onClick={handleClose}>Cancelar</Button>
-                        <Button onClick={handleSubmit}>Confirmar</Button>
+                        <Button onClick={handleClose} disabled={busy}>Cancelar</Button>
+                        <Button onClick={handleSubmit} disabled={busy || !motivoValido}>Confirmar</Button>
                     </div>
                 </Box>
             </Modal>

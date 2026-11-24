@@ -10,6 +10,51 @@
 
 ---
 
+## 0. Instrucciones para el agente de IA que sube estos cambios (leer primero)
+
+> Sección operativa, escrita para otro agente de IA. Contexto: el trabajo se hizo desde una cuenta que **no** puede publicar en Vercel. El dueño comprimirá este repositorio y **subirá la rama desde otra cuenta de GitHub**.
+
+**Estado del repositorio al comprimirlo**
+- Rama local: `feat/mejoras-movil-demo`, creada desde `main` en el commit `3a5b85b` (2026-11-23).
+- Tiene commits propios encima de `main`, con autor `osbinsalgado-farsiman <osbin.salgado@farsiman.com>`:
+  1. `Rediseño móvil/PC, edición unificada, reportes, etiquetas Vortek y modo demo`
+  2. `Documento de validación de cambios y hallazgos`
+  3. El que agrega esta sección (instrucciones de subida).
+- **Todavía NO se ha subido nada.** Se subió una vez por error de cuenta y esa rama se borró del remoto; el remoto no tiene esta rama.
+- Remoto: `origin` → `https://github.com/gdubon8806/inventarios_laboratorios.git`.
+- Cuenta de GitHub con la que se subirá: la indica el dueño. Dijo **`osbinsalgado-git`** (**por confirmar** el nombre exacto: las cuentas vistas hasta ahora fueron `osbinsalgado-bit` y `osbinsalgado-farsiman`). Usa la cuenta que `gh auth status` muestre como activa **solo si el dueño confirma que es la correcta**.
+
+**Qué hacer, en orden**
+1. Descomprime en una carpeta nueva y revisa `git status` (debe estar limpio) y `git log --oneline -4`. Las advertencias "LF will be replaced by CRLF" son normales.
+2. Revisa quién eres: `git config user.name`, `git config user.email` y `gh auth status`. Si no corresponden a la cuenta que subirá, **detente y pregunta**.
+3. `git fetch origin`. Compara `git log origin/main -1`: si `main` ya no está en `3a5b85b`, **no hagas rebase ni merge por tu cuenta**: avisa al dueño.
+4. Sube la rama tal cual: `git push -u origin feat/mejoras-movil-demo`.
+5. **Vercel solo despliega si el autor del último commit tiene acceso al proyecto.** Los commits existentes son de `osbinsalgado-farsiman`. Si Vercel muestra "Git author ... must have access to the project on Vercel", crea una rama de despliegue con **un commit vacío de la cuenta que sube**, sin tocar los commits anteriores:
+   ```
+   git checkout -b feat/mejoras-movil-demo-deploy
+   git commit --allow-empty -m "Despliegue de vista previa en Vercel"
+   git push -u origin feat/mejoras-movil-demo-deploy
+   ```
+   Luego avisa al dueño el enlace de la vista previa.
+6. Verifica antes o después: `npm ci`, `npm test` (deben pasar **129**) y, para comprobar que compila, `npx next build` con variables falsas de Firebase (solo para compilar; no las guardes en el repositorio).
+
+**Reglas que no se rompen**
+- No uses `--force`, no reescribas ni cambies el autor de los commits existentes, no hagas squash.
+- No fusiones a `main` ni abras PR sin que el dueño lo confirme.
+- **No publiques `firestore.rules`** y **no ejecutes `scripts/migrate-v3.js --apply`**. Las reglas se prueban primero en el emulador y se comparan con las de la consola de Firebase.
+- No escribas contraseñas, llaves ni valores de variables de entorno en el repositorio.
+- En Vercel **no debe existir** la variable `NEXT_PUBLIC_DEMO` (activaría el modo demo con datos ficticios). Esta rama no agrega variables nuevas.
+- No incluyas carpetas locales: `.engram/`, `node_modules/`, `.next/`, `.next-demo/` y `.playwright-mcp/` no deben subirse (las tres primeras ya están ignoradas por git; al comprimir conviene excluirlas todas).
+- Si algo falla, informa el **mensaje exacto**; no uses atajos que cambien el autor de los commits.
+
+**Qué reportar al dueño al terminar**
+- Rama subida y enlace de la vista previa de Vercel (si despliega).
+- Resultado de `npm test` y del build en Vercel.
+- Con la vista previa lista: entrar como administrador a `/diagnostico` y pasar lo que muestre (explica los laboratorios con 0 registros; es solo lectura).
+- Recordatorio pendiente: cambiar en Firebase la contraseña del usuario invitado (estuvo en el código viejo y sigue en el historial de git) y publicar las reglas de seguridad **solo después de probarlas**.
+
+---
+
 ## 1. Resumen
 
 Se hicieron cinco grupos de cambios:

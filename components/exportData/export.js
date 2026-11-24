@@ -5,6 +5,7 @@ import XLSX from '../../vendor/xlsx';
 import { buildExportModel, buildWorkbook } from '../../lib/import/workbook';
 import { sanitizeSheetName } from '../../lib/import/columns';
 import { groupSnapshot, loadSnapshot } from './snapshot';
+import { busy } from '../ui/GlobalBusy';
 
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
@@ -36,6 +37,7 @@ export function buildExportBuffer(snapshot, { labIds = null, incluirBajas = fals
 
 /** Exporta UN laboratorio (botón de /inventory). */
 export default async function exportToXLSX(idLab) {
+  busy.show('Preparando el Excel del laboratorio… (puede tardar unos segundos)');
   try {
     const snapshot = await loadSnapshot();
     const lab = snapshot.labs.find((l) => l.id === idLab);
@@ -45,11 +47,14 @@ export default async function exportToXLSX(idLab) {
   } catch (e) {
     console.error(e);
     alert(`Error al exportar: ${e.message}`);
+  } finally {
+    busy.hide();
   }
 }
 
 /** Exporta TODOS los laboratorios en un solo libro (botón de la pantalla principal). */
 export async function exportAllToXLSX({ incluirBajas = false, fileName } = {}) {
+  busy.show('Preparando el Excel de todos los laboratorios… (puede tardar un poco)');
   try {
     const snapshot = await loadSnapshot();
     const buf = buildExportBuffer(snapshot, { incluirBajas });
@@ -57,6 +62,8 @@ export async function exportAllToXLSX({ incluirBajas = false, fileName } = {}) {
   } catch (e) {
     console.error(e);
     alert(`Error al exportar: ${e.message}`);
+  } finally {
+    busy.hide();
   }
 }
 

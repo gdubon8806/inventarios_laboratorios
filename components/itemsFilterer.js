@@ -48,17 +48,30 @@ export default function ItemsFilterer({ setFilters, filters }) {
   };
 
   return (
-    <FormControl sx={{ m: 1, width: 300, padding: '0.40rem' }}>
-      <InputLabel id="demo-multiple-filter-label">Filtros</InputLabel>
+    // Mismo formato que la barra de búsqueda: 48 px de alto, fondo tonal, esquinas de 16 px y sin borde hasta enfocar
+    <FormControl
+      sx={{
+        m: 0, width: '100%',
+        '& .MuiOutlinedInput-root': {
+          height: 48, borderRadius: '16px', bgcolor: '#E9EEF6', transition: 'background-color .2s',
+          '&:hover': { bgcolor: '#E1E9F5' },
+          '&.Mui-focused': { bgcolor: '#fff' },
+          '& fieldset': { border: '2px solid transparent' },
+          '&.Mui-focused fieldset': { borderColor: '#0B57D0', borderWidth: 2 },
+        },
+        '& .MuiSelect-select': { fontSize: '1rem' },
+      }}
+    >
       <Select
-        labelId="demo-multiple-filter-label"
         id="demo-multiple-filter"
         multiple
+        displayEmpty
         value={filters}
         onChange={handleChange}
-        input={<OutlinedInput label="filter" />}
+        input={<OutlinedInput />}
+        inputProps={{ 'aria-label': 'Filtrar por tipo' }}
+        renderValue={(sel) => (sel.length ? sel.join(', ') : <span style={{ color: 'rgba(0,0,0,.6)' }}>Filtrar por tipo</span>)}
         MenuProps={MenuProps}
-        style={{ height: '40px' }}
       >
         {filterTypeNames.map((filter) => (
           <MenuItem

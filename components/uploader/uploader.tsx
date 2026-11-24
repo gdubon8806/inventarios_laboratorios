@@ -110,7 +110,7 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
     >
       <div>
         <div className="space-y-1 mb-4">
-          <p className="text-xl text-center">Subir imagen</p>
+          <p className="text-base font-medium text-center">Subir imagen</p>
           <p className="text-sm text-gray-500 text-center">
             Formatos aceptados: .png, .jpg, .gif
           </p>
@@ -120,7 +120,7 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
         </div>
         <label
           htmlFor="image-upload"
-          className="group relative mt-2 flex h-72 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50"
+          className="group relative mt-2 flex h-36 cursor-pointer flex-col items-center justify-center rounded-md border border-gray-300 bg-white shadow-sm transition-all hover:bg-gray-50"
         >
           <div
             className="absolute z-[5] h-full w-full rounded-md"

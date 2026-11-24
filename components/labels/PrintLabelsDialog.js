@@ -17,6 +17,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -26,14 +27,17 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { printLabels as defaultPrint } from '../../lib/printing/printLabels';
 import { filterLabels, chunk, batchLabel, confirmQuestion, summarize, MAX_BATCH } from '../../lib/printing/printBatches';
-import { computeLayout, loadSize, saveSize, sanitizeSize } from '../../lib/printing/labelLayout';
+import { computeLayout } from '../../lib/printing/labelLayout';
+import { defaultPrinterSettings, layoutOptions, loadPrinterSettings, sanitizePrinterSettings, savePrinterSettings } from '../../lib/printing/printers';
+import PrinterSettings from './PrinterSettings';
+import LabelPreview from './LabelPreview';
 
 const DEFAULT_TIPOS = ['Mobiliario', 'Equipo', 'Herramienta', 'Suministro'];
 
 export default function PrintLabelsDialog({ open, onClose, labName, labels, onConfirmed, printFn = defaultPrint, tipos = DEFAULT_TIPOS }) {
   const [onlyPending, setOnlyPending] = useState(true);
   const [tipo, setTipo] = useState('todos');
-  const [size, setSize] = useState({ widthMm: 50, heightMm: 30 });
+  const [printer, setPrinter] = useState(defaultPrinterSettings()); // impresora y tamaño de etiqueta (se guardan en este navegador)
   // step: 'confirm' (pregunta) → 'ready' (tanda lista) → 'verify' (¿salieron bien?) → 'done'
   const [step, setStep] = useState('confirm');
   const [partIndex, setPartIndex] = useState(0);
@@ -43,7 +47,7 @@ export default function PrintLabelsDialog({ open, onClose, labName, labels, onCo
 
   useEffect(() => {
     if (open) {
-      setSize(loadSize());
+      setPrinter(loadPrinterSettings());
       setStep('confirm');
       setPartIndex(0);
       setError('');
@@ -54,20 +58,22 @@ export default function PrintLabelsDialog({ open, onClose, labName, labels, onCo
   const selected = useMemo(() => filterLabels(labels, { onlyPending, tipo }), [labels, onlyPending, tipo]);
   const batches = useMemo(() => chunk(selected, MAX_BATCH), [selected]);
   const stats = useMemo(() => summarize(labels), [labels]);
-  const layout = computeLayout(size, selected[0]?.codigo ?? 'EQU-000000');
+  const size = { widthMm: printer.widthMm, heightMm: printer.heightMm };
+  const layoutOpts = layoutOptions(printer);
+  const layout = computeLayout(size, selected[0]?.codigo ?? 'EQU-000000', layoutOpts);
   const current = batches[partIndex] ?? [];
 
-  const updateSize = (field, value) => {
-    const next = sanitizeSize({ ...size, [field]: value });
-    setSize(next);
-    saveSize(next);
+  const updatePrinter = (next) => {
+    const clean = sanitizePrinterSettings(next);
+    setPrinter(clean);
+    savePrinterSettings(clean);
   };
 
   const doPrint = async () => {
     setBusy(true);
     setError('');
     try {
-      await printFn(current, size);
+      await printFn(current, size, { printer });
       setStep('verify');
     } catch (e) {
       setError(`No se pudo abrir la impresión: ${e?.message ?? e}`);
@@ -123,10 +129,15 @@ export default function PrintLabelsDialog({ open, onClose, labName, labels, onCo
                 <MenuItem key={t} value={t}>{t}</MenuItem>
               ))}
             </TextField>
-            <Typography variant="subtitle2" sx={{ mt: 2 }}>Tamaño de etiqueta (mm)</Typography>
-            <TextField size="small" type="number" label="Ancho" value={size.widthMm} onChange={(e) => updateSize('widthMm', e.target.value)} sx={{ mr: 1, mt: 1, width: 110 }} />
-            <TextField size="small" type="number" label="Alto" value={size.heightMm} onChange={(e) => updateSize('heightMm', e.target.value)} sx={{ mt: 1, width: 110 }} />
+            <Typography variant="subtitle2" sx={{ mt: 2 }}>Impresora y etiqueta</Typography>
+            <PrinterSettings value={printer} onChange={updatePrinter} />
             {!layout.fits && <Alert severity="warning" sx={{ mt: 1 }}>{layout.problems.join(' ')}</Alert>}
+            {selected[0] && (
+              <Box sx={{ mt: 1.5, overflowX: 'auto' }}>
+                <Typography variant="caption" color="text.secondary">Vista previa a tamaño real ({printer.widthMm} × {printer.heightMm} mm)</Typography>
+                <LabelPreview label={selected[0]} size={size} layoutOpts={layoutOpts} />
+              </Box>
+            )}
             {stats.withoutCode > 0 && (
               <Alert severity="info" sx={{ mt: 1 }}>{stats.withoutCode} registro(s) sin código no se imprimirán (primero genera sus códigos).</Alert>
             )}
@@ -141,7 +152,7 @@ export default function PrintLabelsDialog({ open, onClose, labName, labels, onCo
         {step === 'ready' && (
           <>
             <Typography variant="h6">{partText}</Typography>
-            <Typography>{current.length} etiquetas listas. En el diálogo de impresión elige la impresora térmica, tamaño de papel = el de la etiqueta, escala 100 % y sin márgenes ni encabezados.</Typography>
+            <Typography>{current.length} etiquetas listas. En el diálogo de impresión elige la impresora ({printer.printerId === 'vortek' ? 'Vortek DIR-EB58III' : 'la que configuraste'}), tamaño de papel = {printer.widthMm} × {printer.heightMm} mm, escala 100 % y sin márgenes ni encabezados.</Typography>
           </>
         )}
 

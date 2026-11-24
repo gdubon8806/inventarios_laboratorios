@@ -18,8 +18,8 @@ export default function GenerateCodesButton({ lab, status, onDone }) {
   return (
     <>
       {pending > 0 && (
-        <Button size="small" variant="contained" color="warning" onClick={() => setOpen(true)}>
-          {`Generar códigos de barra (${pending} pendientes)`}
+        <Button fullWidth size="small" variant="contained" color="warning" onClick={() => setOpen(true)}>
+          {`Generar códigos (${pending} pendientes)`}
         </Button>
       )}
       {open && (

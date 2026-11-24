@@ -42,6 +42,21 @@ export async function resolveReport(report, { solucion, nuevoEstado, user = null
   }
 }
 
+// Pone un reporte «En revisión» (SOLO admin) y guarda un comentario interno opcional en reportes/{id}/privado/revision
+// (el invitado no lo puede leer). El reporte sigue contando como abierto hasta que se resuelva.
+export async function markInReview(report, { comentario = '', user = null } = {}) {
+  const por = user ? { uid: user.uid, email: user.email ?? null } : currentUserRef();
+  try {
+    const ref = doc(firestore, 'reportes', report.id);
+    const texto = String(comentario ?? '').trim();
+    if (texto) await setDoc(doc(ref, 'privado', 'revision'), { comentario: texto, por, fecha: serverTimestamp() });
+    await updateDoc(ref, { estadoReporte: 'enRevision', revisadoPor: por, fechaRevision: serverTimestamp() });
+    return true;
+  } catch (error) {
+    throw opError('No se pudo poner el reporte en revisión', error);
+  }
+}
+
 // Al dar de baja unidades, sus reportes abiertos se resuelven automáticamente ("Baja: <motivo>") para no inflar el contador.
 // No cambia el estado de la unidad. SOLO admin. Devuelve cuántos reportes cerró.
 export async function resolveReportsForUnits(registroId, unitIds, motivo, user = null) {

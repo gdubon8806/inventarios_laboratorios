@@ -35,7 +35,8 @@ export function InsumoFields({ serie, setSerie, fundaempresa, setFundaempresa })
 export function UnidadesNota() {
   return (
     <p style={{ gridColumn: '1 / -1', fontSize: '0.85rem', color: '#555', margin: 0 }}>
-      Serie, código Fundaempresa, estado y observaciones se registran por unidad en la tabla de unidades del registro.
+      Marca y modelo de aquí son los valores por defecto. Marca, modelo, serie, código Fundaempresa, estado y observaciones
+      se registran por unidad en «Unidades y reportes (modo editar)».
     </p>
   );
 }

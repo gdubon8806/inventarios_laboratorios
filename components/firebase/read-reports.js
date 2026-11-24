@@ -30,3 +30,9 @@ export async function readSolucion(reportId) {
   const snap = await getDoc(doc(firestore, 'reportes', reportId, 'privado', 'solucion'));
   return snap.exists() ? snap.data() : null;
 }
+
+// Comentario interno de la revisión de un reporte (SOLO admin, igual que la solución). null si no hay.
+export async function readRevision(reportId) {
+  const snap = await getDoc(doc(firestore, 'reportes', reportId, 'privado', 'revision'));
+  return snap.exists() ? snap.data() : null;
+}

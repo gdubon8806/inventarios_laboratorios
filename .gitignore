@@ -36,3 +36,9 @@ yarn-error.log*
 # env locales
 .env.local
 .env*.local
+
+# Modo demo
+.next-demo/
+
+# Memoria local de Engram
+.engram/

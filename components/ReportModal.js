@@ -14,12 +14,13 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import toast from 'react-hot-toast';
-import createReport, { MAX_COMENTARIO } from './firebase/create-report';
+import createReport, { MAX_COMENTARIO, MAX_DETALLE, MIN_COMENTARIO } from './firebase/create-report';
 import { readUnits } from './firebase/manage-units';
 import { tieneUnidades } from '../lib/constants/tipos';
 
 export default function ReportModal({ open, onClose, registro, unidad = null, idLab, user, onCreated }) {
   const [comentario, setComentario] = useState('');
+  const [detalle, setDetalle] = useState('');
   const [unidadId, setUnidadId] = useState('');
   const [units, setUnits] = useState([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
@@ -30,6 +31,7 @@ export default function ReportModal({ open, onClose, registro, unidad = null, id
   useEffect(() => {
     if (!open) return;
     setComentario('');
+    setDetalle('');
     setUnidadId('');
     if (!necesitaElegirUnidad) return;
     let cancelled = false;
@@ -45,7 +47,7 @@ export default function ReportModal({ open, onClose, registro, unidad = null, id
     const elegida = unidad ?? units.find((u) => u.id === unidadId) ?? null;
     setBusy(true);
     try {
-      const id = await createReport({ registro, unidad: elegida, idLab, comentario, user });
+      const id = await createReport({ registro, unidad: elegida, idLab, comentario, detalle, user });
       toast('Reporte enviado. Gracias por avisar.');
       onCreated?.(id);
       onClose?.();
@@ -55,6 +57,9 @@ export default function ReportModal({ open, onClose, registro, unidad = null, id
       setBusy(false);
     }
   };
+
+  const largo = comentario.trim().length;
+  const comentarioCorto = largo > 0 && largo < MIN_COMENTARIO;
 
   if (!registro) return null;
   return (
@@ -76,14 +81,23 @@ export default function ReportModal({ open, onClose, registro, unidad = null, id
         <TextField
           fullWidth multiline minRows={3} label="¿Qué problema tiene? (obligatorio)" value={comentario}
           onChange={(e) => setComentario(e.target.value.slice(0, MAX_COMENTARIO))} sx={{ mt: 1 }}
-          helperText={`${comentario.length}/${MAX_COMENTARIO}`}
+          error={comentarioCorto}
+          helperText={comentarioCorto
+            ? `Escribe al menos ${MIN_COMENTARIO} caracteres (faltan ${MIN_COMENTARIO - largo}) · ${largo}/${MAX_COMENTARIO}`
+            : `${largo}/${MAX_COMENTARIO}`}
+        />
+        <TextField
+          fullWidth multiline minRows={2} label="Detalle adicional (opcional)" value={detalle}
+          onChange={(e) => setDetalle(e.target.value.slice(0, MAX_DETALLE))} sx={{ mt: 2 }}
+          placeholder="Información adicional"
+          helperText={`${detalle.length}/${MAX_DETALLE}`}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={busy}>Cancelar</Button>
         <Button
           variant="contained" color="error" onClick={submit}
-          disabled={busy || comentario.trim().length === 0 || (necesitaElegirUnidad && !unidadId)}
+          disabled={busy || largo < MIN_COMENTARIO || (necesitaElegirUnidad && !unidadId)}
         >
           Enviar reporte
         </Button>

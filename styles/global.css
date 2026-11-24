@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300..700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body { background: #F8FAFD; color: #1F1F1F; -webkit-font-smoothing: antialiased; }
 
 * {
     padding: 0;
@@ -48,4 +52,26 @@ body {
     display: none;
 }
 
+/* Texto largo de ayuda: solo en pantallas anchas (en el celular se muestra la versión corta) */
+@media (max-width: 700px) {
+    .solo-pc { display: none; }
+}
+
+/* El reinicio de estilos de Tailwind (preflight) deja transparentes los <button type="button"> y pisaba el fondo de los
+   botones "contained" y flotantes de MUI (se veían blancos y sin texto legible). Se restablece el color de cada variante.
+   Los estados disabled/hover de MUI tienen mayor especificidad y siguen funcionando. */
+.MuiButton-containedPrimary, .MuiFab-primary { background-color: #0B57D0; }
+.MuiButton-containedError { background-color: #B3261E; }
+.MuiButton-containedWarning { background-color: #B3560A; }
+.MuiButton-containedSuccess { background-color: #146C2E; }
+.MuiButton-containedInfo { background-color: #0288d1; }
+.MuiButton-containedSecondary { background-color: #00639B; }
+
   
+/* Fila de búsqueda + filtro de tipo: separados, misma altura; en celular el filtro ocupa el 100% del ancho */
+.fila-busqueda { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.fila-busqueda__texto { flex: 1 1 260px; min-width: 0; }
+.fila-busqueda__filtro { flex: 0 1 260px; min-width: 180px; }
+@media (max-width: 700px) {
+    .fila-busqueda__texto, .fila-busqueda__filtro { flex: 1 1 100%; }
+}

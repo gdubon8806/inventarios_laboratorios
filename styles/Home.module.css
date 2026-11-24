@@ -103,3 +103,44 @@
     color: #1976d2;
     cursor: pointer;
 }
+
+/* ---- Panel lateral (Fase 4) ---- */
+.homeLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 1rem;
+    align-items: start;
+    padding: 0 1rem 1rem;
+}
+
+.homeLayout .labsContainer {
+    margin: 0.10rem 0 0 0;
+}
+
+.sidePanel {
+    position: sticky;
+    top: 4.5rem;
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 900px) {
+    .homeLayout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Tarjeta de laboratorio seleccionada y estados de código (solo admin) */
+.labSelected {
+    outline: 2px solid #1976d2;
+}
+
+.labControlsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: flex-end;
+}

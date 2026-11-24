@@ -1,25 +1,24 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
 
-// Función para obtener un laboratorio por su ID desde Firestore
-export default async function readLabById(id) {
+// Obtiene un laboratorio por su ID.
+// Devuelve null si no existe o si está dado de baja (salvo { incluirInactivos: true }).
+// Lanza el error si la lectura falla, para que el llamador lo maneje.
+export default async function readLabById(id, { incluirInactivos = false } = {}) {
+    if (!id) return null;
     try {
         const labRef = doc(firestore, 'laboratorios', id);
         const labDoc = await getDoc(labRef);
 
-        if (labDoc.exists()) {
-            // El laboratorio existe, devolver sus datos
-            return {
-                id: labDoc.id,
-                ...labDoc.data()
-            };
-        } else {
-            // El laboratorio no existe
+        if (!labDoc.exists()) {
             console.error('No se encontró el laboratorio con el ID especificado.');
-            return null; // O puedes lanzar un error si lo prefieres
+            return null;
         }
+        const data = { id: labDoc.id, ...labDoc.data() };
+        if (data.activo === false && !incluirInactivos) return null;
+        return data;
     } catch (error) {
         console.error('Error al leer laboratorio por ID: ', error);
-        throw error; // Lanza el error para que el llamador pueda manejarlo
+        throw error;
     }
 }

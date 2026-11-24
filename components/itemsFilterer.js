@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useDebouncedCallback } from 'use-debounce';
+import { TIPOS } from '../lib/constants/tipos';
 
 
 const ITEM_HEIGHT = 48;
@@ -19,12 +20,7 @@ const MenuProps = {
   },
 };
 
-const filterTypeNames = [
-  'Suministro',
-  'Herramienta',
-  'Mobiliario',
-  'Equipo',
-];
+const filterTypeNames = TIPOS;
 
 function getStyles(filter, filterName, theme) {
   return {

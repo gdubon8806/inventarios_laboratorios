@@ -54,6 +54,7 @@ export default function AddLabCard({ setLaboratories }) {
 function AddLabForm({ close, setLaboratories }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [ubicacion, setUbicacion] = useState('');
     const [imgURL, setImgURL] = useState('');
     const [imgName, setImgName] = useState('');
     const [imgFile, setImgFile] = useState(null);
@@ -74,14 +75,19 @@ function AddLabForm({ close, setLaboratories }) {
                             setImgURL(res[1]);
                             setImgName(res[2]);
                             toast("¡Se ha insertado la imagen en base de datos exitosamente!")
-                            const result = await createLab(name, description, res[1], res[2]);
+                            const result = await createLab(name, description, res[1], res[2], ubicacion);
+                            if (result === false) {
+                                toast.error("¡Vaya! Ocurrió un error al insertar el laboratorio.");
+                                return;
+                            }
 
                             toast("¡Se ha insertado el nuevo laboratorio exitosamente en base de datos!");
 
-                            setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, imgurl: res[1], imgname: res[2] }]);
+                            setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, ubicacion: ubicacion.trim(), activo: true, imgurl: res[1], imgname: res[2] }]);
 
                             setName('');
                             setDescription('');
+                            setUbicacion('');
                             setImgURL('');
                             setImgName('');
                             setImgFile(null);
@@ -90,16 +96,17 @@ function AddLabForm({ close, setLaboratories }) {
                         }
                     })
             } else {
-                const result = await createLab(name, description, imgURL, imgName);
+                const result = await createLab(name, description, imgURL, imgName, ubicacion);
 
                 if (result === false) {
                     toast.error("¡Vaya! Ocurrió un error al insertar el laboratorio.");
                 } else {
                     toast("Se ha insertado el nuevo laboratorio exitosamente.");
-                    setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, imgurl: imgURL, imgname: imgName }]);
+                    setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, ubicacion: ubicacion.trim(), activo: true, imgurl: imgURL, imgname: imgName }]);
 
                     setName('');
                     setDescription('');
+                            setUbicacion('');
                     setImgURL('');
                     setImgName('');
                     setImgFile(null);
@@ -125,6 +132,8 @@ function AddLabForm({ close, setLaboratories }) {
                 <input type="text" name="nombre" value={name} onChange={(e) => setName(e.target.value)} placeholder='Ingresar nombre...' minLength={1} required />
                 <label>Descripción:</label>
                 <input type="text" name="descripcion" value={description} onChange={(e) => setDescription(e.target.value)} placeholder='Ingresar detalles...' />
+                <label>Ubicación:</label>
+                <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Ej. Edificio B, 2.º piso...' />
             </form>
             <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
             <div className={FormStyles.btnsAddLabContainer}>

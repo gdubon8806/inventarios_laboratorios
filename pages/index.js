@@ -1,23 +1,31 @@
 'use client'
 //Next and React
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 
 //UI components
 import SearchAppBar from '../components/searchBar';
 import LaboratoryCard from '../components/laboratoryCard';
 import AddLabCard from '../components/addLabCard';
+import SidePanel from '../components/SidePanel';
 import Button from '@mui/material/Button'
 import { Toaster } from 'react-hot-toast';
 import DownloadIcon from '@mui/icons-material/Download';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 //Firebase Auth
-import { auth } from '../firebaseConfig';
+import useRole from '../hooks/useRole';
 import LoginForm from '../loginForm';
 import { signOutSession } from '../authService';
 
 //Request data components
 import readLab from '../components/firebase/read-lab';
+import readAllLabStatuses from '../components/firebase/read-lab-statuses';
+import readIncongruentesPorLab from '../components/firebase/read-incongruentes';
+import { getLabCodeStatus } from '../components/firebase/generate-missing-codes';
+import { isCodeLike } from '../lib/codes/normalize';
 
 //Styles
 import HomeStyles from '../styles/Home.module.css';
@@ -27,26 +35,7 @@ import InventoryStyles from '../styles/Inventory.module.css';
 import { exportAllToXLSX } from '../components/exportData/export';
 
 export default function Index() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
-
-      if (firebaseUser) {
-        const tokenResult = await firebaseUser.getIdTokenResult(true);
-        setRole(tokenResult.claims.role || null); // Guarda el rol
-      } else {
-        setRole(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
+  const { user, role, loading } = useRole();
 
   if (loading) return <div>Cargando...</div>;
 
@@ -65,28 +54,60 @@ export default function Index() {
 
 
 export function HomePage({ user, role }) {
+  const isAdmin = role === 'admin';
   const [laboratories, setLaboratories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
+
+  // Panel lateral: laboratorio activo, conteos de códigos por lab y búsqueda disparada desde el buscador de labs.
+  const [selectedLabId, setSelectedLabId] = useState(null);
+  const [statuses, setStatuses] = useState({});
+  const [incongruentes, setIncongruentes] = useState({});
+  const [externalQuery, setExternalQuery] = useState(null);
 
   let laboratoryCards;
 
   const fetchLabs = async () => {
     try {
-      await readLab().then((res) => {
-        setLaboratories(res);
-        setLoading(false);
-      })
-
+      // Una sola consulta trae los conteos de todos los labs (no se relee en cada render ni por tarjeta).
+      const [labs, labStatuses, labIncongruentes] = await Promise.all([
+        readLab(),
+        readAllLabStatuses(),
+        isAdmin ? readIncongruentesPorLab() : Promise.resolve({}),
+      ]);
+      setLaboratories(labs);
+      setStatuses(labStatuses);
+      setIncongruentes(labIncongruentes);
     } catch (error) {
       console.error('Error al extraer los laboratorios de la db.')
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Recarga el estado de UN laboratorio (tras generar códigos o marcar etiquetas como impresas).
+  const reloadLabStatus = useCallback(async (labId) => {
+    try {
+      const fresh = await getLabCodeStatus(labId);
+      setStatuses((prev) => ({ ...prev, [labId]: fresh }));
+      if (isAdmin) setIncongruentes(await readIncongruentesPorLab());
+    } catch (error) {
+      console.error('No se pudo actualizar el estado del laboratorio:', error);
+    }
+  }, [isAdmin]);
 
   useEffect(() => {
     fetchLabs();
   }, []);
+
+  // Si el texto del buscador parece un código, no se filtran los laboratorios por nombre.
+  const nameFilter = isCodeLike(filter) ? '' : filter;
+
+  const handleSearchEnter = (value) => {
+    if (isCodeLike(value)) {
+      setExternalQuery({ value: value.trim(), nonce: Date.now() });
+    }
+  };
 
   if (loading) {
     laboratoryCards = 'Cargando laboratorios...';
@@ -123,7 +144,7 @@ export function HomePage({ user, role }) {
           }
         }
         let newFilter = "";
-        let currentFilter = filter.toLowerCase().trim();
+        let currentFilter = nameFilter.toLowerCase().trim();
         for (const letter of currentFilter) { //termómetro
           if (letter == "á" ||
             letter == "é" ||
@@ -142,9 +163,23 @@ export function HomePage({ user, role }) {
           return lab;
         }
       })
-      laboratoryCards = filteredLaboratories.map(laboratory => <LaboratoryCard role={role} key={laboratory.id} lab={laboratory} setLaboratories={setLaboratories}> </LaboratoryCard>)
+      laboratoryCards = filteredLaboratories.map(laboratory => (
+        <LaboratoryCard
+          role={role}
+          key={laboratory.id}
+          lab={laboratory}
+          setLaboratories={setLaboratories}
+          status={statuses[laboratory.id]}
+          incongruentes={Math.max(incongruentes[laboratory.id] || 0, statuses[laboratory.id]?.incongruentes || 0)}
+          selected={laboratory.id === selectedLabId}
+          onSelect={(lab) => setSelectedLabId(lab.id)}
+          onStatusChanged={reloadLabStatus}
+        />
+      ))
     }
   }
+
+  const selectedLab = laboratories.find((l) => l.id === selectedLabId) || null;
 
   return (
     <>
@@ -153,9 +188,24 @@ export function HomePage({ user, role }) {
       </Head>
       <div className={HomeStyles.fixedContainer}>
         <HeaderBar />
-        <LabsContainerControls user={user} role={role} setFilter={setFilter} setLaboratories={setLaboratories} />
+        <LabsContainerControls user={user} role={role} setFilter={setFilter} setLaboratories={setLaboratories} onSearchEnter={handleSearchEnter} />
       </div>
-      <LabsContainer labs={laboratoryCards} />
+      <div className={HomeStyles.homeLayout}>
+        <LabsContainer labs={laboratoryCards} />
+        {/* El panel aparece cuando ya cargaron los datos */}
+        {!loading && (
+          <SidePanel
+            isAdmin={isAdmin}
+            user={user}
+            labs={laboratories}
+            selectedLab={selectedLab}
+            statuses={statuses}
+            externalQuery={externalQuery}
+            onSelectLab={setSelectedLabId}
+            onStatusChanged={reloadLabStatus}
+          />
+        )}
+      </div>
       <Toaster />
     </>
   );
@@ -178,12 +228,12 @@ export function HeaderBar() {
   )
 }
 
-function LabsContainerControls({ role, setFilter, setLaboratories }) {
+function LabsContainerControls({ role, setFilter, setLaboratories, onSearchEnter }) {
   return (
     <div className={HomeStyles.labsControls}>
       <div className={HomeStyles.controls}>
-        <SearchAppBar setFilter={setFilter} />
-        <div className={InventoryStyles.flex}>
+        <SearchAppBar setFilter={setFilter} onEnter={onSearchEnter} placeholder="Buscar laboratorio o código..." />
+        <div className={InventoryStyles.flex} style={{ flexWrap: 'wrap' }}>
           {role === 'admin' && (
             <>
               <div>
@@ -193,6 +243,16 @@ function LabsContainerControls({ role, setFilter, setLaboratories }) {
                 <Button startIcon={<DownloadIcon />}
                   className={InventoryStyles.downloadBTN} variant="contained" onClick={() => exportAllToXLSX()}>
                   Exportar todo
+                </Button>
+              </div>
+              <div>
+                <Button component={Link} href="/importar" startIcon={<UploadFileIcon />} variant="outlined">
+                  Importar Excel
+                </Button>
+              </div>
+              <div>
+                <Button component={Link} href="/bajas" startIcon={<DeleteSweepIcon />} variant="outlined">
+                  Papelera
                 </Button>
               </div>
 
@@ -212,6 +272,3 @@ function LabsContainer({ labs }) {
     </div>
   )
 }
-
-
-

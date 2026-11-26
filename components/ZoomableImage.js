@@ -6,6 +6,7 @@ import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
+import { estiloEnfoque } from '../lib/imagen/enfoque';
 
 export function ImageViewer({ open, src, alt, onClose }) {
   return (
@@ -24,7 +25,8 @@ export function ImageViewer({ open, src, alt, onClose }) {
   );
 }
 
-export default function ZoomableImage({ src, alt = '', sx, imgStyle, fallback = null }) {
+// `enfoque` (opcional): zona de la foto que se ve aquí; el visor «Ver completa» siempre muestra la foto entera.
+export default function ZoomableImage({ src, alt = '', sx, imgStyle, fallback = null, enfoque = null }) {
   const [open, setOpen] = useState(false);
   if (!src) return fallback;
 
@@ -32,9 +34,9 @@ export default function ZoomableImage({ src, alt = '', sx, imgStyle, fallback = 
   const openViewer = (e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%', ...sx }}>
+    <Box sx={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', ...sx }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...imgStyle }} />
+      <img src={src} alt={alt} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...estiloEnfoque(enfoque), ...imgStyle }} />
       <IconButton
         component="span" role="button" aria-label="Ver imagen completa" title="Ver completa" size="small" onClick={openViewer}
         sx={{ position: 'absolute', right: 6, bottom: 6, color: '#fff', bgcolor: 'rgba(0,0,0,.5)', '&:hover': { bgcolor: 'rgba(0,0,0,.7)' } }}

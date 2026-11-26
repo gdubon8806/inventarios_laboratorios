@@ -68,7 +68,7 @@ export default function RecordCard({
         <Box sx={{ m: 1, mb: 0, height: { xs: 192, sm: 216 }, borderRadius: '12px', overflow: 'hidden', bgcolor: '#EEF3FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           {/* Tocar la imagen abre el detalle; solo el botón de la esquina la muestra completa */}
           <ZoomableImage
-            src={data.imgurl} alt={`Imagen de ${data.equipo}`}
+            src={data.imgurl} alt={`Imagen de ${data.equipo}`} enfoque={data.imgEnfoque}
             fallback={<Typography variant="caption" color="text.secondary">Sin imagen</Typography>}
           />
         </Box>

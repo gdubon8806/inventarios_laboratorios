@@ -68,6 +68,7 @@ function AddItemForm({ idLab, close, onCreated }) {
     const [imgURL, setImgURL] = useState('');
     const [imgName, setImgName] = useState('');
     const [imgFile, setImgFile] = useState(null);
+    const [imgEnfoque, setImgEnfoque] = useState(null);
     const [observaciones, setObservaciones] = useState('');
     const [numeroSerie, setNumeroSerie] = useState('');
     const [codigoFundaempresa, setCodigoFundaempresa] = useState('');
@@ -122,6 +123,7 @@ function AddItemForm({ idLab, close, onCreated }) {
                 cantidad: v.cantidad,
                 imgurl,
                 imgname,
+                imgEnfoque: imgurl ? imgEnfoque : null,
                 observaciones,
                 idLab,
                 tieneVencimiento,
@@ -199,7 +201,7 @@ function AddItemForm({ idLab, close, onCreated }) {
                     El código se genera automáticamente según el tipo (MOB, HER, INS, EQU) y no se puede escribir a mano.
                 </p>
             </form>
-            <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+            <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} setImgEnfoque={setImgEnfoque}></Uploader>
             <div className={FormStyles.btnsAddLabContainer}>
                 <Button onClick={close} disabled={busy}>Cancelar</Button>
                 <Button onClick={() => crear(false)} disabled={busy}>{busy ? 'Guardando…' : 'Agregar'}</Button>

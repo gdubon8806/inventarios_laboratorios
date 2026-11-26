@@ -49,7 +49,7 @@ export default function LaboratoryCard({
       >
         <Box sx={{ m: 1, mb: 0, height: { xs: 168, sm: 180 }, borderRadius: '12px', overflow: 'hidden', bgcolor: M3.surfaceContainer, flexShrink: 0 }}>
           {/* Tocar la imagen abre el laboratorio; solo el botón de la esquina la muestra completa */}
-          <ZoomableImage src={lab.imgurl} alt="Imagen de laboratorio" />
+          <ZoomableImage src={lab.imgurl} alt="Imagen de laboratorio" enfoque={lab.imgEnfoque} />
         </Box>
         <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
           <Typography component="h3" sx={{ fontWeight: 600, fontSize: '1.02rem', lineHeight: 1.2, ...clamp(2) }} title={lab.name}>{lab.name}</Typography>

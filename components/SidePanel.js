@@ -74,7 +74,7 @@ function ResultCard({ result, isAdmin, labs, onReport, onPrint, onEdit }) {
   return (
     <Box sx={{ borderRadius: 1, boxShadow: 1, overflow: 'hidden', bgcolor: 'background.paper' }}>
       {registro.imgurl ? (
-        <Box sx={{ height: 192 }}><ZoomableImage src={registro.imgurl} alt={registro.equipo || 'Equipo'} /></Box>
+        <Box sx={{ height: 192 }}><ZoomableImage src={registro.imgurl} alt={registro.equipo || 'Equipo'} enfoque={registro.imgEnfoque} /></Box>
       ) : null}
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ lineHeight: 1.2 }}>{registro.equipo || '(sin nombre)'}</Typography>

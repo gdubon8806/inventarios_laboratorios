@@ -17,6 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CommentIcon from '@mui/icons-material/Comment';
 
+import ZoomableImage from './ZoomableImage';
 import UnitsTable from './UnitsTable';
 import RecordEditForm from './RecordEditForm';
 import AddUnitsPanel from './AddUnitsPanel';
@@ -123,10 +124,7 @@ export default function ItemDetail({
         ) : (
         <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, 380px) 1fr' }, alignItems: 'start' }}>
           <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: '#EEF3FB', aspectRatio: { xs: '4 / 3', md: '4 / 3' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {data.imgurl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={data.imgurl} alt={data.equipo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : <Typography variant="body2" color="text.secondary">Sin imagen</Typography>}
+            <ZoomableImage src={data.imgurl} alt={data.equipo} fallback={<Typography variant="body2" color="text.secondary">Sin imagen</Typography>} />
           </Box>
           <Box sx={{ display: 'grid', gap: 1.75, gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', bgcolor: '#F1F5FC', borderRadius: '16px', p: 2.25 }}>
             {data.codigo && <Dato label="Código" value={data.codigo} />}

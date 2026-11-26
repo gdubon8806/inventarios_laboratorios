@@ -129,7 +129,7 @@ export function InventoryPage({ role, user }) {
             </Head>
 
             {/* Encabezado fijo: título, nombre del laboratorio y botones (invitado: solo Atrás y Cerrar sesión) */}
-            <AppHeader subtitle={lab?.name ?? ''} backHref="/" onLogout={signOutSession}>
+            <AppHeader subtitle={lab?.name ?? ''} backHref="/" onLogout={signOutSession} showLabels={!isAdmin}>
                 {isAdmin && (
                     <>
                         <AddItemCard setItems={setItems} idLab={idLab} onCreated={handleRefresh} />

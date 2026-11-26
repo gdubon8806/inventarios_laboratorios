@@ -11,8 +11,9 @@ import { chunk, MAX_BATCH_WRITES } from '../../lib/codes/planning';
 export { firestore };
 
 export function currentUser(override) {
-  if (override) return override;
-  const u = auth?.currentUser;
+  // Siempre un objeto plano {uid, email}: Firestore rechaza el objeto User de Firebase (clase propia)
+  // con "Unsupported field value: a custom object" al guardarlo en ultimaModificacionPor/bajaPor.
+  const u = override || auth?.currentUser;
   return u ? { uid: u.uid, email: u.email ?? null } : null;
 }
 

@@ -177,7 +177,7 @@ export function HomePage({ user, role }) {
       </Head>
 
       {/* Encabezado fijo con los botones arriba, ordenados como un panel superior */}
-      <AppHeader onLogout={signOutSession}>
+      <AppHeader onLogout={signOutSession} showLabels={!isAdmin}>
         {isAdmin && (
           <>
             <AddLabCard setLaboratories={setLaboratories} />
@@ -189,7 +189,7 @@ export function HomePage({ user, role }) {
         )}
         <Button
           size="small" variant="outlined" startIcon={<QrCodeScannerIcon />} onClick={() => setPanelOpen(true)}
-          sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+          aria-label="Buscar por código"
         >
           Buscar por código
         </Button>

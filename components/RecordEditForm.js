@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import ZoomableImage from './ZoomableImage';
 import { Timestamp } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -115,10 +116,7 @@ export default function RecordEditForm({ data, onSaved }) {
       {/* Imagen */}
       <Box>
         <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: '#EEF3FB', aspectRatio: { xs: '4 / 3', md: '4 / 3' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {imgURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imgURL} alt={data.equipo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : <Typography variant="body2" color="text.secondary">Sin imagen</Typography>}
+          <ZoomableImage src={imgURL} alt={data.equipo} fallback={<Typography variant="body2" color="text.secondary">Sin imagen</Typography>} />
         </Box>
         {imgURL && <Button size="small" color="error" onClick={quitarImagen} sx={{ mt: 1 }}>Quitar imagen</Button>}
         <Box sx={{ mt: 1 }}>

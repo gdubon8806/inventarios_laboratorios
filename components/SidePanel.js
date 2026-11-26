@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
-import Fab from '@mui/material/Fab';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
@@ -14,13 +13,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import CloseIcon from '@mui/icons-material/Close';
 import ReportIcon from '@mui/icons-material/ReportProblem';
 import PrintIcon from '@mui/icons-material/Print';
 import EditIcon from '@mui/icons-material/Edit';
 import toast from 'react-hot-toast';
 
+import ZoomableImage from './ZoomableImage';
 import CodeSearch from './CodeSearch';
 import ReportModal from './ReportModal';
 import PrintLabelsDialog from './labels/PrintLabelsDialog';
@@ -75,8 +74,7 @@ function ResultCard({ result, isAdmin, labs, onReport, onPrint, onEdit }) {
   return (
     <Box sx={{ borderRadius: 1, boxShadow: 1, overflow: 'hidden', bgcolor: 'background.paper' }}>
       {registro.imgurl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={registro.imgurl} alt={registro.equipo || 'Equipo'} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+        <Box sx={{ height: 192 }}><ZoomableImage src={registro.imgurl} alt={registro.equipo || 'Equipo'} /></Box>
       ) : null}
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ lineHeight: 1.2 }}>{registro.equipo || '(sin nombre)'}</Typography>
@@ -382,18 +380,7 @@ export default function SidePanel({ open, onOpenChange, ...props }) {
 
   return (
     <>
-      {isMobile && !isOpen && (
-        <Fab
-          color="primary"
-          variant="extended"
-          aria-label="abrir búsqueda por código"
-          onClick={() => setOpen(true)}
-          sx={{ position: 'fixed', right: 16, bottom: 88, zIndex: 1200, borderRadius: '14px', px: 2.5 }}
-        >
-          <QrCodeScannerIcon sx={{ mr: 1 }} />
-          Código
-        </Fab>
-      )}
+      {/* El botón «Buscar por código» vive ahora en el encabezado (PC y celular); ya no hay botón flotante. */}
       <Drawer
         anchor="right"
         open={isOpen}

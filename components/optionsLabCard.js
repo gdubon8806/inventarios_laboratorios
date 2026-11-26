@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import ZoomableImage from './ZoomableImage';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -117,10 +118,7 @@ function EditLabCard({ lab, open, close, setLaboratories }) {
             <Box sx={{ p: { xs: 1.5, sm: 3 }, display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'minmax(240px, 340px) 1fr' }, alignItems: 'start' }}>
                 <Box>
                     <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: '#EEF3FB', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {imgurl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgurl} alt={lab.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : <Typography variant="body2" color="text.secondary">Sin imagen</Typography>}
+                        <ZoomableImage src={imgurl} alt={lab.name} fallback={<Typography variant="body2" color="text.secondary">Sin imagen</Typography>} />
                     </Box>
                     {imgurl && <Button size="small" color="error" onClick={quitarImagen} sx={{ mt: 1 }}>Quitar imagen</Button>}
                     <Box sx={{ mt: 1 }}>

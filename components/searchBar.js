@@ -42,14 +42,20 @@ export default function SearchAppBar({ setFilter, onEnter, placeholder = 'Buscar
 }
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: "#F8F8F8",
+  // Barra de búsqueda tipo píldora tonal (Material 3): al enfocar se vuelve blanca con borde azul
+  borderRadius: '16px',
+  backgroundColor: "#E9EEF6",
+  border: '2px solid transparent',
+  transition: 'background-color .2s, border-color .2s, box-shadow .2s',
+  '&:hover': { backgroundColor: '#E1E9F5' },
+  '&:focus-within': { backgroundColor: '#fff', borderColor: '#0B57D0', boxShadow: '0 2px 10px rgba(11,87,208,.15)' },
+  // Misma altura que el filtro de tipo (48 px) para que se vean del mismo formato y tamaño
+  display: 'flex',
+  alignItems: 'center',
+  minHeight: 48,
+  boxSizing: 'border-box',
   marginLeft: 0,
   width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: '100%',
-  },
 }));
 const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
@@ -64,7 +70,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   width: '100%',
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
+    padding: theme.spacing(1.25, 1.5, 1.25, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),

@@ -55,6 +55,7 @@ export default function LabPrintButton({ lab, status, onDone }) {
   return (
     <>
       <Button
+        fullWidth
         size="small"
         variant={pending > 0 ? 'contained' : 'outlined'}
         color={pending > 0 ? 'error' : 'primary'}

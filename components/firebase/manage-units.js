@@ -5,7 +5,7 @@ import {
   firestore, applyWrites, commitWrites, currentUser, docRef, readRecord, readAllUnits, runGenerationBatch,
 } from './codes-shared';
 import {
-  buildDeactivationWrites, buildReactivationWrites, buildUnitUpdate, buildMarkPrintedWrites,
+  buildDeactivationWrites, buildReactivationWrites, buildUnitUpdate, buildMarkPrintedWrites, summarizeUnitBrands,
 } from '../../lib/codes/builders';
 import { aggregateEstadoCodigo, chunk, splitJobsIntoBatches } from '../../lib/codes/planning';
 import { checkQuantity, parseCantidad } from '../../lib/codes/thresholds';
@@ -26,10 +26,23 @@ export async function updateUnit(recordId, unitId, fields, { user } = {}) {
   if (!r.ok) return { status: 'error', error: r.error };
   try {
     await commitWrites(r.writes);
+    if ('marca' in fields || 'modelo' in fields) await syncRecordBrands(recordId, user);
     return { status: 'ok' };
   } catch (e) {
     return { status: 'error', error: e?.message ?? String(e) };
   }
+}
+
+/** Deja en el registro la marca/modelo que muestra su tarjeta (se oculta si las unidades no coinciden). */
+async function syncRecordBrands(recordId, user) {
+  const [record, units] = await Promise.all([readRecord(recordId), readAllUnits(recordId)]);
+  if (!record) return;
+  const s = summarizeUnitBrands(units, record);
+  const data = {
+    marca: s.marca, marcaMixta: s.marcaMixta, modelo: s.modelo, modeloMixto: s.modeloMixto,
+    ultimaModificacion: serverTimestamp(), ultimaModificacionPor: currentUser(user),
+  };
+  await commitWrites([{ op: 'update', path: `items/${recordId}`, data }]);
 }
 
 /**

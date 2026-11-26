@@ -79,7 +79,7 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly([
-          'registroId', 'unidadId', 'idLab', 'codigo', 'comentario',
+          'registroId', 'unidadId', 'idLab', 'codigo', 'comentario', 'detalleAdicional',
           'reportadoPor', 'fecha', 'estadoReporte'
         ])
         && request.resource.data.keys().hasAll([
@@ -87,8 +87,11 @@ service cloud.firestore {
         ])
         && request.resource.data.estadoReporte == 'abierto'
         && request.resource.data.comentario is string
-        && request.resource.data.comentario.size() > 0
+        && request.resource.data.comentario.size() >= 20
         && request.resource.data.comentario.size() <= 1000
+        && (!('detalleAdicional' in request.resource.data)
+            || (request.resource.data.detalleAdicional is string
+                && request.resource.data.detalleAdicional.size() <= 500))
         && request.resource.data.reportadoPor.uid == request.auth.uid
         && request.resource.data.fecha == request.time;
       allow update, delete: if isAdmin();

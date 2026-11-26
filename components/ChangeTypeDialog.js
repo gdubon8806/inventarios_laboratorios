@@ -76,8 +76,12 @@ export default function ChangeTypeDialog({ open, onClose, registro, user, onDone
     <Dialog open={!!open} onClose={busy ? undefined : onClose} fullWidth maxWidth="sm">
       <DialogTitle>Cambiar tipo: {registro.equipo}</DialogTitle>
       <DialogContent>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          <strong>Cambiar el tipo cambia el código y la etiqueta.</strong>
+          <div>Se generan códigos nuevos con otro prefijo, los códigos anteriores quedan como «reemplazados» y hay que reimprimir todas las etiquetas del registro.</div>
+        </Alert>
         <Typography variant="body2" sx={{ mb: 2 }}>
-          Tipo actual: <strong>{registro.tipo}</strong> ({PREFIJO_POR_TIPO[registro.tipo] ?? '—'}). El tipo no se cambia con un simple selector: este proceso regenera los códigos y exige reimprimir las etiquetas.
+          Tipo actual: <strong>{registro.tipo}</strong> ({PREFIJO_POR_TIPO[registro.tipo] ?? '—'}), cantidad: <strong>{registro.cantidad}</strong>.
         </Typography>
         <TextField select fullWidth size="small" label="Nuevo tipo" value={nuevoTipo} onChange={(e) => setNuevoTipo(e.target.value)}>
           {TIPOS.filter((t) => t !== registro.tipo).map((t) => <MenuItem key={t} value={t}>{t} ({PREFIJO_POR_TIPO[t]})</MenuItem>)}
@@ -94,11 +98,14 @@ export default function ChangeTypeDialog({ open, onClose, registro, user, onDone
           </Alert>
         )}
         {preview && preview.ok && (
-          <Alert severity={preview.kind === 'units-to-ins' ? 'error' : 'info'} sx={{ mt: 2 }}>
-            <div>{KIND_TEXT[preview.kind]}</div>
-            <div>El código cambiará de <strong>{preview.codigoActual ?? PREFIJO_POR_TIPO[registro.tipo]}</strong> a prefijo <strong>{preview.to}</strong>.</div>
-            <div>Habrá que reimprimir <strong>{preview.etiquetasAReimprimir}</strong> etiqueta(s).</div>
-            {preview.advertencia && <div><strong>{preview.advertencia}</strong></div>}
+          <Alert severity={preview.kind === 'units-to-ins' ? 'error' : 'warning'} sx={{ mt: 2 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Detalle del cambio</div>
+            <ul style={{ margin: 0, paddingLeft: 18, listStyle: 'disc' }}>
+              <li>{KIND_TEXT[preview.kind]}</li>
+              <li>El código cambiará de <strong>{preview.codigoActual ?? PREFIJO_POR_TIPO[registro.tipo]}</strong> a prefijo <strong>{preview.to}</strong>.</li>
+              <li>Habrá que reimprimir <strong>{preview.etiquetasAReimprimir}</strong> etiqueta(s); la tarjeta quedará pendiente de imprimir.</li>
+              {preview.advertencia && <li><strong>{preview.advertencia}</strong></li>}
+            </ul>
           </Alert>
         )}
         {preview?.requiereConfirmacionUmbral && (

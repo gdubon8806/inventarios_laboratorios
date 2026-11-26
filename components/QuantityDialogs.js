@@ -135,7 +135,7 @@ export function QuantityDialog({ open, onClose, registro, user, onDone }) {
                     label={`${u.codigo}${u.numeroSerie ? ` · serie ${u.numeroSerie}` : ''}${u.estado && u.estado !== 'bueno' ? ` · ${u.estado}` : ''}`} />
                 ))}
               </div>
-              <TextField fullWidth size="small" label="Motivo de la baja (obligatorio, mín. 5 caracteres)" value={motivo} onChange={(e) => setMotivo(e.target.value)} sx={{ mt: 2 }} placeholder="Ej.: dañada, perdida, traslado, obsoleta" />
+              <TextField fullWidth size="small" label="Motivo de la baja (obligatorio, mín. 5 caracteres)" value={motivo} onChange={(e) => setMotivo(e.target.value)} sx={{ mt: 2 }} placeholder="Motivo de la baja" />
             </>
           )}
           {bajando && !conUnidades && <Alert severity="info" sx={{ mt: 2 }}>Se reducirá la cantidad del insumo.</Alert>}

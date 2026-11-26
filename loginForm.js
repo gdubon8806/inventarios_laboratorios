@@ -63,6 +63,13 @@ export default function LoginForm() {
         <Typography variant="h5" gutterBottom>
           Bienvenido a inventario de laboratorios
         </Typography>
+        {process.env.NEXT_PUBLIC_DEMO === '1' && (
+          <Typography variant="body2" style={{ background: '#fff4e5', border: '1px solid #ffcc80', borderRadius: 8, padding: '8px 12px', marginTop: 8, width: '100%' }}>
+            <strong>MODO DEMO</strong> · datos ficticios, no se conecta a producción.<br />
+            Administrador: <code>admin@demo.local</code> / <code>admin123</code><br />
+            Invitado: botón «Ingresar como invitado».
+          </Typography>
+        )}
         <form onSubmit={handleLogin} style={{ width: '100%', marginTop: 16 }}>
           <TextField
             label="Correo electrónico"

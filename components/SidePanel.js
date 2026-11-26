@@ -125,6 +125,7 @@ function PanelBody({
   isAdmin, user, labs, selectedLab, statuses, externalQuery, onSelectLab, onStatusChanged, onClose,
 }) {
   const router = useRouter();
+  const movilPanel = useMediaQuery('(max-width:899px)');
   const [result, setResult] = useState(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [printOne, setPrintOne] = useState(null); // etiqueta individual
@@ -203,14 +204,27 @@ function PanelBody({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6">Panel de consulta</Typography>
+        <Typography variant="h6">Búsqueda por código</Typography>
         {onClose && (
           <IconButton aria-label="cerrar panel" onClick={onClose}><CloseIcon /></IconButton>
         )}
       </Box>
 
+      {/* Pasos (recuadro azul redondeado) */}
+      <Box sx={{ borderRadius: '16px', bgcolor: '#D3E3FD', p: 2 }}>
+        <Typography variant="subtitle2" sx={{ color: '#1565c0', mb: 0.5 }}>Búsqueda global por código</Typography>
+        <Typography variant="body2" sx={{ color: '#27445f' }}>
+          {movilPanel
+            ? 'Encuentra un artículo con el código de su etiqueta: elige el tipo, escribe los números y busca.'
+            : 'Encuentra un artículo con el código de su etiqueta: escanéalo con el lector o escríbelo y pulsa Enter.'}
+        </Typography>
+      </Box>
+
+      {/* Buscador por código */}
+      <CodeSearch isAdmin={isAdmin} onResult={handleResult} externalQuery={externalQuery} />
+
       {/* Lab actual */}
-      <Box sx={{ borderRadius: 1, bgcolor: '#F8F8F8', p: 1.5 }}>
+      <Box sx={{ borderRadius: 2, bgcolor: '#F8F8F8', p: 1.5 }}>
         <Typography variant="caption" color="text.secondary">Laboratorio actual</Typography>
         {selectedLab ? (
           <>
@@ -228,15 +242,6 @@ function PanelBody({
             Selecciona un laboratorio (clic en su tarjeta) o busca un código.
           </Typography>
         )}
-      </Box>
-
-      {/* Buscador por código */}
-      <Box>
-        <Typography variant="subtitle2" gutterBottom>Buscar por código</Typography>
-        <CodeSearch isAdmin={isAdmin} onResult={handleResult} externalQuery={externalQuery} />
-        <Typography variant="caption" color="text.secondary">
-          Escribe el código o escanéalo (MOB-, HER-, INS-, EQU-). Con Enter se busca.
-        </Typography>
       </Box>
 
       {/* Resultado */}
@@ -361,38 +366,42 @@ function PanelBody({
   );
 }
 
-export default function SidePanel(props) {
+// Cajón desplegable (no fijo): ocupa el 100% del alto y, en pantallas grandes, un ancho amplio.
+// Se abre con el botón «Buscar por código» del encabezado (`open` / `onOpenChange` los controla la pantalla principal),
+// con el botón flotante en móvil o cuando el buscador de laboratorios recibe un texto que parece un código.
+export default function SidePanel({ open, onOpenChange, ...props }) {
   const isMobile = useMediaQuery('(max-width:900px)');
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [internal, setInternal] = useState(false);
+  const isOpen = open ?? internal;
+  const setOpen = onOpenChange ?? setInternal;
 
-  // Una búsqueda desde el buscador de laboratorios abre el cajón en móvil.
   useEffect(() => {
-    if (props.externalQuery?.nonce) setMobileOpen(true);
+    if (props.externalQuery?.nonce) setOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.externalQuery?.nonce]);
 
-  if (isMobile) {
-    return (
-      <>
+  return (
+    <>
+      {isMobile && !isOpen && (
         <Fab
           color="primary"
           variant="extended"
-          aria-label="abrir panel de consulta"
-          onClick={() => setMobileOpen(true)}
-          sx={{ position: 'fixed', right: 16, bottom: 16, zIndex: 1200 }}
+          aria-label="abrir búsqueda por código"
+          onClick={() => setOpen(true)}
+          sx={{ position: 'fixed', right: 16, bottom: 88, zIndex: 1200, borderRadius: '14px', px: 2.5 }}
         >
           <QrCodeScannerIcon sx={{ mr: 1 }} />
           Código
         </Fab>
-        <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)} PaperProps={{ sx: { width: 'min(420px, 100vw)' } }}>
-          <PanelBody {...props} onClose={() => setMobileOpen(false)} />
-        </Drawer>
-      </>
-    );
-  }
-
-  return (
-    <aside className={HomeStyles.sidePanel} aria-label="Panel de consulta">
-      <PanelBody {...props} />
-    </aside>
+      )}
+      <Drawer
+        anchor="right"
+        open={isOpen}
+        onClose={() => setOpen(false)}
+        PaperProps={{ sx: { width: isMobile ? '100vw' : 'min(620px, 92vw)', height: '100%', bgcolor: '#F8FAFD', borderRadius: isMobile ? 0 : '20px 0 0 20px' } }}
+      >
+        <PanelBody {...props} onClose={() => setOpen(false)} />
+      </Drawer>
+    </>
   );
 }

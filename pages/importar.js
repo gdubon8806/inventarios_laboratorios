@@ -31,7 +31,12 @@ import { deleteField, doc, getDoc, runTransaction, serverTimestamp, setDoc, Time
 import { firestore } from '../firebaseConfig';
 import XLSX from '../vendor/xlsx';
 import useRole from '../hooks/useRole';
-import { downloadBackup, exportAllToXLSX } from '../components/exportData/export';
+import Autocomplete from '@mui/material/Autocomplete';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import TextField from '@mui/material/TextField';
+import readLab from '../components/firebase/read-lab';
+import { downloadBackup, exportAllToXLSX, exportLabsToXLSX } from '../components/exportData/export';
 import { loadSnapshot } from '../components/exportData/snapshot';
 import { readWorkbookBuffer, parseWorkbook } from '../lib/import/parse';
 import { confirmationsSatisfied, validateImport } from '../lib/import/validate';
@@ -197,10 +202,9 @@ function Importer({ user }) {
         y solo si no hay errores puede aplicarlos. Antes de escribir se descarga un respaldo automático.
       </Typography>
 
+      <DescargaSelector disabled={busy} />
+
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-        <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => exportAllToXLSX()} disabled={busy}>
-          Descargar Excel actual
-        </Button>
         <Button variant="contained" startIcon={<UploadFileIcon />} onClick={() => fileRef.current?.click()} disabled={busy || stage === 'aplicando'}>
           {report ? 'Subir otro archivo / corregido' : 'Subir Excel'}
         </Button>
@@ -297,6 +301,57 @@ function Importer({ user }) {
         </Alert>
       )}
     </Box>
+  );
+}
+
+// Paso 1: descargar todos los laboratorios o solo los elegidos. El archivo que se sube después solo toca
+// los laboratorios que trae: los demás no se modifican ni se dan de baja.
+function DescargaSelector({ disabled }) {
+  const [modo, setModo] = useState('todos'); // todos | elegir
+  const [labs, setLabs] = useState([]);
+  const [elegidos, setElegidos] = useState([]);
+
+  useEffect(() => {
+    readLab().then((ls) => setLabs([...ls].sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'es'))));
+  }, []);
+
+  const descargar = () => {
+    if (modo === 'todos') exportAllToXLSX();
+    else exportLabsToXLSX(elegidos.map((l) => l.id));
+  };
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+      <Typography variant="subtitle1" sx={{ mb: 0.5 }}>1) Descargar el Excel</Typography>
+      <Alert severity="info" sx={{ mb: 1.5 }}>
+        Si solo va a cambiar uno o algunos laboratorios, <b>descargue solo esos</b>: al subir el archivo, únicamente se revisan
+        los laboratorios que trae y los demás no se tocan. También puede descargarlo desde el botón de exportar dentro de cada laboratorio.
+        No borre ni renombre hojas, y no borre filas que no quiera dar de baja (una fila que falta se da de baja).
+      </Alert>
+      <RadioGroup row value={modo} onChange={(e) => setModo(e.target.value)}>
+        <FormControlLabel value="todos" control={<Radio />} label="Todos los laboratorios" />
+        <FormControlLabel value="elegir" control={<Radio />} label="Elegir laboratorios" />
+      </RadioGroup>
+      {modo === 'elegir' && (
+        <Autocomplete
+          multiple disableCloseOnSelect options={labs} value={elegidos}
+          onChange={(_, v) => setElegidos(v)}
+          getOptionLabel={(l) => l.name || '(sin nombre)'}
+          isOptionEqualToValue={(a, b) => a.id === b.id}
+          renderOption={(props, l, { selected }) => (
+            <li {...props} key={l.id}><Checkbox size="small" checked={selected} sx={{ mr: 1 }} />{l.name || '(sin nombre)'}</li>
+          )}
+          renderInput={(params) => <TextField {...params} label="Laboratorios" placeholder="Buscar laboratorio" size="small" />}
+          sx={{ my: 1, maxWidth: 640 }}
+        />
+      )}
+      <Button
+        variant="outlined" startIcon={<DownloadIcon />} onClick={descargar}
+        disabled={disabled || (modo === 'elegir' && elegidos.length === 0)}
+      >
+        {modo === 'todos' ? 'Descargar todos' : `Descargar ${elegidos.length || ''} laboratorio${elegidos.length === 1 ? '' : 's'}`}
+      </Button>
+    </Paper>
   );
 }
 

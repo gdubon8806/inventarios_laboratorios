@@ -38,6 +38,7 @@ import TextField from '@mui/material/TextField';
 import readLab from '../components/firebase/read-lab';
 import { downloadBackup, exportAllToXLSX, exportLabsToXLSX } from '../components/exportData/export';
 import { loadSnapshot } from '../components/exportData/snapshot';
+import { invalidateHomeCache } from '../lib/cache/home-cache';
 import { readWorkbookBuffer, parseWorkbook } from '../lib/import/parse';
 import { confirmationsSatisfied, validateImport } from '../lib/import/validate';
 import { applyImport, createFirestoreDeps, newImportId } from '../lib/import/apply';
@@ -52,6 +53,8 @@ const COLORS = {
 
 const rowKey = (r) => `${r.ref.sheet}!${r.ref.row}`;
 const currentOf = (snap) => ({ items: snap.items, unidades: snap.unidades, labs: snap.labs });
+// Laboratorios que trae el archivo (según la hoja _meta). Sin hojas válidas -> [] (no se lee ningún registro).
+const labIdsDe = (p) => [...new Set((p?.meta?.sheets || []).map((s) => s.idLab).filter(Boolean))];
 
 export default function ImportPage() {
   const router = useRouter();
@@ -112,7 +115,8 @@ function Importer({ user }) {
     try {
       const buf = await file.arrayBuffer();
       const p = parseWorkbook(XLSX, readWorkbookBuffer(XLSX, buf));
-      const snap = await loadSnapshot();
+      // Solo se leen los laboratorios que trae el archivo (los demás no se tocan).
+      const snap = await loadSnapshot({ labIds: labIdsDe(p) });
       const rep = validateImport({ parsed: p, current: currentOf(snap) });
       setParsed(p);
       setReport(rep);
@@ -150,7 +154,7 @@ function Importer({ user }) {
     setStage('aplicando');
     try {
       // 1) Releer la BD y re-validar: si cambió desde que se subió el archivo, no se escribe nada.
-      const fresh = await loadSnapshot();
+      const fresh = await loadSnapshot({ labIds: labIdsDe(parsed) });
       const rep2 = validateImport({ parsed, current: currentOf(fresh) });
       const same = JSON.stringify(rep2.summary) === JSON.stringify(report.summary)
         && JSON.stringify(rep2.needsConfirm) === JSON.stringify(report.needsConfirm);
@@ -180,6 +184,7 @@ function Importer({ user }) {
       });
       setResult(res);
       setStage('hecho');
+      invalidateHomeCache(); // la pantalla principal relee todo en la próxima visita
     } catch (err) {
       console.error(err);
       setError(err.message || String(err));

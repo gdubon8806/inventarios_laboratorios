@@ -33,6 +33,7 @@ import readLab from '../components/firebase/read-lab';
 import { readAllActiveItems, statusesFromItems } from '../components/firebase/read-lab-statuses';
 import readIncongruentesPorLab from '../components/firebase/read-incongruentes';
 import { readLabRecords } from '../components/firebase/generate-missing-codes';
+import { clearDirtyLabs, getHomeCache, setHomeCache, updateHomeCache } from '../lib/cache/home-cache';
 import { isCodeLike, normalizeText } from '../lib/codes/normalize';
 import { matchRecord } from '../lib/inventory/stats';
 
@@ -87,7 +88,26 @@ export function HomePage({ user, role }) {
 
   const fetchLabs = async () => {
     try {
-      // Una sola lectura trae los registros de todos los labs (conteos y búsqueda); no se relee en cada render.
+      // Si ya se leyó hace poco en esta pestaña, se reutiliza y solo se releen los laboratorios que se tocaron.
+      const cached = getHomeCache({ isAdmin });
+      if (cached) {
+        setLaboratories(cached.labs);
+        setItems(cached.items);
+        setIncongruentes(cached.incongruentes);
+        setLoadError(null);
+        if (cached.dirtyLabs.length > 0) {
+          const frescos = await Promise.all(cached.dirtyLabs.map((id) => readLabRecords(id).then((r) => [id, r])));
+          const ids = new Set(cached.dirtyLabs);
+          const items = [...cached.items.filter((i) => !ids.has(i.idLab)), ...frescos.flatMap(([, r]) => r)];
+          const inc = isAdmin ? await readIncongruentesPorLab() : cached.incongruentes;
+          setItems(items);
+          setIncongruentes(inc);
+          updateHomeCache({ items, incongruentes: inc });
+          clearDirtyLabs(cached.dirtyLabs);
+        }
+        return;
+      }
+      // Lectura completa: trae los registros de todos los labs (conteos y búsqueda); no se relee en cada render.
       const [labs, all, labIncongruentes] = await Promise.all([
         readLab(),
         readAllActiveItems(),
@@ -97,6 +117,7 @@ export function HomePage({ user, role }) {
       setItems(all.items);
       setLoadError(all.error);
       setIncongruentes(labIncongruentes);
+      if (!all.error) setHomeCache({ isAdmin, labs, items: all.items, incongruentes: labIncongruentes });
     } catch (error) {
       console.error('Error al extraer los laboratorios de la db.', error)
       setLoadError(error?.message ?? 'Error desconocido');
@@ -119,6 +140,11 @@ export function HomePage({ user, role }) {
   useEffect(() => {
     fetchLabs();
   }, []);
+
+  // Los cambios hechos en esta pantalla (crear/editar laboratorio, generar códigos…) se guardan en la caché.
+  useEffect(() => {
+    if (!loading && !loadError) updateHomeCache({ labs: laboratories, items, incongruentes });
+  }, [loading, loadError, laboratories, items, incongruentes]);
 
   // Si el texto del buscador parece un código, se busca como código (Enter) y no por nombre.
   const codeLike = isCodeLike(filter);

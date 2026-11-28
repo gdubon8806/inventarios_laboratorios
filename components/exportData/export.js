@@ -39,7 +39,7 @@ export function buildExportBuffer(snapshot, { labIds = null, incluirBajas = fals
 export default async function exportToXLSX(idLab) {
   busy.show('Preparando el Excel del laboratorio… (puede tardar unos segundos)');
   try {
-    const snapshot = await loadSnapshot();
+    const snapshot = await loadSnapshot({ labIds: [idLab] }); // solo este laboratorio
     const lab = snapshot.labs.find((l) => l.id === idLab);
     if (!lab) throw new Error('No se encontró el laboratorio a exportar.');
     const buf = buildExportBuffer(snapshot, { labIds: [idLab] });
@@ -57,7 +57,7 @@ export async function exportLabsToXLSX(labIds) {
   if (!Array.isArray(labIds) || labIds.length === 0) return;
   busy.show(`Preparando el Excel de ${labIds.length === 1 ? 'el laboratorio' : `${labIds.length} laboratorios`}…`);
   try {
-    const snapshot = await loadSnapshot();
+    const snapshot = await loadSnapshot({ labIds }); // solo los elegidos
     const labs = snapshot.labs.filter((l) => labIds.includes(l.id));
     if (labs.length === 0) throw new Error('No se encontraron los laboratorios elegidos.');
     const buf = buildExportBuffer(snapshot, { labIds });

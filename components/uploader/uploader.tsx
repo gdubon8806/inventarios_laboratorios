@@ -4,12 +4,30 @@ import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 // import '../node_modules/react-hot-toast';
 import toast, { Toaster } from 'react-hot-toast';
 
+import Compressor from 'compressorjs';
 import LoadingDots from './loading-dots'
 import ImageCropDialog from './ImageCropDialog';
 import { uploadImage } from '../firebase/uploadImages';
 import { estiloEnfoque } from '../../lib/imagen/enfoque';
 
-// setImgEnfoque (opcional): recibe la zona elegida para las tarjetas. La foto se sube completa, sin recortar.
+// Misma compresión que tenía la app antes del enfoque: JPEG calidad 0.8, lado mayor ≤ 1200 px (unos cientos de KB).
+// Conserva la proporción, así que el enfoque elegido (en % de la foto) sigue siendo válido.
+function comprimir(f: File): Promise<File> {
+  return new Promise((resolve) => {
+    new Compressor(f, {
+      quality: 0.8,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      success: (c: Blob) => resolve(new File([c], f.name, { type: c.type || f.type })),
+      error: (e: Error) => {
+        console.error('No se pudo comprimir la imagen; se usa la original:', e)
+        resolve(f)
+      },
+    })
+  })
+}
+
+// setImgEnfoque (opcional): recibe la zona elegida para las tarjetas. La foto se sube comprimida y sin recortar.
 export default function Uploader({setImgFile, setImgURL, setImgName, setImgEnfoque = undefined}) {
   const [data, setData] = useState<{
     image: string | null
@@ -20,19 +38,20 @@ export default function Uploader({setImgFile, setImgURL, setImgName, setImgEnfoq
 
   const [dragActive, setDragActive] = useState(false)
 
-  // Al elegir (o soltar) una foto se abre el enfoque; al confirmarlo se prepara la foto ORIGINAL para subir.
+  // Al elegir (o soltar) una foto se comprime y se abre el enfoque; al confirmarlo queda lista para subir.
   const [pendiente, setPendiente] = useState<{ src: string; file: File } | null>(null)
   const [enfoque, setEnfoque] = useState<any>(null)
 
-  const elegirArchivo = useCallback((f: File | null | undefined) => {
+  const elegirArchivo = useCallback(async (f: File | null | undefined) => {
     if (!f) return
     if (f.size / 1024 / 1024 > 50) {
       toast.error('El archivo es muy grande (máximo 50MB)')
       return
     }
+    const comprimida = await comprimir(f)
     const reader = new FileReader()
-    reader.onload = (e) => setPendiente({ src: e.target?.result as string, file: f })
-    reader.readAsDataURL(f)
+    reader.onload = (e) => setPendiente({ src: e.target?.result as string, file: comprimida })
+    reader.readAsDataURL(comprimida)
   }, [])
 
   const confirmarEnfoque = (elegido: any) => {

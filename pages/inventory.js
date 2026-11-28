@@ -26,6 +26,7 @@ import { readReportsByLab } from '../components/firebase/read-reports';
 import exportToXLSX from '../components/exportData/export';
 import { normalizeText } from '../lib/codes/normalize';
 import { filterRecords, groupOpenReports } from '../lib/inventory/stats';
+import { markLabDirty } from '../lib/cache/home-cache';
 
 export default function Index() {
     const router = useRouter();
@@ -82,6 +83,8 @@ export function InventoryPage({ role, user }) {
 
     useEffect(() => {
         fetchItems();
+        // Al salir del laboratorio, la pantalla principal relee solo este laboratorio (no todos).
+        return () => markLabDirty(id);
     }, [id]);
 
     const handleRefresh = () => {

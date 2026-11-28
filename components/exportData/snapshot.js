@@ -1,6 +1,6 @@
 // Lectura de la BD (laboratorios, registros y unidades) para exportar y para validar importaciones.
 // Depende de Firebase: la lógica pura vive en lib/import/*.
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
 import { isInsumo } from '../../lib/import/columns';
 
@@ -23,15 +23,20 @@ async function mapLimit(list, limit, fn) {
  * Snapshot completo e IMPARCIAL (incluye dados de baja; el filtrado lo hace cada consumidor).
  * `readAt` se toma ANTES de leer: así cualquier cambio posterior cuenta como "después de exportar".
  * Las unidades se leen por registro (subcolección) para no depender de una regla de collection group.
+ * `labIds` (opcional): lee SOLO los registros/unidades de esos laboratorios (exportar o importar uno o algunos
+ * laboratorios). Sin `labIds` se lee todo. Los laboratorios siempre se leen todos (son pocos documentos).
  */
-export async function loadSnapshot() {
+export async function loadSnapshot({ labIds = null } = {}) {
   const readAt = new Date().toISOString();
-  const [labsSnap, itemsSnap] = await Promise.all([
+  const ids = labIds ? [...new Set(labIds.filter(Boolean))] : null;
+  const [labsSnap, itemSnaps] = await Promise.all([
     getDocs(collection(firestore, 'laboratorios')),
-    getDocs(collection(firestore, 'items')),
+    ids
+      ? Promise.all(ids.map((id) => getDocs(query(collection(firestore, 'items'), where('idLab', '==', id)))))
+      : getDocs(collection(firestore, 'items')).then((s) => [s]),
   ]);
   const labs = labsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  const items = itemsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const items = itemSnaps.flatMap((s) => s.docs.map((d) => ({ id: d.id, ...d.data() })));
 
   const withUnits = items.filter((it) => !isInsumo(it.tipo));
   const perItem = await mapLimit(withUnits, CONCURRENCY, async (it) => {

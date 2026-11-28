@@ -1,6 +1,7 @@
 'use client'
 // Papelera / archivos de baja (solo admin). PLAN_FUNCIONALIDADES_V2.md §5.
-import Head from 'next/head';
+import Head from 'next/head';
+import { invalidateHomeCache } from '../lib/cache/home-cache';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -50,6 +51,9 @@ function quien(p) {
 export default function Bajas() {
   const router = useRouter();
   const { user, isAdmin, loading } = useRole();
+
+  // Restaurar o vaciar la papelera cambia varios laboratorios: la pantalla principal relee todo al volver.
+  useEffect(() => () => invalidateHomeCache(), []);
 
   useEffect(() => {
     if (loading) return;

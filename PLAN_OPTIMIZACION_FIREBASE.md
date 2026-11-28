@@ -1,104 +1,191 @@
 # Plan de optimización de Firebase (lecturas y descargas)
 
-Fecha: 2026-11-28 · Rama: `fix/compresion-imagenes`
+Actualizado: 2026-11-28 · Fase 1 publicada en `main` (PR #7) · Fase 2: **pendiente** (sección 5)
+
+> Para quien continúe (persona o agente de IA): lee todo el documento. La sección 5 es la guía de
+> implementación de la fase 2, con archivos, funciones y criterios de aceptación. Respeta las reglas de la
+> sección 8.
+
+---
 
 ## 1. Problema
 
-Después de publicar las versiones v2 (PR #5, 24/11) y de mejoras (PR #6, 28/11), Firebase empezó a cobrar.
-El plan gratuito (Spark/Blaze sin pasar del gratis) incluye por día **50 000 lecturas de Firestore**, 20 000
-escrituras y **1 GB de descarga de Storage**. Se pasó del límite.
+Desde el despliegue de la v2 de códigos (PR #5, 24/11) las lecturas de Firestore pasaron de casi 0 a
+**~500 000 en unas horas** y Firebase empezó a cobrar. El límite gratuito diario es **50 000 lecturas**,
+20 000 escrituras y 1 GB de descarga de Storage.
 
-> Confirmar en la consola: **Firebase → Uso y facturación** y **Firestore → Uso**. Ver si el gasto es de
-> *lecturas de Firestore* o de *descargas de Storage* y desde qué día subió.
+No hay bucles: ningún efecto de React vuelve a leer solo (revisado en todas las páginas y componentes).
+El gasto sale del **uso normal multiplicado por lo caro de cada acción**.
 
-## 2. Causas encontradas en el código
+## 2. Por qué antes era casi 0
 
-Tamaño aproximado de la base (según el Excel del 26/11): ~1 600 registros y ~2 600+ unidades.
+Antes de la v2, la pantalla principal solo leía la colección `laboratorios` (~20 documentos).
+La v2 agregó estados de códigos por laboratorio y búsqueda global por nombre, y para eso la pantalla
+principal empezó a leer **toda** la colección `items` en cada visita.
 
-| # | Dónde | Qué hacía | Lecturas aprox. |
+## 3. Costo de cada acción
+
+Base aproximada: ~1 600 registros (`items`) y ~2 600+ unidades (`items/{id}/unidades`).
+Firestore cobra 1 lectura por documento devuelto (y mínimo 1 por consulta, aunque venga vacía).
+
+| Acción | Antes de la fase 1 | Después de la fase 1 (hoy) | Con la fase 2 |
 |---|---|---|---|
-| 1 | Pantalla principal (`pages/index.js` → `readAllActiveItems`) | Leía **toda** la colección `items` cada vez que alguien abría o volvía a la pantalla principal (admin o invitado), para los estados de cada laboratorio y la búsqueda por nombre. | **~1 600 por visita**. 10 personas × 20 visitas/día ≈ 320 000/día |
-| 2 | Exportar Excel (`loadSnapshot`) | Leía **todos** los registros y **todas** las unidades (una consulta por registro), aunque se exportara un solo laboratorio. | **~4 200+ por exportación** |
-| 3 | Importar Excel (`pages/importar.js`) | Leía la base completa al validar y otra vez al aplicar (2 veces por archivo; se repite cada vez que se sube un archivo corregido). | **~8 400+ por importación** |
-| 4 | Subir imágenes (`uploader.tsx`) | Con el cambio de «enfoque» las fotos se subían **originales** (3–8 MB de celular) en vez de comprimidas. Cada tarjeta descarga la foto completa. | Descarga de Storage (GB) |
+| Abrir la app (pantalla principal) | ~1 600 | ~1 600 | **~20** |
+| Volver a la pantalla principal (misma pestaña) | ~1 600 | 0 – ~150 | 0 – ~20 |
+| Buscar por nombre en la pantalla principal | 0 (ya cargado) | 0 | ~1 600 la 1.ª vez por pestaña |
+| Entrar a un laboratorio | ~50–150 | ~50–150 | igual |
+| Abrir `/diagnostico` | ~3 200 | ~3 200 | ~1 600 (ver 5.5) |
+| Descargar Excel de 1 laboratorio | ~4 200 | ~100–400 | igual |
+| Descargar Excel de todos | ~4 200 | ~4 200 | igual |
+| Importar Excel de 1 laboratorio | ~8 400 | ~200–800 | igual |
+| Subir una foto | 3–8 MB | ~200–400 KB | ~30–60 KB en tarjetas (ver 6.1) |
 
-## 3. Lo que corrige esta rama (`fix/compresion-imagenes`)
+**Cómo se llega a 500 000:** ~300 aperturas de la pantalla principal (p. ej. 30 personas × 10 visitas),
+o una mezcla de ~150 aperturas + ~20 descargas/subidas de Excel + algunas visitas a `/diagnostico`.
+Navegar los datos en la **consola de Firebase también cuenta** como lecturas.
 
-### 3.1 Compresión de imágenes (causa 4)
-- Vuelve la compresión que tenía la app: `compressorjs`, JPEG calidad 0.8, lado mayor ≤ 1200 px
-  (unos cientos de KB). Se aplica al elegir la foto, antes del enfoque. El enfoque no cambia.
-- Archivo: `components/uploader/uploader.tsx`.
-- **Pendiente manual:** las fotos subidas entre el 28/11 y este arreglo siguen pesadas. Volver a subirlas
-  desde «Editar».
+**Sesión típica** (abrir la app, entrar a 3 laboratorios y volver cada vez):
 
-### 3.2 Caché de la pantalla principal (causa 1)
-- `lib/cache/home-cache.js`: guarda en memoria lo leído (laboratorios, registros activos, incongruentes)
-  durante **10 minutos** mientras la pestaña está abierta.
-- Al **volver** a la pantalla principal no se relee todo:
-  - Si se entró al inventario de un laboratorio, **solo se relee ese laboratorio** (~50–150 lecturas).
-  - La papelera (`/bajas`) y una importación aplicada invalidan todo: la próxima visita relee completo.
-  - Recargar la página (F5) o abrir la app de nuevo también lee completo.
-- Ahorro: las visitas repetidas pasan de ~1 600 lecturas a 0 (o solo el laboratorio tocado).
-- **Limitación:** abrir la app desde cero sigue leyendo ~1 600. Ver fase 2 (punto 4.1).
+| | Lecturas | Ahorro vs. antes |
+|---|---|---|
+| Antes de la fase 1 | ~6 700 | — |
+| Fase 1 (hoy) | ~2 200 | ~65 % |
+| Fase 2 | ~300–450 | **~93–95 %** |
 
-### 3.3 Exportar e importar solo lo necesario (causas 2 y 3)
-- `loadSnapshot({ labIds })` lee solo los registros y unidades de los laboratorios indicados.
-- Exportar un laboratorio (botón dentro del laboratorio o selector de `/importar`): solo ese laboratorio.
-- Importar: solo los laboratorios que trae el archivo (hoja `_meta`), en la validación y al aplicar.
-  El respaldo automático usa esa misma lectura (no lee de nuevo).
-- «Descargar todos» sigue leyendo todo (es lo esperado).
-- Ahorro: exportar/importar un laboratorio pasa de ~4 200 a ~100–400 lecturas.
+Con la fase 2, 300 aperturas costarían ~10 000–15 000 lecturas: dentro del límite gratuito.
 
-### 3.4 Verificación
-- `npm test`: 140 pruebas (5 nuevas de la caché).
-- `next build` compila.
-- **No probado en navegador ni contra Firebase real.** Probar en la vista previa de Vercel:
-  1. Abrir la pantalla principal, entrar a un laboratorio, volver: debe cargar al instante.
-  2. Editar un registro en un laboratorio y volver: el conteo de ese laboratorio se actualiza.
-  3. Subir una foto: debe subir rápido y pesar unos cientos de KB (ver en Storage).
-  4. Exportar un laboratorio e importarlo sin cambios: «Sin cambios», 0 errores.
+## 4. Fase 1 — HECHO (PR #7, en producción)
 
-## 4. Fase 2 (siguiente, si el gasto sigue alto)
+1. **Compresión de imágenes** (`components/uploader/uploader.tsx`): `compressorjs`, JPEG 0.8, lado mayor
+   ≤ 1200 px. Se aplica al elegir la foto, antes del enfoque. *Pendiente manual:* volver a subir desde
+   «Editar» las fotos subidas entre el 28/11 y el PR #7 (quedaron de varios MB).
+2. **Caché de la pantalla principal** (`lib/cache/home-cache.js`, usada en `pages/index.js`): en memoria,
+   10 min, por pestaña. Al volver solo se relee el laboratorio visitado (`markLabDirty` en
+   `pages/inventory.js`). `/bajas` y una importación aplicada invalidan todo. **No ayuda al abrir la app
+   desde cero** (eso lo resuelve la fase 2).
+3. **Exportar/importar por laboratorio**: `loadSnapshot({ labIds })` en
+   `components/exportData/snapshot.js`. Exportar 1 laboratorio o los elegidos lee solo esos; importar lee
+   solo los laboratorios del archivo (hoja `_meta`).
 
-### 4.1 Documento de resumen para la pantalla principal (mayor ahorro restante)
-- Guardar en un documento `resumenes/laboratorios` los conteos por laboratorio
-  (`total`, `sinCodigo`, `pendienteImprimir`, `impreso`, `incongruentes`, `porValidar`).
-- La pantalla principal lee **1 documento** en vez de ~1 600.
-- La búsqueda por nombre de toda la app carga los registros **solo cuando alguien escribe** en el buscador.
-- Mantener el resumen: recalcular el laboratorio afectado después de cada cambio (ya existe
-  `computeLabCodeStatus`), o con una Cloud Function (requiere plan Blaze).
-- Requiere: regla de Firestore para `resumenes` (lectura con sesión, escritura admin).
+## 5. Fase 2 — GUÍA DE IMPLEMENTACIÓN (pendiente)
 
-### 4.2 Caché persistente en el navegador
-- Guardar la caché de la pantalla principal en `localStorage` (versión reducida de cada registro), para que
-  abrir la app de nuevo en el mismo dispositivo no lea todo. Alternativa: caché persistente de Firestore
-  (`persistentLocalCache`) con lecturas desde caché cuando sea posible.
+### 5.1 Resumen de conteos dentro de cada laboratorio (el mayor ahorro)
 
-### 4.3 Miniaturas de imágenes
-- Subir además una miniatura (~400 px, ~30–60 KB) para tarjetas y listas; la imagen de 1200 px solo para
-  «Ver completa» y el detalle. Reduce la descarga de Storage varias veces más.
-- Opción sin código: extensión de Firebase **Resize Images** (requiere Blaze).
-- Agregar `Cache-Control` largo a las imágenes subidas (`uploadBytes(..., { cacheControl: 'public,max-age=31536000' })`)
-  para que el navegador no las descargue de nuevo.
+**Idea:** guardar los conteos de cada laboratorio en su propio documento `laboratorios/{id}`, en un campo
+`resumen`. La pantalla principal **ya lee** todos los laboratorios (`readLab()`), así que los conteos salen
+gratis y deja de hacer falta `readAllActiveItems()` al abrir.
 
-### 4.4 Seguridad y abuso
-- La contraseña del invitado es pública (va en `NEXT_PUBLIC_GUEST_PASSWORD`). Cualquiera puede entrar y
-  generar lecturas. Cambiarla en Firebase y en Vercel (sigue pendiente) y activar **App Check**
-  (reCAPTCHA v3) para que solo la app pueda leer Firestore/Storage.
-- Revisar que el invitado sea de solo lectura en `firestore.rules` (publicarlas solo después de probarlas en el emulador).
+Ventaja de esta opción: **no hace falta una colección ni una regla nueva**. Las reglas actuales ya permiten
+leer `laboratorios` con sesión y escribirlo como admin.
 
-## 5. Controles de costo (hacer ya, sin código)
-1. **Alerta de presupuesto**: Google Cloud → Facturación → Presupuestos y alertas (p. ej. US$5, avisos al 50/90/100 %).
-2. Revisar el uso diario en **Firestore → Uso** los días siguientes al despliegue de esta rama.
-3. Evitar exportar/importar «todos» seguido: usar el selector de laboratorios.
-4. No usar «Descargar todos» para revisar un solo laboratorio.
+**Forma del campo** (en `laboratorios/{id}`):
 
-## 6. Resumen de impacto esperado
+```js
+resumen: {
+  total, sinCodigo, pendienteImprimir, impreso, incongruentes, porValidar, // = computeLabCodeStatus(...)
+  requiereValidacion,          // nº de registros activos con requiereValidacion === true
+  actualizado: serverTimestamp(),
+  version: 1,
+}
+```
 
-| Acción | Antes | Con esta rama | Con fase 2 |
-|---|---|---|---|
-| Abrir la app (pantalla principal) | ~1 600 | ~1 600 | ~1–30 |
-| Volver a la pantalla principal | ~1 600 | 0 – ~150 | 0 |
-| Exportar 1 laboratorio | ~4 200 | ~100–400 | igual |
-| Importar 1 laboratorio | ~8 400 | ~200–800 | igual |
-| Subir/ver una foto nueva | 3–8 MB | ~200–400 KB | ~30–60 KB en tarjetas |
+**Pasos:**
+
+1. Crear `components/firebase/lab-summary.js`:
+   - `computeLabSummary(records)` → `{ ...computeLabCodeStatus(records), requiereValidacion: n }`
+     (pura; probarla en `lib/` con `node --test` si se separa la parte pura).
+   - `recalcularResumenLab(labId)`: `readLabRecords(labId)` (ya existe en
+     `components/firebase/generate-missing-codes.js`) → `computeLabSummary` →
+     `updateDoc(doc(firestore, 'laboratorios', labId), { resumen: {...} })`.
+     **Sin** `auditFields()` (no es una edición del laboratorio).
+     Devuelve el resumen. Si falla (p. ej. el usuario es invitado), registrar y no romper la pantalla.
+   - `recalcularTodosLosResumenes()`: una lectura de `items` agrupada por `idLab` y un `writeBatch` con
+     todos los laboratorios. Solo admin.
+2. **Mantener el resumen al día** — llamar `recalcularResumenLab(labId)` (solo si `isAdmin`) después de
+   cualquier escritura que cambie registros de ese laboratorio:
+   - `pages/inventory.js`: en `handleRefresh` (se llama tras guardar, crear, dar de baja, cambiar tipo,
+     cantidad, unidades, reportes…). Hacerlo una vez por refresco, no por cada componente.
+   - `pages/index.js`: en `reloadLabStatus(labId)` (tras generar códigos o marcar impresas).
+   - `pages/importar.js`: tras aplicar, para cada `labIdsDe(parsed)`.
+   - `pages/bajas.js`: tras restaurar o eliminar, para los laboratorios afectados (o
+     `recalcularTodosLosResumenes()`).
+   - `components/addItemCard.js` / alta de registros: el laboratorio del registro nuevo.
+3. **Pantalla principal** (`pages/index.js`, `fetchLabs`):
+   - Leer solo `readLab()`. Estados: `statuses[lab.id] = lab.resumen`; incongruentes:
+     `lab.resumen.requiereValidacion`.
+   - **Quitar** `readAllActiveItems()` y `readIncongruentesPorLab()` del arranque.
+   - **Respaldo:** si un laboratorio no tiene `resumen` (o `version` distinta), y el usuario es admin,
+     calcularlo con `recalcularResumenLab` (o `recalcularTodosLosResumenes` si faltan varios). Si es
+     invitado, mostrar la tarjeta sin conteos (no fallar).
+   - Agregar en `/diagnostico` (o en la pantalla principal para admin) un botón «Recalcular resúmenes»
+     que llame `recalcularTodosLosResumenes()`.
+4. **Búsqueda por nombre bajo demanda** (`pages/index.js`, `itemResults`):
+   - Cargar `readAllActiveItems()` **solo** cuando el texto del buscador tenga ≥ 2 caracteres y no sea un
+     código (`isCodeLike`). Mostrar «Buscando…» mientras carga.
+   - Guardar el resultado en la caché de la fase 1 (`home-cache`) para no repetirlo en la misma pestaña.
+5. **Tarjetas y panel lateral:** `LaboratoryCard` y `SidePanel` reciben `status`/`statuses`; no cambian si
+   `statuses` sigue teniendo la misma forma.
+
+**Criterios de aceptación:**
+- Abrir la pantalla principal como invitado o admin: ~20 lecturas (una por laboratorio), no ~1 600.
+  Verificar en Firestore → Uso, o contando en la pestaña Red del navegador.
+- Los conteos de cada tarjeta coinciden con los de antes (comparar con la versión actual en producción).
+- Editar un registro y volver: el conteo de ese laboratorio se actualiza.
+- Buscar por nombre sigue encontrando registros de todos los laboratorios.
+- `npm test` pasa; agregar pruebas de `computeLabSummary`.
+
+### 5.2 Caché persistente (opcional, después de 5.1)
+
+Con 5.1 abrir la app ya cuesta ~20 lecturas, así que esto es opcional. Si hiciera falta: guardar en
+`localStorage` la lista de laboratorios con su `resumen` y la hora; reutilizarla si tiene < 10 min.
+
+### 5.3 App Check y usuario invitado (seguridad y abuso)
+
+- La contraseña del invitado es pública (`NEXT_PUBLIC_GUEST_PASSWORD` se ve en el navegador): cualquiera
+  puede iniciar sesión y generar lecturas.
+- **Cambiarla** en Firebase Authentication y en Vercel (`NEXT_PUBLIC_GUEST_PASSWORD`) + Redeploy.
+- **App Check** con reCAPTCHA v3: Firebase → App Check → registrar la app web → `initializeAppCheck` en
+  `firebaseConfig.js` con la clave del sitio (variable `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`). Primero en modo
+  *monitorear*; cuando las métricas muestren solo tráfico verificado, **aplicar** en Firestore y Storage.
+- Confirmar que el invitado es de solo lectura en `firestore.rules` (probar en el emulador antes de publicar).
+
+### 5.4 Imágenes: miniaturas y caché del navegador
+
+- Subir además una miniatura (~400 px, ~30–60 KB) con `compressorjs` y guardar `imgThumbUrl` /
+  `imgThumbName` en el registro/laboratorio. Usarla en tarjetas, listas y panel; la de 1200 px solo en
+  detalle y «Ver completa». Al borrar la imagen, borrar ambas.
+- En `components/firebase/uploadImages.js`, subir con
+  `uploadBytes(ref, file, { cacheControl: 'public,max-age=31536000' })` (los nombres ya son únicos), para
+  que el navegador no vuelva a descargar la misma foto.
+
+### 5.5 `/diagnostico` más barato
+
+`pages/diagnostico.js` lee todos los `items` y luego vuelve a leer cada laboratorio con `readItem`
+(~3 200 lecturas). Calcular «visibles» a partir de la primera lectura (mismo filtro que `readItem`:
+`idLab === lab.id && activo !== false`) para quedar en ~1 600. Usarlo solo cuando haga falta.
+
+## 6. Orden recomendado
+
+1. 5.3 sin código: cambiar la contraseña del invitado (hoy).
+2. **5.1** resumen + búsqueda bajo demanda (el mayor ahorro).
+3. 5.5 diagnóstico.
+4. 5.4 miniaturas y `cacheControl`.
+5. 5.3 App Check.
+6. 5.2 solo si sigue haciendo falta.
+
+## 7. Controles de costo (sin código, hacer ya)
+
+1. **Alerta de presupuesto:** Google Cloud → Facturación → Presupuestos y alertas (p. ej. US$5; avisos al
+   50/90/100 %). Firebase no tiene tope duro: la alerta avisa, no corta.
+2. Revisar **Firestore → Uso** (gráfica por hora) para ver de dónde vienen los picos: horas de clase =
+   pantalla principal; momentos de pruebas = Excel.
+3. Mientras no esté la fase 2: no descargar/subir el Excel de «todos» seguido (usar el selector de
+   laboratorios), no abrir `/diagnostico` sin necesidad y evitar navegar datos en la consola de Firebase.
+
+## 8. Reglas para quien implemente
+
+- Trabajar en una rama nueva desde `main`; no hacer `--force`, squash ni cambiar autores de commits.
+- No publicar `firestore.rules` ni correr `scripts/migrate-v3.js --apply` sin confirmación del dueño.
+  (La fase 2.1 está diseñada para no necesitar reglas nuevas.)
+- No escribir contraseñas, llaves ni valores de variables de entorno en el repositorio.
+- Antes de fusionar: `npm test`, `next build`, y probar en la vista previa de Vercel los criterios de 5.1.

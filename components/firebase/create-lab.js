@@ -5,7 +5,8 @@ import { auditFields } from './audit';
 // Función para agregar un nuevo laboratorio a Firestore.
 // `ubicacion` es opcional (campo nuevo del plan V2). Los laboratorios NO llevan código de barras.
 // Devuelve el id del documento, o false si falló (los llamadores comprueban `=== false`).
-export default async function createLab(name, description, imgurl, imgname, ubicacion = '') {
+// `imgEnfoque` (opcional): zona de la foto que se ve en la tarjeta (la foto se guarda completa).
+export default async function createLab(name, description, imgurl, imgname, ubicacion = '', imgEnfoque = null) {
     try {
         const laboratoriosRef = collection(firestore, 'laboratorios');
         const nuevoLaboratorio = {
@@ -13,6 +14,7 @@ export default async function createLab(name, description, imgurl, imgname, ubic
             description: description,
             imgurl: imgurl,
             imgname: imgname,
+            imgEnfoque: imgurl ? imgEnfoque : null,
             ubicacion: (ubicacion || '').trim(),
             activo: true,
             ...auditFields(),

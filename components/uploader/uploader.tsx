@@ -5,10 +5,12 @@ import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 import toast, { Toaster } from 'react-hot-toast';
 
 import LoadingDots from './loading-dots'
-import Compressor from 'compressorjs';
+import ImageCropDialog from './ImageCropDialog';
 import { uploadImage } from '../firebase/uploadImages';
+import { estiloEnfoque } from '../../lib/imagen/enfoque';
 
-export default function Uploader({setImgFile, setImgURL, setImgName}) {
+// setImgEnfoque (opcional): recibe la zona elegida para las tarjetas. La foto se sube completa, sin recortar.
+export default function Uploader({setImgFile, setImgURL, setImgName, setImgEnfoque = undefined}) {
   const [data, setData] = useState<{
     image: string | null
   }>({
@@ -18,34 +20,37 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
 
   const [dragActive, setDragActive] = useState(false)
 
+  // Al elegir (o soltar) una foto se abre el enfoque; al confirmarlo se prepara la foto ORIGINAL para subir.
+  const [pendiente, setPendiente] = useState<{ src: string; file: File } | null>(null)
+  const [enfoque, setEnfoque] = useState<any>(null)
+
+  const elegirArchivo = useCallback((f: File | null | undefined) => {
+    if (!f) return
+    if (f.size / 1024 / 1024 > 50) {
+      toast.error('El archivo es muy grande (máximo 50MB)')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (e) => setPendiente({ src: e.target?.result as string, file: f })
+    reader.readAsDataURL(f)
+  }, [])
+
+  const confirmarEnfoque = (elegido: any) => {
+    if (!pendiente) return
+    setFile(pendiente.file)
+    setImgFile(pendiente.file)
+    setEnfoque(elegido)
+    setImgEnfoque?.(elegido)
+    setData((prev) => ({ ...prev, image: pendiente.src }))
+    setPendiente(null)
+  }
+
   const onChangePicture = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.currentTarget.files && event.currentTarget.files[0]
-      if (file) {
-        if (file.size / 1024 / 1024 > 50) {
-          toast.error('File size too big (max 50MB)')
-        } else {
-          new Compressor(file, {
-            quality: 0.8,
-            maxWidth: 1200,
-            maxHeight:  1200,
-            success: (compressedFile) => {
-              setFile(compressedFile);
-              setImgFile(compressedFile);
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                setData((prev) => ({ ...prev, image: e.target?.result as string }));
-              };
-              reader.readAsDataURL(compressedFile);
-            },
-            error: (error) => {
-              console.error('Compression error:', error);
-            },
-          });
-        }
-      }
+      elegirArchivo(event.currentTarget.files && event.currentTarget.files[0])
+      event.currentTarget.value = '' // permite volver a elegir la misma foto
     },
-    [setData]
+    [elegirArchivo]
   )
 
   const [saving, setSaving] = useState(false)
@@ -144,23 +149,7 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
               e.stopPropagation()
               setDragActive(false)
 
-              const file = e.dataTransfer.files && e.dataTransfer.files[0]
-              if (file) {
-                if (file.size / 1024 / 1024 > 50) {
-                  toast.error('File size too big (max 50MB)')
-                } else {
-                  setImgFile(file);
-                  setFile(file)
-                  const reader = new FileReader()
-                  reader.onload = (e) => {
-                    setData((prev) => ({
-                      ...prev,
-                      image: e.target?.result as string,
-                    }))
-                  }
-                  reader.readAsDataURL(file)
-                }
-              }
+              elegirArchivo(e.dataTransfer.files && e.dataTransfer.files[0])
             }}
           />
           <div
@@ -196,6 +185,9 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
             <p className="mt-2 text-center text-sm text-gray-500">
               Tamaño máximo: 50MB
             </p>
+            <p className="mt-1 text-center text-xs text-gray-400">
+              Recomendado: foto horizontal de al menos 800×600. Podrás elegir qué parte se ve en las tarjetas.
+            </p>
           </div>
           {data.image && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -203,6 +195,7 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
               src={data.image}
               alt="Preview"
               className="h-full w-full rounded-md object-cover"
+              style={estiloEnfoque(enfoque)}
             />
           )}
         </label>
@@ -233,6 +226,15 @@ export default function Uploader({setImgFile, setImgURL, setImgName}) {
         )}
       </button> */}
     </form>
+    {pendiente && (
+      <ImageCropDialog
+        open
+        src={pendiente.src}
+        enfoque={null}
+        onCancel={() => setPendiente(null)}
+        onConfirm={confirmarEnfoque}
+      />
+    )}
   </>
   )
 }

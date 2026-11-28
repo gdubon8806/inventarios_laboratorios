@@ -4,6 +4,8 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import ZoomableImage from './ZoomableImage';
+import AdjustImageButton from './uploader/AdjustImageButton';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -60,6 +62,7 @@ function EditLabCard({ lab, open, close, setLaboratories }) {
     const [imgurl, setImgURL] = useState(lab.imgurl ?? '');
     const [imgname, setImgName] = useState(lab.imgname ?? '');
     const [imgFile, setImgFile] = useState(null);
+    const [imgEnfoque, setImgEnfoque] = useState(lab.imgEnfoque ?? null);
     const [busy, setBusy] = useState(false);
 
     const quitarImagen = async () => {
@@ -67,10 +70,10 @@ function EditLabCard({ lab, open, close, setLaboratories }) {
             const ok = await deleteImage(`images/${imgname}`);
             if (!ok) { toast.error('No se pudo eliminar la imagen.'); return; }
         }
-        const newData = { imgurl: '', imgname: '' };
+        const newData = { imgurl: '', imgname: '', imgEnfoque: null };
         const success = await updateLab(lab.id, newData);
         if (!success) { toast.error('No se pudo actualizar el laboratorio.'); return; }
-        setImgURL(''); setImgName(''); setImgFile(null);
+        setImgURL(''); setImgName(''); setImgFile(null); setImgEnfoque(null);
         setLaboratories((prev) => prev.map((l) => (l.id === lab.id ? { ...l, ...newData } : l)));
         toast('Imagen eliminada.');
     };
@@ -91,7 +94,7 @@ function EditLabCard({ lab, open, close, setLaboratories }) {
                 url = res[1]; nombreImg = res[2];
                 setImgURL(url); setImgName(nombreImg); setImgFile(null);
             }
-            const newData = { name: name.trim(), description, ubicacion: ubicacion.trim(), imgurl: url, imgname: nombreImg };
+            const newData = { name: name.trim(), description, ubicacion: ubicacion.trim(), imgurl: url, imgname: nombreImg, imgEnfoque: url ? imgEnfoque : null };
             const success = await updateLab(lab.id, newData);
             if (success) {
                 setLaboratories((prev) => prev.map((l) => (l.id === lab.id ? { ...l, ...newData } : l)));
@@ -117,14 +120,16 @@ function EditLabCard({ lab, open, close, setLaboratories }) {
             <Box sx={{ p: { xs: 1.5, sm: 3 }, display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'minmax(240px, 340px) 1fr' }, alignItems: 'start' }}>
                 <Box>
                     <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: '#EEF3FB', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {imgurl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgurl} alt={lab.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : <Typography variant="body2" color="text.secondary">Sin imagen</Typography>}
+                        <ZoomableImage src={imgurl} alt={lab.name} enfoque={imgEnfoque} fallback={<Typography variant="body2" color="text.secondary">Sin imagen</Typography>} />
                     </Box>
-                    {imgurl && <Button size="small" color="error" onClick={quitarImagen} sx={{ mt: 1 }}>Quitar imagen</Button>}
+                    {imgurl && (
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                            <AdjustImageButton src={imgFile ? '' : imgurl} enfoque={imgEnfoque} onAdjusted={setImgEnfoque} />
+                            <Button size="small" color="error" onClick={quitarImagen}>Quitar imagen</Button>
+                        </Box>
+                    )}
                     <Box sx={{ mt: 1 }}>
-                        <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} />
+                        <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} setImgEnfoque={setImgEnfoque} />
                     </Box>
                 </Box>
                 <Box sx={{ bgcolor: '#F1F5FC', borderRadius: '16px', p: 2.25, display: 'grid', gap: 1.75 }}>

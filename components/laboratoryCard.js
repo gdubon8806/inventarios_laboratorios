@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 
 import Link from 'next/link';
 
+import ZoomableImage from './ZoomableImage';
+
 import OptionsLabCard from './optionsLabCard';
 import GenerateCodesButton from './GenerateCodesButton';
 import LabPrintButton from './LabPrintButton';
@@ -45,11 +47,9 @@ export default function LaboratoryCard({
         component={Link} href={href} onClick={() => onSelect?.(lab)} aria-label={`Abrir ${lab.name}`}
         sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' }}
       >
-        <Box sx={{ m: 1, mb: 0, height: { xs: 150, sm: 160 }, borderRadius: '12px', overflow: 'hidden', bgcolor: M3.surfaceContainer, flexShrink: 0 }}>
-          {lab.imgurl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={lab.imgurl} alt="Imagen de laboratorio" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          ) : null}
+        <Box sx={{ m: 1, mb: 0, height: { xs: 168, sm: 180 }, borderRadius: '12px', overflow: 'hidden', bgcolor: M3.surfaceContainer, flexShrink: 0 }}>
+          {/* Tocar la imagen abre el laboratorio; solo el botón de la esquina la muestra completa */}
+          <ZoomableImage src={lab.imgurl} alt="Imagen de laboratorio" enfoque={lab.imgEnfoque} />
         </Box>
         <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
           <Typography component="h3" sx={{ fontWeight: 600, fontSize: '1.02rem', lineHeight: 1.2, ...clamp(2) }} title={lab.name}>{lab.name}</Typography>

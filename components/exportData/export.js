@@ -52,6 +52,27 @@ export default async function exportToXLSX(idLab) {
   }
 }
 
+/** Exporta solo los laboratorios elegidos (selector de /importar). Un archivo con una pareja de hojas por laboratorio. */
+export async function exportLabsToXLSX(labIds) {
+  if (!Array.isArray(labIds) || labIds.length === 0) return;
+  busy.show(`Preparando el Excel de ${labIds.length === 1 ? 'el laboratorio' : `${labIds.length} laboratorios`}…`);
+  try {
+    const snapshot = await loadSnapshot();
+    const labs = snapshot.labs.filter((l) => labIds.includes(l.id));
+    if (labs.length === 0) throw new Error('No se encontraron los laboratorios elegidos.');
+    const buf = buildExportBuffer(snapshot, { labIds });
+    const nombre = labs.length === 1
+      ? `Inventario - ${sanitizeSheetName(labs[0].name, 'Laboratorio')}`
+      : `Laboratorios (${labs.length})`;
+    download(buf, `${nombre} (${stamp()}).xlsx`);
+  } catch (e) {
+    console.error(e);
+    alert(`Error al exportar: ${e.message}`);
+  } finally {
+    busy.hide();
+  }
+}
+
 /** Exporta TODOS los laboratorios en un solo libro (botón de la pantalla principal). */
 export async function exportAllToXLSX({ incluirBajas = false, fileName } = {}) {
   busy.show('Preparando el Excel de todos los laboratorios… (puede tardar un poco)');

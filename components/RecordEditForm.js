@@ -16,6 +16,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import ZoomableImage from './ZoomableImage';
+import AdjustImageButton from './uploader/AdjustImageButton';
 import { Timestamp } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -52,6 +54,7 @@ export default function RecordEditForm({ data, onSaved }) {
   const [imgURL, setImgURL] = useState(data.imgurl ?? '');
   const [imgName, setImgName] = useState(data.imgname ?? '');
   const [imgFile, setImgFile] = useState(null);
+  const [imgEnfoque, setImgEnfoque] = useState(data.imgEnfoque ?? null);
   const [busy, setBusy] = useState(false);
 
   const quitarImagen = async () => {
@@ -59,8 +62,8 @@ export default function RecordEditForm({ data, onSaved }) {
     const ok = await deleteImage(`images/${imgName}`);
     if (!ok) { toast.error('No se pudo eliminar la imagen.'); return; }
     try {
-      await updateItem(data.id, { imgurl: '', imgname: '' });
-      setImgURL(''); setImgName(''); setImgFile(null);
+      await updateItem(data.id, { imgurl: '', imgname: '', imgEnfoque: null });
+      setImgURL(''); setImgName(''); setImgFile(null); setImgEnfoque(null);
       toast('Imagen eliminada.');
       onSaved?.();
     } catch (error) {
@@ -93,6 +96,7 @@ export default function RecordEditForm({ data, onSaved }) {
       }
       const nuevo = {
         equipo: equipo.trim(), ubicacion, columnadelocalizacion: columna, observaciones, imgurl, imgname,
+        imgEnfoque: imgurl ? imgEnfoque : null,
         tieneVencimiento: tieneVenc, fechaVencimiento: venc.fecha ? Timestamp.fromDate(venc.fecha) : null,
       };
       if (corregir) { nuevo.tipo = tipo; nuevo.cantidad = cantidad; }
@@ -115,14 +119,16 @@ export default function RecordEditForm({ data, onSaved }) {
       {/* Imagen */}
       <Box>
         <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: '#EEF3FB', aspectRatio: { xs: '4 / 3', md: '4 / 3' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {imgURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imgURL} alt={data.equipo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : <Typography variant="body2" color="text.secondary">Sin imagen</Typography>}
+          <ZoomableImage src={imgURL} alt={data.equipo} enfoque={imgEnfoque} fallback={<Typography variant="body2" color="text.secondary">Sin imagen</Typography>} />
         </Box>
-        {imgURL && <Button size="small" color="error" onClick={quitarImagen} sx={{ mt: 1 }}>Quitar imagen</Button>}
+        {imgURL && (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+            <AdjustImageButton src={imgFile ? '' : imgURL} enfoque={imgEnfoque} onAdjusted={setImgEnfoque} />
+            <Button size="small" color="error" onClick={quitarImagen}>Quitar imagen</Button>
+          </Box>
+        )}
         <Box sx={{ mt: 1 }}>
-          <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} />
+          <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} setImgEnfoque={setImgEnfoque} />
         </Box>
       </Box>
 

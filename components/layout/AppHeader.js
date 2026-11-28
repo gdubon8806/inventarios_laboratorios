@@ -11,7 +11,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { M3 } from '../../styles/theme';
 
-export default function AppHeader({ title = 'Inventario de laboratorios', subtitle, backHref, onLogout, children }) {
+// `showLabels`: en celular también se muestra el texto de los botones (para el invitado, que tiene pocos botones).
+export default function AppHeader({ title = 'Inventario de laboratorios', subtitle, backHref, onLogout, showLabels = false, children }) {
   return (
     <Box
       component="header"
@@ -44,8 +45,8 @@ export default function AppHeader({ title = 'Inventario de laboratorios', subtit
           display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75, mt: { xs: 1, sm: 1.25 },
           justifyContent: { xs: 'space-between', sm: 'flex-start' },
           // En celular solo se ven los íconos (el texto se oculta con tamaño 0) para que quede completo en una sola fila
-          '& .MuiButton-root': { fontSize: { xs: 0, sm: '.78rem' }, lineHeight: 1.2, py: 0.6, px: { xs: 1, sm: 1.75 }, minHeight: { xs: 40, sm: 34 }, minWidth: { xs: 40, sm: 0 }, whiteSpace: 'nowrap' },
-          '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 }, ml: { xs: 0, sm: -0.5 }, '& svg': { fontSize: { xs: '1.4rem', sm: '1.15rem' } } },
+          '& .MuiButton-root': { fontSize: { xs: showLabels ? '.78rem' : 0, sm: '.78rem' }, lineHeight: 1.2, py: 0.6, px: { xs: showLabels ? 1.5 : 1, sm: 1.75 }, minHeight: { xs: 40, sm: 34 }, minWidth: { xs: showLabels ? 0 : 40, sm: 0 }, whiteSpace: 'nowrap' },
+          '& .MuiButton-startIcon': { mr: { xs: showLabels ? 0.5 : 0, sm: 0.5 }, ml: { xs: showLabels ? -0.5 : 0, sm: -0.5 }, '& svg': { fontSize: { xs: showLabels ? '1.15rem' : '1.4rem', sm: '1.15rem' } } },
           // Botones secundarios tonales: relleno suave sin borde
           '& .MuiButton-outlined': { border: 'none', bgcolor: '#fff', color: M3.primary, boxShadow: '0 1px 2px rgba(0,0,0,.08)', '&:hover': { bgcolor: M3.primaryContainer } },
         }}

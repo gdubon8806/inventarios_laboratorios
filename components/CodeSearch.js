@@ -127,6 +127,8 @@ export default function CodeSearch({ isAdmin, onResult, externalQuery, autoFocus
               if (e.key === 'Enter') { e.preventDefault(); search(vista); }
             }}
             placeholder={movil ? 'Solo los números' : 'Escanea la etiqueta o escribe el código'}
+            // El placeholder va pequeño, sin mayúsculas ni espaciado de letras, para que se lea completo
+            sx={{ '& input::placeholder': { fontSize: '.8rem', textTransform: 'none', letterSpacing: 0, opacity: 0.75 } }}
             inputProps={{
               'aria-label': movil ? 'números del código' : 'código de la etiqueta',
               inputMode: movil && !hayLetras ? 'numeric' : 'text', autoComplete: 'off',

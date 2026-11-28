@@ -58,6 +58,7 @@ function AddLabForm({ close, setLaboratories }) {
     const [imgURL, setImgURL] = useState('');
     const [imgName, setImgName] = useState('');
     const [imgFile, setImgFile] = useState(null);
+    const [imgEnfoque, setImgEnfoque] = useState(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -75,7 +76,7 @@ function AddLabForm({ close, setLaboratories }) {
                             setImgURL(res[1]);
                             setImgName(res[2]);
                             toast("¡Se ha insertado la imagen en base de datos exitosamente!")
-                            const result = await createLab(name, description, res[1], res[2], ubicacion);
+                            const result = await createLab(name, description, res[1], res[2], ubicacion, imgEnfoque);
                             if (result === false) {
                                 toast.error("¡Vaya! Ocurrió un error al insertar el laboratorio.");
                                 return;
@@ -83,7 +84,7 @@ function AddLabForm({ close, setLaboratories }) {
 
                             toast("¡Se ha insertado el nuevo laboratorio exitosamente en base de datos!");
 
-                            setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, ubicacion: ubicacion.trim(), activo: true, imgurl: res[1], imgname: res[2] }]);
+                            setLaboratories(prevLabs => [...prevLabs, { id: result, name, description, ubicacion: ubicacion.trim(), activo: true, imgurl: res[1], imgname: res[2], imgEnfoque }]);
 
                             setName('');
                             setDescription('');
@@ -135,7 +136,7 @@ function AddLabForm({ close, setLaboratories }) {
                 <label>Ubicación:</label>
                 <input type="text" name="ubicacion" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder='Ej. Edificio B, 2.º piso...' />
             </form>
-            <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName}></Uploader>
+            <Uploader setImgFile={setImgFile} setImgURL={setImgURL} setImgName={setImgName} setImgEnfoque={setImgEnfoque}></Uploader>
             <div className={FormStyles.btnsAddLabContainer}>
                 <Button onClick={close}>Cancelar</Button>
                 <Button onClick={handleSubmit}>Agregar</Button>

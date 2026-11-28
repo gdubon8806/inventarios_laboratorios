@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import ZoomableImage from './ZoomableImage';
 import ItemDetail from './ItemDetail';
 import ReportsList from './ReportsList';
 import ReportModal from './ReportModal';
@@ -64,11 +65,12 @@ export default function RecordCard({
       }}
     >
       <CardActionArea onClick={() => setDetalle('ver')} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' }}>
-        <Box sx={{ m: 1, mb: 0, height: { xs: 160, sm: 180 }, borderRadius: '12px', overflow: 'hidden', bgcolor: '#EEF3FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          {data.imgurl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.imgurl} alt={`Imagen de ${data.equipo}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : <Typography variant="caption" color="text.secondary">Sin imagen</Typography>}
+        <Box sx={{ m: 1, mb: 0, height: { xs: 192, sm: 216 }, borderRadius: '12px', overflow: 'hidden', bgcolor: '#EEF3FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {/* Tocar la imagen abre el detalle; solo el botón de la esquina la muestra completa */}
+          <ZoomableImage
+            src={data.imgurl} alt={`Imagen de ${data.equipo}`} enfoque={data.imgEnfoque}
+            fallback={<Typography variant="caption" color="text.secondary">Sin imagen</Typography>}
+          />
         </Box>
         <Box sx={{ p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
           <Typography sx={{ fontWeight: 700, fontSize: '.98rem', lineHeight: 1.2, ...clamp(2) }}>{data.equipo}</Typography>
